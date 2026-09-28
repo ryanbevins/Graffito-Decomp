@@ -1058,6 +1058,60 @@ void TMapObjTurn::turn()
 	}
 }
 
+static inline void makeTurnMtxRotX(MtxPtr mtx, f32 deg)
+{
+	f32 s = JMASSin((s16)(deg * 182.04445f));
+	f32 c = JMASCos((s16)(deg * 182.04445f));
+	mtx[0][0] = 1.0f;
+	mtx[0][1] = 0.0f;
+	mtx[0][2] = 0.0f;
+	mtx[0][3] = 0.0f;
+	mtx[1][0] = 0.0f;
+	mtx[1][1] = c;
+	mtx[1][2] = -s;
+	mtx[1][3] = 0.0f;
+	mtx[2][0] = 0.0f;
+	mtx[2][1] = s;
+	mtx[2][2] = c;
+	mtx[2][3] = 0.0f;
+}
+
+static inline void makeTurnMtxRotY(MtxPtr mtx, f32 deg)
+{
+	f32 s = JMASSin((s16)(deg * 182.04445f));
+	f32 c = JMASCos((s16)(deg * 182.04445f));
+	mtx[0][0] = c;
+	mtx[0][1] = 0.0f;
+	mtx[0][2] = s;
+	mtx[0][3] = 0.0f;
+	mtx[1][0] = 0.0f;
+	mtx[1][1] = 1.0f;
+	mtx[1][2] = 0.0f;
+	mtx[1][3] = 0.0f;
+	mtx[2][0] = -s;
+	mtx[2][1] = 0.0f;
+	mtx[2][2] = c;
+	mtx[2][3] = 0.0f;
+}
+
+static inline void makeTurnMtxRotZ(MtxPtr mtx, f32 deg)
+{
+	f32 s = JMASSin((s16)(deg * 182.04445f));
+	f32 c = JMASCos((s16)(deg * 182.04445f));
+	mtx[0][0] = c;
+	mtx[0][1] = -s;
+	mtx[0][2] = 0.0f;
+	mtx[0][3] = 0.0f;
+	mtx[1][0] = s;
+	mtx[1][1] = c;
+	mtx[1][2] = 0.0f;
+	mtx[1][3] = 0.0f;
+	mtx[2][0] = 0.0f;
+	mtx[2][1] = 0.0f;
+	mtx[2][2] = 1.0f;
+	mtx[2][3] = 0.0f;
+}
+
 void TMapObjTurn::control()
 {
 	TMapObjBase::control();
@@ -1076,37 +1130,11 @@ void TMapObjTurn::control()
 			rot += 360.0f;
 		mRotation.x = rot;
 
-		f32 sx = JMASSin((s16)(rot * 182.04445f));
-		f32 cx = JMASCos((s16)(rot * 182.04445f));
-		mtx[0][0] = 1.0f;
-		mtx[0][1] = 0.0f;
-		mtx[0][2] = 0.0f;
-		mtx[0][3] = 0.0f;
-		mtx[1][0] = 0.0f;
-		mtx[1][1] = cx;
-		mtx[1][2] = -sx;
-		mtx[1][3] = 0.0f;
-		mtx[2][0] = 0.0f;
-		mtx[2][1] = sx;
-		mtx[2][2] = cx;
-		mtx[2][3] = 0.0f;
-
+		makeTurnMtxRotX(mtx, mRotation.x);
 		if (mRotation.y != 0.0f) {
+			makeTurnMtxRotX(mtx, mRotation.x);
 			Mtx yMtx;
-			f32 sy = JMASSin((s16)(mRotation.y * 182.04445f));
-			f32 cy = JMASCos((s16)(mRotation.y * 182.04445f));
-			yMtx[0][0] = cy;
-			yMtx[0][1] = 0.0f;
-			yMtx[0][2] = sy;
-			yMtx[0][3] = 0.0f;
-			yMtx[1][0] = 0.0f;
-			yMtx[1][1] = 1.0f;
-			yMtx[1][2] = 0.0f;
-			yMtx[1][3] = 0.0f;
-			yMtx[2][0] = -sy;
-			yMtx[2][1] = 0.0f;
-			yMtx[2][2] = cy;
-			yMtx[2][3] = 0.0f;
+			makeTurnMtxRotY(yMtx, mRotation.y);
 			MTXConcat(yMtx, mtx, mtx);
 		}
 		break;
@@ -1119,20 +1147,7 @@ void TMapObjTurn::control()
 			rot += 360.0f;
 		mRotation.y = rot;
 
-		f32 sy = JMASSin((s16)(rot * 182.04445f));
-		f32 cy = JMASCos((s16)(rot * 182.04445f));
-		mtx[0][0] = cy;
-		mtx[0][1] = 0.0f;
-		mtx[0][2] = sy;
-		mtx[0][3] = 0.0f;
-		mtx[1][0] = 0.0f;
-		mtx[1][1] = 1.0f;
-		mtx[1][2] = 0.0f;
-		mtx[1][3] = 0.0f;
-		mtx[2][0] = -sy;
-		mtx[2][1] = 0.0f;
-		mtx[2][2] = cy;
-		mtx[2][3] = 0.0f;
+		makeTurnMtxRotY(mtx, mRotation.y);
 		break;
 	}
 	case 2: {
@@ -1143,37 +1158,11 @@ void TMapObjTurn::control()
 			rot += 360.0f;
 		mRotation.z = rot;
 
-		f32 sz = JMASSin((s16)(rot * 182.04445f));
-		f32 cz = JMASCos((s16)(rot * 182.04445f));
-		mtx[0][0] = cz;
-		mtx[0][1] = -sz;
-		mtx[0][2] = 0.0f;
-		mtx[0][3] = 0.0f;
-		mtx[1][0] = sz;
-		mtx[1][1] = cz;
-		mtx[1][2] = 0.0f;
-		mtx[1][3] = 0.0f;
-		mtx[2][0] = 0.0f;
-		mtx[2][1] = 0.0f;
-		mtx[2][2] = 1.0f;
-		mtx[2][3] = 0.0f;
-
+		makeTurnMtxRotZ(mtx, mRotation.z);
 		if (mRotation.y != 0.0f) {
+			makeTurnMtxRotZ(mtx, mRotation.z);
 			Mtx yMtx;
-			f32 sy = JMASSin((s16)(mRotation.y * 182.04445f));
-			f32 cy = JMASCos((s16)(mRotation.y * 182.04445f));
-			yMtx[0][0] = cy;
-			yMtx[0][1] = 0.0f;
-			yMtx[0][2] = sy;
-			yMtx[0][3] = 0.0f;
-			yMtx[1][0] = 0.0f;
-			yMtx[1][1] = 1.0f;
-			yMtx[1][2] = 0.0f;
-			yMtx[1][3] = 0.0f;
-			yMtx[2][0] = -sy;
-			yMtx[2][1] = 0.0f;
-			yMtx[2][2] = cy;
-			yMtx[2][3] = 0.0f;
+			makeTurnMtxRotY(yMtx, mRotation.y);
 			MTXConcat(yMtx, mtx, mtx);
 		}
 		break;
