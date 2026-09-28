@@ -277,7 +277,7 @@ void TFruitsBoat::init(TLiveManager* manager)
 void TFruitsBoat::calcRootMatrix()
 {
 	J3DModel* model = getModel();
-	MtxPtr mtx      = (MtxPtr)((u8*)model + 0x20);
+	MtxPtr mtx      = model->getBaseTRMtx();
 	MsMtxSetRotRPH(mtx, mRotation.x, mRotation.y, mRotation.z);
 
 	Mtx tmp;
@@ -286,7 +286,7 @@ void TFruitsBoat::calcRootMatrix()
 	PSMTXConcat(tmp, mtx, mtx);
 	PSMTXTransApply(mtx, mtx, mPosition.x, mPosition.y, mPosition.z);
 
-	*(Vec*)((u8*)model + 0x14) = (Vec&)mScaling;
+	model->setBaseScale(mScaling);
 }
 
 void TFruitsBoat::setGroundCollision()
