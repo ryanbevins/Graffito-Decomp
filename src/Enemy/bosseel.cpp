@@ -201,19 +201,6 @@ static inline f32 callMsWrap(f32 t, f32 l, f32 r)
 	return MsWrap<f32>(t, l, r);
 }
 
-DEFINE_NERVE(TNerveBEelTearsMoveUp, TLiveActor)
-{
-	TBEelTears* tears = (TBEelTears*)spine->getBody();
-
-	if (spine->getTime() == 0) {
-		tears->mMActor = tears->mMActorKeeper->getMActor("tears.bmd");
-		tears->mMActor->setBckFromIndex(1);
-	}
-
-	tears->mPosition.y += tears->unk15C->mSLTearsUpSpeed.get();
-	return FALSE;
-}
-
 DEFINE_NERVE(TNerveBEelTearsGenerate, TLiveActor)
 {
 	TBEelTears* tears = (TBEelTears*)spine->getBody();
@@ -231,55 +218,16 @@ DEFINE_NERVE(TNerveBEelTearsGenerate, TLiveActor)
 	return FALSE;
 }
 
-DEFINE_NERVE(TNerveBEelTearsSplit, TLiveActor)
+DEFINE_NERVE(TNerveBEelTearsMoveUp, TLiveActor)
 {
 	TBEelTears* tears = (TBEelTears*)spine->getBody();
 
 	if (spine->getTime() == 0) {
-		if (gpMSound->gateCheck(0x8926)) {
-			MSoundSESystem::MSoundSE::startSoundActor(
-			    0x8926, &tears->mPosition, 0, nullptr, 0, 4);
-		}
-
-		tears->mMActor
-		    = tears->mMActorKeeper->getMActor("tears_waterhit.bmd");
-		tears->mMActor->setBckFromIndex(3);
-
-		MActor* actor = tears->mMActor;
-		f32 hitAnmFrameRate = tears->unk15C->mSLHitAnmFrameRate.get();
-		actor->setFrameRate(hitAnmFrameRate * SMSGetAnmFrameRate(), 0);
+		tears->mMActor = tears->mMActorKeeper->getMActor("tears.bmd");
+		tears->mMActor->setBckFromIndex(1);
 	}
 
-	if (tears->checkCurAnmEnd(0)) {
-		JPABaseEmitter* emitter = gpMarioParticleManager->emitAndBindToPosPtr(
-		    0xd5, &tears->mPosition, 0, nullptr);
-		if (emitter) {
-			emitter->unk154.x = tears->mScaling.x;
-			emitter->unk154.y = tears->mScaling.y;
-			emitter->unk154.z = tears->mScaling.z;
-			emitter->unk174.x = tears->mScaling.x;
-			emitter->unk174.y = tears->mScaling.y;
-			emitter->unk174.z = tears->mScaling.z;
-		}
-
-		((u8*)tears->unk16C)[0x81] = FALSE;
-		tears->unk16C->offHitFlag(HIT_FLAG_NO_COLLISION);
-		((u8*)tears->unk16C)[0x80] = TRUE;
-		tears->unk16C->mPosition = tears->mPosition;
-		tears->unk16C->mPosition = tears->mPosition;
-
-		((TBEelTearsManager*)tears->mManager)->splitTears(tears->mPosition);
-
-		if (gpMSound->gateCheck(0x8927)) {
-			MSoundSESystem::MSoundSE::startSoundActor(
-			    0x8927, &tears->mPosition, 0, nullptr, 0, 4);
-		}
-
-		tears->onLiveFlag(LIVE_FLAG_HIDDEN);
-		spine->pushAfterCurrent(&TNerveBEelTearsMarioRecover::theNerve());
-		return TRUE;
-	}
-
+	tears->mPosition.y += tears->unk15C->mSLTearsUpSpeed.get();
 	return FALSE;
 }
 
@@ -387,6 +335,58 @@ DEFINE_NERVE(TNerveBEelTearsMarioRecover, TLiveActor)
 	if (((u8*)tears->unk16C)[0x81] != FALSE) {
 		tears->mPosition.y += tears->unk15C->mSLTearsUpSpeed.get();
 		tears->unk16C->mPosition.y = tears->mPosition.y;
+	}
+
+	return FALSE;
+}
+
+DEFINE_NERVE(TNerveBEelTearsSplit, TLiveActor)
+{
+	TBEelTears* tears = (TBEelTears*)spine->getBody();
+
+	if (spine->getTime() == 0) {
+		if (gpMSound->gateCheck(0x8926)) {
+			MSoundSESystem::MSoundSE::startSoundActor(
+			    0x8926, &tears->mPosition, 0, nullptr, 0, 4);
+		}
+
+		tears->mMActor
+		    = tears->mMActorKeeper->getMActor("tears_waterhit.bmd");
+		tears->mMActor->setBckFromIndex(3);
+
+		MActor* actor = tears->mMActor;
+		f32 hitAnmFrameRate = tears->unk15C->mSLHitAnmFrameRate.get();
+		actor->setFrameRate(hitAnmFrameRate * SMSGetAnmFrameRate(), 0);
+	}
+
+	if (tears->checkCurAnmEnd(0)) {
+		JPABaseEmitter* emitter = gpMarioParticleManager->emitAndBindToPosPtr(
+		    0xd5, &tears->mPosition, 0, nullptr);
+		if (emitter) {
+			emitter->unk154.x = tears->mScaling.x;
+			emitter->unk154.y = tears->mScaling.y;
+			emitter->unk154.z = tears->mScaling.z;
+			emitter->unk174.x = tears->mScaling.x;
+			emitter->unk174.y = tears->mScaling.y;
+			emitter->unk174.z = tears->mScaling.z;
+		}
+
+		((u8*)tears->unk16C)[0x81] = FALSE;
+		tears->unk16C->offHitFlag(HIT_FLAG_NO_COLLISION);
+		((u8*)tears->unk16C)[0x80] = TRUE;
+		tears->unk16C->mPosition = tears->mPosition;
+		tears->unk16C->mPosition = tears->mPosition;
+
+		((TBEelTearsManager*)tears->mManager)->splitTears(tears->mPosition);
+
+		if (gpMSound->gateCheck(0x8927)) {
+			MSoundSESystem::MSoundSE::startSoundActor(
+			    0x8927, &tears->mPosition, 0, nullptr, 0, 4);
+		}
+
+		tears->onLiveFlag(LIVE_FLAG_HIDDEN);
+		spine->pushAfterCurrent(&TNerveBEelTearsMarioRecover::theNerve());
+		return TRUE;
 	}
 
 	return FALSE;
@@ -2386,44 +2386,6 @@ DEFINE_NERVE(TNerveBossEelSecondSpin, TLiveActor)
 	return FALSE;
 }
 
-DEFINE_NERVE(TNerveBossEelOutWait, TLiveActor)
-{
-	TBossEel* eel = (TBossEel*)spine->getBody();
-
-	eel->unk200++;
-
-	if (spine->getTime() == 0) {
-		eel->unk1FC = FALSE;
-		START_BOSS_EEL_BCK(eel, 16);
-	}
-
-	if (eel->checkCurAnmEnd(0)) {
-		s32 mouthOpenInterval
-		    = eel->unk1E8->mSLMouthOpenInterval.value;
-
-		if (eel->mMActor->checkCurBckFromIndex(19)) {
-			spine->setNext(&TNerveBossEelQuickBack::theNerve());
-		} else if (eel->unk200 >= 3600) {
-			spine->pushAfterCurrent(&TNerveBossEelSlowBack::theNerve());
-			eel->unk200 = 0;
-			return TRUE;
-		} else if (spine->getTime() > mouthOpenInterval) {
-			spine->pushAfterCurrent(&TNerveBossEelOutWait::theNerve());
-			spine->pushAfterCurrent(&TNerveBossEelMouthOpenWait::theNerve());
-			return TRUE;
-		} else if (eel->unk1FD) {
-			START_BOSS_EEL_BCK(eel, 19);
-		} else if (eel->unk1FC) {
-			eel->unk1FC = FALSE;
-			START_BOSS_EEL_BCK(eel, 18);
-		} else {
-			START_BOSS_EEL_BCK(eel, 16);
-		}
-	}
-
-	return FALSE;
-}
-
 DEFINE_NERVE(TNerveBossEelAppear, TLiveActor)
 {
 	TBossEel* eel = (TBossEel*)spine->getBody();
@@ -2463,6 +2425,44 @@ DEFINE_NERVE(TNerveBossEelAppear, TLiveActor)
 		}
 
 		return TRUE;
+	}
+
+	return FALSE;
+}
+
+DEFINE_NERVE(TNerveBossEelOutWait, TLiveActor)
+{
+	TBossEel* eel = (TBossEel*)spine->getBody();
+
+	eel->unk200++;
+
+	if (spine->getTime() == 0) {
+		eel->unk1FC = FALSE;
+		START_BOSS_EEL_BCK(eel, 16);
+	}
+
+	if (eel->checkCurAnmEnd(0)) {
+		s32 mouthOpenInterval
+		    = eel->unk1E8->mSLMouthOpenInterval.value;
+
+		if (eel->mMActor->checkCurBckFromIndex(19)) {
+			spine->setNext(&TNerveBossEelQuickBack::theNerve());
+		} else if (eel->unk200 >= 3600) {
+			spine->pushAfterCurrent(&TNerveBossEelSlowBack::theNerve());
+			eel->unk200 = 0;
+			return TRUE;
+		} else if (spine->getTime() > mouthOpenInterval) {
+			spine->pushAfterCurrent(&TNerveBossEelOutWait::theNerve());
+			spine->pushAfterCurrent(&TNerveBossEelMouthOpenWait::theNerve());
+			return TRUE;
+		} else if (eel->unk1FD) {
+			START_BOSS_EEL_BCK(eel, 19);
+		} else if (eel->unk1FC) {
+			eel->unk1FC = FALSE;
+			START_BOSS_EEL_BCK(eel, 18);
+		} else {
+			START_BOSS_EEL_BCK(eel, 16);
+		}
 	}
 
 	return FALSE;
