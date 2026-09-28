@@ -1376,13 +1376,12 @@ void TBossGesso::calcRootMatrix()
 {
 	if (getLatestNerve() == &TNerveBGDie::theNerve()
 	    && getMActor()->checkCurBckFromIndex(6)) {
+		Mtx local_50;
 		mRotation = MsGetRotFromZaxis(mVelocity);
 		MtxPtr mA = getModel()->getBaseTRMtx();
 
 		MsMtxSetXYZRPH(mA, mPosition.x, mPosition.y, mPosition.z, mRotation.x,
 		               mRotation.y, mRotation.z);
-
-		Mtx local_50;
 
 		f32 s = JMASSin(0x4000);
 		f32 c = JMASCos(0x4000);
