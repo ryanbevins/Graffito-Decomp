@@ -38,7 +38,6 @@
 #undef MSCLAMP_OUT_OF_LINE
 
 template <> f32 CLBLinearInbetween<f32>(f32, f32, f32);
-template <> f32 CLBCalcRatio<s16>(s16, s16, s16);
 template <> f32 CLBCalcRatio<f32>(f32, f32, f32);
 template <> f32 CLBCalcRatio<long>(long, long, long);
 template <> BOOL CLBChaseGeneralConstantSpecifySpeed<s16>(s16*, s16, s16);
