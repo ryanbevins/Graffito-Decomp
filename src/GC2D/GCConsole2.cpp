@@ -740,19 +740,17 @@ static inline void detachBoundPaneFromParent(TBoundPane* pane)
 	detachPaneFromParent(pane->getPane());
 }
 
-static inline void initHiddenPaneAbove(TExPane* pane)
+static inline void initPaneOffsetAbove(TExPane* pane)
 {
 	int offset = getOffsetForAboveScreen(pane);
-	pane->setPaneOffset(1, 0, offset, 0, offset);
+	pane->updatePaneOffset(1, 0, offset);
 	pane->update();
-	pane->getPane()->hide();
 }
 
-static inline void initHiddenPaneOffset(TExPane* pane, int offset)
+static inline void initPaneOffset(TExPane* pane, int offset)
 {
-	pane->setPaneOffset(1, 0, offset, 0, offset);
+	pane->updatePaneOffset(1, 0, offset);
 	pane->update();
-	pane->getPane()->hide();
 }
 
 static inline int clampRange(int value, int minValue, int maxValue)
@@ -1751,10 +1749,14 @@ void TGCConsole2::loadAfter()
 
 	unk26A = unk140->getPane()->mBounds.y1 - unk108->getPane()->mBounds.y1;
 
-	initHiddenPaneAbove(unk140);
-	initHiddenPaneAbove(unk160);
-	initHiddenPaneOffset(unk108, unk26A);
-	initHiddenPaneAbove(unk3A8);
+	initPaneOffsetAbove(unk140);
+	unk140->getPane()->hide();
+	initPaneOffsetAbove(unk160);
+	unk160->getPane()->hide();
+	initPaneOffset(unk108, unk26A);
+	unk108->getPane()->hide();
+	initPaneOffsetAbove(unk3A8);
+	unk3A8->getPane()->hide();
 
 	TFlagManager* flags = TFlagManager::smInstance;
 
