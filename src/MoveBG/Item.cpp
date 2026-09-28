@@ -779,10 +779,9 @@ void TShine::appearWithTime(int total_time, int up_time, int circle_time,
 
 	unk168 = total_time - (unk174 + unk170 + unk178);
 	unk158 = 0.0f;
-	unk17C = (mInitialPosition.x - mPosition.x) / unk168;
-
 	f32 targetY = mPosition.y + mUpSpeed * unk170;
 	f32 yDiff   = mInitialPosition.y - targetY;
+	unk17C      = (mInitialPosition.x - mPosition.x) / unk168;
 	unk180      = yDiff / unk168;
 	unk184      = (mInitialPosition.z - mPosition.z) / unk168;
 	unk15C      = getDistanceXZ(mInitialPosition);
