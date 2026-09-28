@@ -574,8 +574,8 @@ BOOL TRevolvingFenceInner::receiveMessage(THitActor* sender, u32 message)
 		f32 angle = getRotYFromAxisZ(*gpMarioPos);
 		f32 deg   = 180.0f * (angle / 3.14f) + mInitialRotation.y;
 		deg       = MsWrap(deg, -180.0f, 180.0f);
-		if ((deg > -180.0f && deg < -90.0f)
-		    || (deg > 0.0f && deg < 90.0f)) {
+		if ((-180.0f < deg && deg < -90.0f)
+		    || (0.0f < deg && deg < 90.0f)) {
 			if (gpMSound->gateCheck(0x3824))
 				MSoundSESystem::MSoundSE::startSoundActor(
 				    0x3824, (const Vec*)&mPosition, 0, nullptr, 0, 4);
