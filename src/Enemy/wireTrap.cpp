@@ -50,6 +50,17 @@ static inline JGeometry::TVec3<f32> makeWireTrapDir(f32 theta, f32 radius)
 	return JGeometry::TVec3<f32>(s, 0.0f, c);
 }
 
+static inline JGeometry::TVec3<f32> getInitDirOf(f32 theta)
+{
+	return makeWireTrapDir(theta, 1.0f);
+}
+
+static inline void resetNerveFromMode(TWireTrap* trap, int mode)
+{
+	trap->mSpine->reset();
+	trap->mSpine->setNext(TWireTrap::getNerveFromMode(mode));
+}
+
 TWireTrapManager::TWireTrapManager(const char* name)
     : TEnemyManager(name)
 {
@@ -311,11 +322,10 @@ void TWireTrap::load(JSUMemoryInputStream& stream)
 
 	getWireBinderDirect()->init(mPosition);
 
-	mSpine->reset();
-	mSpine->setNext(getNerveFromMode(mColorType));
+	resetNerveFromMode(this, mColorType);
 
 	const JGeometry::TVec3<f32>& wdir = getWireBinderDirect()->getDirDirect();
-	JGeometry::TVec3<f32> v = makeWireTrapDir(mRotation.y, 1.0f);
+	const JGeometry::TVec3<f32>& v = getInitDirOf(mRotation.y);
 	mWireDir = 0.0f <= v.x * wdir.x + v.y * wdir.y + v.z * wdir.z ? 1.0f
 	                                                             : -1.0f;
 	mScaleRate = 1.0f;
