@@ -1136,6 +1136,8 @@ void TMapObjTurn::control()
 			Mtx yMtx;
 			makeTurnMtxRotY(yMtx, mRotation.y);
 			MTXConcat(yMtx, mtx, mtx);
+		} else {
+			makeTurnMtxRotX(mtx, mRotation.x);
 		}
 		break;
 	}
@@ -1164,6 +1166,8 @@ void TMapObjTurn::control()
 			Mtx yMtx;
 			makeTurnMtxRotY(yMtx, mRotation.y);
 			MTXConcat(yMtx, mtx, mtx);
+		} else {
+			makeTurnMtxRotZ(mtx, mRotation.z);
 		}
 		break;
 	}
