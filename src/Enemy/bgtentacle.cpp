@@ -641,9 +641,7 @@ bool TBGTentacle::isAttacking() const
 		return false;
 	if (mState == 6)
 		return false;
-	if (mState == 1)
-		return true;
-	if (mOwner->getAttackMode() == 7)
+	if (mState == 1 || mOwner->getAttackMode() == 7)
 		return true;
 	return false;
 }
