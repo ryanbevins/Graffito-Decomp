@@ -873,7 +873,7 @@ void SMS_ShowJoint(J3DMaterial* param_1, bool param_2)
 
 #pragma dont_inline on
 namespace JGeometry {
-void TRotation3<TMatrix34<SMatrix34C<f32> > >::identity33()
+template <> void TRotation3<TMatrix34<SMatrix34C<f32> > >::identity33()
 {
 	this->ref(0, 0) = 1.0f;
 	this->ref(1, 0) = 0.0f;
