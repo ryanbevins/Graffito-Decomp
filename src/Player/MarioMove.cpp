@@ -853,9 +853,8 @@ u32 TMario::setStatusToJumping(u32 status, u32 arg)
 			clampedVel = 48.0f;
 		mForwardVel = clampedVel;
 
-		u16 angle = mFaceAngle.y;
-		mSlideVelX = mForwardVel * jmaSinTable[angle >> jmaSinShift];
-		mSlideVelZ = mForwardVel * jmaCosTable[angle >> jmaSinShift];
+		mSlideVelX = mForwardVel * JMASSin(mFaceAngle.y);
+		mSlideVelZ = mForwardVel * JMASCos(mFaceAngle.y);
 		mVel.x = mSlideVelX;
 		mVel.z = mSlideVelZ;
 		break;
@@ -887,12 +886,12 @@ u32 TMario::setStatusToJumping(u32 status, u32 arg)
 			rocketEffectStart();
 		}
 		waterGun = mWaterGun;
-		if (waterGun->mCurrentNozzle == 5) {
+		if ((int)waterGun->mCurrentNozzle == TWaterGun::Turbo) {
 			// Turbo
 			startVoice(0x788F);
 		}
 		waterGun = mWaterGun;
-		if (waterGun->mCurrentNozzle == 4) {
+		if ((int)waterGun->mCurrentNozzle == TWaterGun::Hover) {
 			// Hover
 			startVoice(0x78AB);
 		}
@@ -927,9 +926,8 @@ u32 TMario::setStatusToJumping(u32 status, u32 arg)
 		// Directional air
 		setPlayerJumpSpeed(0.25f, 42.0f);
 		mForwardVel = 0.0f;
-		u16 angle = mFaceAngle.y;
-		mSlideVelX = mForwardVel * jmaSinTable[angle >> jmaSinShift];
-		mSlideVelZ = mForwardVel * jmaCosTable[angle >> jmaSinShift];
+		mSlideVelX = mForwardVel * JMASSin(mFaceAngle.y);
+		mSlideVelZ = mForwardVel * JMASCos(mFaceAngle.y);
 		mVel.x = mSlideVelX;
 		mVel.z = mSlideVelZ;
 		startVoice(0x78B6);
@@ -963,9 +961,8 @@ u32 TMario::setStatusToJumping(u32 status, u32 arg)
 		// Slide jump
 		setPlayerJumpSpeed(0.0f, 42.0f);
 		mForwardVel = 0.0f;
-		u16 angle = mFaceAngle.y;
-		mSlideVelX = mForwardVel * jmaSinTable[angle >> jmaSinShift];
-		mSlideVelZ = mForwardVel * jmaCosTable[angle >> jmaSinShift];
+		mSlideVelX = mForwardVel * JMASSin(mFaceAngle.y);
+		mSlideVelZ = mForwardVel * JMASCos(mFaceAngle.y);
 		mVel.x = mSlideVelX;
 		mVel.z = mSlideVelZ;
 		startVoice(0x78AB);
