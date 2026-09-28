@@ -640,7 +640,7 @@ void TYoshi::thinkAnimation()
 		} else {
 			oldAnm = mActor->unkC->getOldMotionBlendAnmPtr();
 		}
-		*(f32*)((u8*)oldAnm + 0x4) = mActor->getFrameCtrl(0)->getFrame();
+		oldAnm->setFrame(mActor->getFrameCtrl(0)->getFrame());
 
 		if (mMario->mAction == 0x0004045C) {
 			frameRate = mMario->getMotionFrameCtrl().getRate();
@@ -694,19 +694,19 @@ void TYoshi::thinkUpper()
 			*(f32*)((u8*)&mFrameCtrl + 0x10) = *(s16*)((u8*)&mFrameCtrl + 0x6);
 			*(f32*)((u8*)&mFrameCtrl + 0xC) = 1.0f;
 			*(s16*)((u8*)&mFrameCtrl + 0x8)
-			    = *(s16*)(*(u32*)((u8*)_04) + 0x2);
+			    = (*(J3DAnmTransform**)((u8*)_04))->getFrameMax();
 			*(f32*)((u8*)&mFrameCtrl + 0x10) = 0.0f;
 			upperAnm->setMtxCalc(*(J3DMtxCalc**)((u8*)_04 + 0x8));
 			mBckPlayer2->initAnmSound(mAnimFrameRates[3], 1, 0.0f);
 		}
-		*(f32*)(*(u32*)((u8*)_04) + 0x4)
-		    = *(f32*)((u8*)&mFrameCtrl + 0x10);
+		(*(J3DAnmTransform**)((u8*)_04))
+		    ->setFrame(*(f32*)((u8*)&mFrameCtrl + 0x10));
 	} else {
 		if (upperAnm->getMtxCalc() == *(J3DMtxCalc**)((u8*)_04 + 0x8)) {
 			*(f32*)((u8*)&mFrameCtrl + 0x10) = *(s16*)((u8*)&mFrameCtrl + 0x6);
 			*(f32*)((u8*)&mFrameCtrl + 0xC) = 1.0f;
 			*(s16*)((u8*)&mFrameCtrl + 0x8)
-			    = *(s16*)(*(u32*)((u8*)_04 + 0x4) + 0x2);
+			    = (*(J3DAnmTransform**)((u8*)_04 + 0x4))->getFrameMax();
 			*(f32*)((u8*)&mFrameCtrl + 0x10) = 0.0f;
 			upperAnm->setMtxCalc(*(J3DMtxCalc**)((u8*)_04 + 0xC));
 			mBckPlayer2->initAnmSound(mAnimFrameRates[4], 1, 0.0f);
@@ -720,8 +720,8 @@ void TYoshi::thinkUpper()
 			if (ended)
 				upperAnm->setMtxCalc(nullptr);
 		}
-		*(f32*)(*(u32*)((u8*)_04 + 0x4) + 0x4)
-		    = *(f32*)((u8*)&mFrameCtrl + 0x10);
+		(*(J3DAnmTransform**)((u8*)_04 + 0x4))
+		    ->setFrame(*(f32*)((u8*)&mFrameCtrl + 0x10));
 	}
 }
 
