@@ -871,8 +871,6 @@ void TModelWaterManager::calcVMMtxGround(MtxPtr param_1, f32 param_2,
                                          const JGeometry::TVec3<f32>& param_4,
                                          MtxPtr param_5)
 {
-	// TODO: matching this is ewwwwwwwwwwwwwwwwww
-
 	f32 normalX = param_4.x;
 	f32 normalY = param_4.y;
 	f32 scaledX = param_2 * normalX;
@@ -886,25 +884,14 @@ void TModelWaterManager::calcVMMtxGround(MtxPtr param_1, f32 param_2,
 	f32 negScaledZ = -scaledZ;
 
 	for (int i = 0; i < 3; ++i) {
-		f32 m0   = param_1[i][0];
-		f32 m1   = param_1[i][1];
-		f32 m2   = param_1[i][2];
-		f32 m3   = param_1[i][3];
-		f32 out1 = m1 * scaledY;
-		f32 out0 = m1 * negScaledX;
-		f32 out3 = m1 * transY;
-		out1     = m0 * scaledX + out1;
-		out0     = m0 * scaledY + out0;
-		out3     = m0 * transX + out3;
-		f32 out2 = m2 * scaledY;
-		param_5[i][0] = out0;
-		out1          = m2 * scaledZ + out1;
-		out3          = m2 * transZ + out3;
-		out2          = m1 * negScaledZ + out2;
-		param_5[i][1] = out1;
-		out3          = m3 + out3;
-		param_5[i][2] = out2;
-		param_5[i][3] = out3;
+		f32 m0 = param_1[i][0];
+		f32 m1 = param_1[i][1];
+		f32 m2 = param_1[i][2];
+		f32 m3 = param_1[i][3];
+		param_5[i][0] = m0 * scaledY + m1 * negScaledX;
+		param_5[i][1] = m0 * scaledX + m1 * scaledY + m2 * scaledZ;
+		param_5[i][2] = m1 * negScaledZ + m2 * scaledY;
+		param_5[i][3] = m3 + (m0 * transX + m1 * transY + m2 * transZ);
 	}
 }
 
