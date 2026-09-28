@@ -879,6 +879,14 @@ DEFINE_NERVE(TNervePakkunGenerate, TLiveActor)
 	return FALSE;
 }
 
+static inline f32 calcLength(const JGeometry::TVec3<f32>& v)
+{
+	f32 xSq = v.x * v.x;
+	f32 ySq = v.y * v.y;
+	f32 zSq = v.z * v.z;
+	return JGeometry::TUtil<f32>::sqrt(zSq + (xSq + ySq));
+}
+
 DEFINE_NERVE(TNervePakkunStay, TLiveActor)
 {
 	TPakkun* self = (TPakkun*)spine->getBody();
@@ -893,7 +901,7 @@ DEFINE_NERVE(TNervePakkunStay, TLiveActor)
 		    || spine->getTime() >= waitTime || self->unk1B1) {
 			JGeometry::TVec3<f32> toGoal(self->unk104.getPoint());
 			toGoal.sub(self->mPosition);
-			f32 goalDist = JGeometry::TUtil<f32>::sqrt(toGoal.squared());
+			f32 goalDist = calcLength(toGoal);
 
 			f32 scale = 1.0f;
 			if (self->mHasSubSeeds)
@@ -950,7 +958,7 @@ DEFINE_NERVE(TNervePakkunStay, TLiveActor)
 				JGeometry::TVec3<f32> targetDiff(target);
 				targetDiff.sub(self->mPosition);
 				f32 targetDist
-				    = JGeometry::TUtil<f32>::sqrt(targetDiff.squared());
+				    = calcLength(targetDiff);
 
 				if (targetDist > self->mPakkunParams->mSLLimitMove.get()) {
 					target.x = gpMarioPos->x - self->mPosition.x;
@@ -997,7 +1005,7 @@ DEFINE_NERVE(TNervePakkunStay, TLiveActor)
 			f32 giveUpLength = params->mSLGiveUpLength.get();
 			JGeometry::TVec3<f32> goal = self->unk104.getPoint();
 			goal.sub(self->mPosition);
-			f32 goalDist = JGeometry::TUtil<f32>::sqrt(goal.squared());
+			f32 goalDist = calcLength(goal);
 
 			if (goalDist > giveUpLength) {
 				spine->pushAfterCurrent(&TNerveStayPakkunHide::theNerve());
