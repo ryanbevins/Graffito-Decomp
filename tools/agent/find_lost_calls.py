@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-# usage: python tools/agent/find_lost_calls.py [--prefix Enemy/] [--reverse]
+# usage: python tools/agent/find_lost_calls.py [--prefix Enemy/] [--reverse] [--weak] [--callee REGEX]
 """List same-TU functions that retail calls via `bl` more often than our object does.
 
 Typical cause: MWCC auto-inlined the callee in our build, while retail reached it
@@ -10,6 +10,8 @@ import argparse, collections, glob, os, re, subprocess
 B = "build/binutils/powerpc-eabi-objdump"
 ap = argparse.ArgumentParser()
 ap.add_argument("--prefix", default="")
+ap.add_argument("--weak", action="store_true", help="also count weak (header inline/template) callees such as TUtil<f32>::sqrt")
+ap.add_argument("--callee", default=None, help="regex: count any callee matching it, even if defined elsewhere (e.g. 'sqrt__Q29JGeometry')")
 ap.add_argument("--reverse", action="store_true", help="list callees ours calls via bl more than retail (retail inlined)")
 args = ap.parse_args()
 
@@ -20,10 +22,12 @@ for asm in sorted(glob.glob(f"build/GMSJ01/asm/{args.prefix}**/*.s", recursive=T
         continue
     text = open(asm, errors="ignore").read()
     defined = set(re.findall(r"^\.fn (\S+), global", text, re.M))
+    if args.weak:
+        defined |= set(re.findall(r"^\.fn (\S+), weak", text, re.M))
     retail = collections.Counter()
     for m in re.finditer(r"\tbl? (\S+)$", text, re.M):
         name = m.group(1).strip('"')
-        if name in defined:
+        if name in defined or (args.callee and re.search(args.callee, name)):
             retail[name] += 1
     if not retail and not args.reverse:
         continue
