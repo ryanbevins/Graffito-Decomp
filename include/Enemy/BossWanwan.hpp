@@ -48,6 +48,8 @@ public:
 
 	virtual void calc(u16);
 
+	inline void joinAnm(int);
+
 	/* 0x64 */ TBossWanwan* mOwner;
 };
 
@@ -134,6 +136,7 @@ public:
 	void emitEffects();
 	void slideToCurPathNode(f32, f32);
 	void shakeCamera(int);
+	inline void changeBck(int);
 
 	/* 0x150 */ TBossWanwanMtxCalc* mMtxCalc;
 	/* 0x154 */ TBWLeash* mLeash;
