@@ -545,18 +545,19 @@ void SMS_AddDamageFogEffect(J3DModelData* modelData,
 	Vec viewPos;
 	MTXMultVec(graphics->mViewMtx, (Vec*)&position, &viewPos);
 
-	f32 startZ = -700.0f;
-	f32 endZ   = 500.0f;
-	f32 sin    = jmaSinTable[((u16)(gpMarDirector->unk58 * 0x888))
-	                       >> jmaSinShift];
-	f32 startOffset = (-400.0f - startZ) * sin;
-	f32 endOffset   = (800.0f - endZ) * sin;
+	JGeometry::TVec2<f32> base(-700.0f, 500.0f);
+	JGeometry::TVec2<f32> offset(-400.0f, 800.0f);
+	offset.sub(base);
+	f32 sin = jmaSinTable[((u16)(gpMarDirector->unk58 * 0x888))
+	                      >> jmaSinShift];
+	f32 startOffset = offset.x * sin;
+	f32 endOffset   = offset.y * sin;
 
 	for (u16 i = 0; i < modelData->getMaterialNum(); ++i) {
 		J3DFog* fog
 		    = modelData->getMaterialNodePointer(i)->getPEBlock()->getFog();
-		fog->mStartZ = -viewPos.z + startZ + startOffset;
-		fog->mEndZ   = -viewPos.z + endZ + endOffset;
+		fog->mStartZ = -viewPos.z + base.x + startOffset;
+		fog->mEndZ   = -viewPos.z + base.y + endOffset;
 		fog->mNearZ  = gpCamera->mNear;
 		fog->mFarZ   = gpCamera->mFar;
 	}
