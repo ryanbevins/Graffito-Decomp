@@ -759,12 +759,9 @@ u32 TMario::setStatusToJumping(u32 status, u32 arg)
 	}
 	case 0x0884: {
 		// Ground pound bounce
-		if (mGroundPlane != NULL) {
-			f32 jumpPower = mGroundPlane->getActiveJumpPower();
-			mVel.y = 0.01f * jumpPower;
-		} else {
-			mVel.y = 0.0f;
-		}
+		mVel.y = mGroundPlane != NULL
+		             ? 0.01f * mGroundPlane->getActiveJumpPower()
+		             : 0.0f;
 		startVoice(0x78B1);
 		break;
 	}
@@ -786,7 +783,7 @@ u32 TMario::setStatusToJumping(u32 status, u32 arg)
 		// Hip-drop-to-slide: check ground type
 		startVoice(0x78AB);
 		const TBGCheckData* groundResult;
-		gpMap->checkGround(getMpositionX(), mPosition.y, mPosition.z,
+		gpMap->checkGround(mPosition.x, mPosition.y, mPosition.z,
 		                   &groundResult);
 		u16 gType = groundResult->mBGType;
 		u8 isBeach;
