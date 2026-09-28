@@ -717,10 +717,8 @@ u32 TMario::setStatusToJumping(u32 status, u32 arg)
 			f32 gravity = unkBC;
 			mVel.y = getMvelY() + (-gravity + jumpAdj);
 
-			TLiveActor* groundActor =
-			    (TLiveActor*)mGroundPlane->mActor;
-			if (groundActor != NULL) {
-				((THitActor*)groundActor)->receiveMessage((THitActor*)this, 0);
+			if (mGroundPlane->getActor() != NULL) {
+				((THitActor*)mGroundPlane->getActor())->receiveMessage(this, 0);
 			}
 
 			startVoice(0x78B9);
