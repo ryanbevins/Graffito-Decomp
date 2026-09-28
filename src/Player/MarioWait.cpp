@@ -477,7 +477,7 @@ squatMain:
 
 	{
 		TNozzleBase* nozzle = gun->getCurrentNozzle();
-		u8 nozzleKind = *(u8*)((u8*)nozzle + 0x18);
+		u8 nozzleKind = nozzle->mEmitParams.mRocketType.get();
 		if (nozzleKind == 1) {
 			gun = mWaterGun;
 			u8 canSpray;
