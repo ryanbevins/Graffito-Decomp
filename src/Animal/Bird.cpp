@@ -31,7 +31,13 @@ extern JGeometry::TVec3<f32>* gpMarioPos;
 JGeometry::TQuat4<f32> SMS_Eular2Quat(const JGeometry::TVec3<f32>&);
 f32 SMSGetAnmFrameRate();
 
-static inline f32 calcLength(JGeometry::TVec3<f32> v) { return v.length(); }
+static inline f32 calcLength(JGeometry::TVec3<f32> v)
+{
+	f32 xSq = v.x * v.x;
+	f32 ySq = v.y * v.y;
+	f32 zSq = v.z * v.z;
+	return JGeometry::TUtil<f32>::sqrt(zSq + (xSq + ySq));
+}
 
 static inline f32 callMsWrap(f32 t, f32 l, f32 r)
 {
@@ -586,7 +592,7 @@ bool TAnimalBird::doLanding(bool initFrame)
 		mVelocity  = velocity;
 	}
 
-	BOOL grounded = FALSE;
+	bool grounded = false;
 	JGeometry::TVec3<f32> deltaV(0.0f, 0.0f, 0.0f);
 	if (mBinder2 != NULL) {
 		JGeometry::TVec3<f32> wirePoint;
@@ -598,7 +604,7 @@ bool TAnimalBird::doLanding(bool initFrame)
 	if (mLiveFlag & 0x80) {
 		deltaV.y = -((TAnimalBirdParams*)getSaveParam())->mLandingGravityY.value;
 	} else {
-		grounded = TRUE;
+		grounded = true;
 	}
 
 	mRotation.x = unk164.x;
@@ -612,13 +618,7 @@ bool TAnimalBird::doLanding(bool initFrame)
 	f32 wrappedY
 	    = callMsWrap(mRotation.y, savedY - 180.0f, savedY + 180.0f);
 	f32 delta = savedY - wrappedY;
-	f32 clamped;
-	if (delta < -torque)
-		clamped = -torque;
-	else if (delta > torque)
-		clamped = torque;
-	else
-		clamped = delta;
+	f32 clamped = delta < -torque ? -torque : (delta > torque ? torque : delta);
 
 	mRotation.y     = MsWrap<f32>(mRotation.y + clamped, 0.0f, 360.0f);
 	mLinearVelocity = deltaV;
