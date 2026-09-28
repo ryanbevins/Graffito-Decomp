@@ -31,6 +31,8 @@ extern JGeometry::TVec3<f32>* gpMarioPos;
 JGeometry::TQuat4<f32> SMS_Eular2Quat(const JGeometry::TVec3<f32>&);
 f32 SMSGetAnmFrameRate();
 
+static inline f32 calcLength(JGeometry::TVec3<f32> v) { return v.length(); }
+
 static inline f32 callMsWrap(f32 t, f32 l, f32 r)
 {
 	return MsWrap<f32>(t, l, r);
@@ -621,11 +623,7 @@ bool TAnimalBird::doLanding(bool initFrame)
 	mRotation.y     = MsWrap<f32>(mRotation.y + clamped, 0.0f, 360.0f);
 	mLinearVelocity = deltaV;
 
-	JGeometry::TVec3<f32> velCopy;
-	velCopy = mVelocity;
-	f32 mag = JGeometry::TUtil<f32>::sqrt(velCopy.x * velCopy.x
-	                                      + velCopy.y * velCopy.y
-	                                      + velCopy.z * velCopy.z);
+	f32 mag = calcLength(mVelocity);
 
 	JGeometry::TVec3<f32> forward(0.0f, 0.0f, mag);
 	f32 fric = ((TAnimalBirdParams*)getSaveParam())->mLandingFric.value;
