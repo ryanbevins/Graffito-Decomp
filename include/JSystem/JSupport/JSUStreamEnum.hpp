@@ -7,6 +7,7 @@ enum JSUStreamSeekFrom {
 	JSUStreamSeekFrom_END = 2
 };
 
+#undef EOF
 enum EIoState { GOOD = 0, EOF = 1 };
 
 #endif
