@@ -545,7 +545,8 @@ inline f32 distanceFromPos(const JGeometry::TVec3<f32>& pos,
 {
 	JGeometry::TVec3<f32> delta(pos);
 	delta.sub(point);
-	return delta.length();
+	JGeometry::TVec3<f32> v(delta);
+	return v.length();
 }
 
 inline void normalizeDir(Vec* dir)
