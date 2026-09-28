@@ -788,6 +788,16 @@ void TChuuHanaAseParCallback::execute(JPABaseEmitter* emitter, JPABaseParticle*)
 void TChuuHanaAseParCallback::draw(JPABaseEmitter*, JPABaseParticle*) { }
 
 // fabricated
+static inline f32 projectChuuHanaAxis(const Vec& axis,
+                                      const JGeometry::TVec3<f32>& col)
+{
+	f32 len2 = col.x * col.x + col.y * col.y + col.z * col.z;
+	if (len2 == 0.0f)
+		return 0.0f;
+	return (axis.x * col.x + axis.y * col.y + axis.z * col.z) / len2;
+}
+
+// fabricated
 static inline bool isChuuHanaRolling(TChuuHana* chuuhana)
 {
 	if (chuuhana->mSpine->getCurrentNerve() == &TNerveChuuHanaRoll::theNerve())
@@ -806,23 +816,21 @@ static int ChuuHanaBodyCallback(J3DNode* node, int timing)
 		    = gpCurChuuHana->getModel()->mNodeMatrices[jointIndex];
 
 		Mtx identity;
+		identity[0][3] = 0.0f;
+		identity[1][3] = 0.0f;
+		identity[2][3] = 0.0f;
 		identity[0][0] = 1.0f;
 		identity[0][1] = 0.0f;
 		identity[0][2] = 0.0f;
-		identity[0][3] = 0.0f;
 		identity[1][0] = 0.0f;
 		identity[1][1] = 1.0f;
 		identity[1][2] = 0.0f;
-		identity[1][3] = 0.0f;
 		identity[2][0] = 0.0f;
 		identity[2][1] = 0.0f;
 		identity[2][2] = 1.0f;
-		identity[2][3] = 0.0f;
 
-		Vec dir;
-		dir.x = gpCurChuuHana->unk204.x;
-		dir.y = 0.0f;
-		dir.z = gpCurChuuHana->unk204.z;
+		JGeometry::TVec3<f32> dir(gpCurChuuHana->unk204.x, 0.0f,
+		                          gpCurChuuHana->unk204.z);
 		if (dir.x == 0.0f && dir.z == 0.0f)
 			dir.x = 0.001f;
 
@@ -833,40 +841,17 @@ static int ChuuHanaBodyCallback(J3DNode* node, int timing)
 		Vec axis;
 		PSVECCrossProduct(&up, &dir, &axis);
 
-		f32 len2 = jointMtx[0][2] * jointMtx[0][2]
-		           + jointMtx[1][2] * jointMtx[1][2]
-		           + jointMtx[2][2] * jointMtx[2][2];
-		f32 z = 0.0f;
-		if (len2 != 0.0f)
-			z = (axis.x * jointMtx[0][2] + axis.y * jointMtx[1][2]
-			     + axis.z * jointMtx[2][2])
-			    / len2;
+		f32 angle = gpCurChuuHana->unk210;
+		JGeometry::TVec3<f32> colZ(jointMtx[0][2], jointMtx[1][2], jointMtx[2][2]);
+		JGeometry::TVec3<f32> colX(jointMtx[0][0], jointMtx[1][0], jointMtx[2][0]);
+		JGeometry::TVec3<f32> colY(jointMtx[0][1], jointMtx[1][1], jointMtx[2][1]);
 
-		len2 = jointMtx[0][1] * jointMtx[0][1]
-		       + jointMtx[1][1] * jointMtx[1][1]
-		       + jointMtx[2][1] * jointMtx[2][1];
-		f32 y = 0.0f;
-		if (len2 != 0.0f)
-			y = (axis.x * jointMtx[0][1] + axis.y * jointMtx[1][1]
-			     + axis.z * jointMtx[2][1])
-			    / len2;
-
-		len2 = jointMtx[0][0] * jointMtx[0][0]
-		       + jointMtx[1][0] * jointMtx[1][0]
-		       + jointMtx[2][0] * jointMtx[2][0];
-		f32 x = 0.0f;
-		if (len2 != 0.0f)
-			x = (axis.x * jointMtx[0][0] + axis.y * jointMtx[1][0]
-			     + axis.z * jointMtx[2][0])
-			    / len2;
-
-		Vec localAxis;
-		localAxis.x = x;
-		localAxis.y = y;
-		localAxis.z = z;
+		f32 z = projectChuuHanaAxis(axis, colZ);
+		f32 y = projectChuuHanaAxis(axis, colY);
+		f32 x = projectChuuHanaAxis(axis, colX);
+		JGeometry::TVec3<f32> localAxis(x, y, z);
 		Mtx rot;
-		PSMTXRotAxisRad(rot, &localAxis,
-		                0.017453292f * gpCurChuuHana->unk210);
+		PSMTXRotAxisRad(rot, &localAxis, 0.017453292f * angle);
 		PSMTXConcat(jointMtx, rot, jointMtx);
 		PSMTXConcat(jointMtx, identity, jointMtx);
 		PSMTXConcat(J3DSys::mCurrentMtx, rot, J3DSys::mCurrentMtx);
