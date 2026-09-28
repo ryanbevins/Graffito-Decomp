@@ -913,75 +913,22 @@ void TModelWaterManager::calcVMMtxWall(MtxPtr param_1, f32 scale,
                                        const JGeometry::TVec3<f32>& param_4,
                                        MtxPtr param_5)
 {
-	// TODO: matching this is ewwwwwwwwwwwwwwwwww
-
-	f32 normalX = param_4.x;
-	f32 normalZ = param_4.z;
-	f32 scaledX = scale * normalX;
-	f32 scaledZ = scale * normalZ;
+	f32 scaledX    = scale * param_4.x;
+	f32 scaledZ    = scale * param_4.z;
 	f32 negScaledX = -scaledX;
-	f32 transY = param_3.y;
-	f32 transX = normalX * 2.0f + param_3.x;
-	f32 transZ = normalZ * 2.0f + param_3.z;
+	f32 transX     = param_4.x * 2.0f + param_3.x;
+	f32 transY     = param_3.y;
+	f32 transZ     = param_4.z * 2.0f + param_3.z;
 
-	{
-		f32 m01 = param_1[0][1];
-		f32 m02 = param_1[0][2];
-		f32 out3 = m01 * transY;
-		f32 out0 = m02 * negScaledX;
-		f32 m00 = param_1[0][0];
-		f32 m03 = param_1[0][3];
-		out0 = m00 * scaledZ + out0;
-		out3 = m00 * transX + out3;
-		f32 out2 = m02 * scaledZ;
-		f32 out1 = m01 * scale;
-		param_5[0][0] = out0;
-		out3 = m02 * transZ + out3;
-		out2 = m00 * scaledX + out2;
-		param_5[0][1] = out1;
-		out3 = m03 + out3;
-		param_5[0][2] = out2;
-		param_5[0][3] = out3;
-	}
-
-	{
-		f32 m12 = param_1[1][2];
-		f32 m10 = param_1[1][0];
-		f32 m11 = param_1[1][1];
-		f32 m13 = param_1[1][3];
-		f32 out0 = m12 * negScaledX;
-		f32 out3 = m11 * transY;
-		f32 out2 = m12 * scaledZ;
-		out0 = m10 * scaledZ + out0;
-		out3 = m10 * transX + out3;
-		f32 out1 = m11 * scale;
-		param_5[1][0] = out0;
-		out2 = m10 * scaledX + out2;
-		out3 = m12 * transZ + out3;
-		param_5[1][1] = out1;
-		out3 = m13 + out3;
-		param_5[1][2] = out2;
-		param_5[1][3] = out3;
-	}
-
-	{
-		f32 m22 = param_1[2][2];
-		f32 m20 = param_1[2][0];
-		f32 m21 = param_1[2][1];
-		f32 m23 = param_1[2][3];
-		f32 out0 = m22 * negScaledX;
-		f32 out3 = m21 * transY;
-		f32 out2 = m22 * scaledZ;
-		out0 = m20 * scaledZ + out0;
-		out3 = m20 * transX + out3;
-		f32 out1 = m21 * scale;
-		param_5[2][0] = out0;
-		out2 = m20 * scaledX + out2;
-		out3 = m22 * transZ + out3;
-		param_5[2][1] = out1;
-		out3 = m23 + out3;
-		param_5[2][2] = out2;
-		param_5[2][3] = out3;
+	for (int i = 0; i < 3; ++i) {
+		f32 m0 = param_1[i][0];
+		f32 m1 = param_1[i][1];
+		f32 m2 = param_1[i][2];
+		f32 m3 = param_1[i][3];
+		param_5[i][0] = m0 * scaledZ + m2 * negScaledX;
+		param_5[i][1] = m1 * scale;
+		param_5[i][2] = m0 * scaledX + m2 * scaledZ;
+		param_5[i][3] = m3 + (m0 * transX + m1 * transY + m2 * transZ);
 	}
 }
 
