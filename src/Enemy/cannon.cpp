@@ -277,12 +277,14 @@ void TCannon::bombShoot()
 	velocity.z *= speed;
 
 	if (unk21C) {
-		unk1A4->mVelocity.set(velocity.x, velocity.y, velocity.z);
-		unk1A4->offLiveFlag(LIVE_FLAG_UNK10);
+		TSmallEnemy* bomb = unk1A4;
+		bomb->mVelocity.set(velocity.x, velocity.y, velocity.z);
+		bomb->offLiveFlag(LIVE_FLAG_UNK10);
 	} else {
-		unk1A4->mVelocity = velocity;
-		unk1A4->onLiveFlag(LIVE_FLAG_AIRBORNE);
-		unk1A4->getMActor()->setFrameRate(SMSGetAnmFrameRate(), 0);
+		TSmallEnemy* bomb = unk1A4;
+		bomb->mVelocity = velocity;
+		bomb->onLiveFlag(LIVE_FLAG_AIRBORNE);
+		bomb->getMActor()->setFrameRate(SMSGetAnmFrameRate(), 0);
 	}
 
 	unk1A4->mPosition.y += 2.0f;
