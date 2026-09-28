@@ -903,6 +903,12 @@ u32 TMario::setStatusToJumping(u32 status, u32 arg)
 		// Multi-bounce/triple jump
 		u16 animId = mAnimationId;
 		switch (animId) {
+		case 0xD1:
+		default:
+			// Other
+			startVoice(0x78AB);
+			setPlayerJumpSpeed(0.25f, mDeParams.mTramplePowStep1.get());
+			break;
 		case 0xD2:
 			// Triple jump
 			startVoice(0x78B1);
@@ -912,11 +918,6 @@ u32 TMario::setStatusToJumping(u32 status, u32 arg)
 			// Double jump (D3)
 			startVoice(0x78B6);
 			setPlayerJumpSpeed(0.25f, mDeParams.mTramplePowStep3.get());
-			break;
-		default:
-			// Other
-			startVoice(0x78AB);
-			setPlayerJumpSpeed(0.25f, mDeParams.mTramplePowStep1.get());
 			break;
 		}
 		mForwardVel *= 0.8f;
