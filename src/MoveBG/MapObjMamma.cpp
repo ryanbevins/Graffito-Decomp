@@ -914,7 +914,7 @@ void TLeanMirror::control()
 {
 	TMapObjBase::control();
 	switch (mState) {
-	case 1:
+	case 1: {
 		controlShake();
 		f32 volume1 = __fabsf(vecLength(unk14C));
 		if (gpMSound->gateCheck(0x3048)) {
@@ -922,7 +922,8 @@ void TLeanMirror::control()
 			    0x3048, &mPosition, nullptr, volume1, 0, 0, nullptr, 0, 4);
 		}
 		break;
-	case 2:
+	}
+	case 2: {
 		controlGoTarget();
 		f32 volume2 = __fabsf(vecLength(unk14C));
 		if (gpMSound->gateCheck(0x304A)) {
@@ -930,6 +931,7 @@ void TLeanMirror::control()
 			    0x304A, &mPosition, nullptr, volume2, 0, 0, nullptr, 0, 4);
 		}
 		break;
+	}
 	case 3:
 		if (!(mLifeTimer > 0 ? true : false)) {
 			TShiningStone* stone = unk17C;

@@ -898,7 +898,7 @@ bool TBaseNPC::npcMadding()
 		ret = true;
 	} else {
 		switch (unkD0->mCurrentAnmKind) {
-		case 4:
+		case 4: {
 			SMS_GoRotate(mPosition, *gpMarioPos,
 			             *(f32*)((u8*)mNpcSaveIndividual + 0x2ac), &mRotation.y);
 			JGeometry::TVec3<f32> axis = *gpMarioPos;
@@ -915,6 +915,7 @@ bool TBaseNPC::npcMadding()
 			if (!unk124->getGraph()->isDummy())
 				onUnk1DA(UNK1DA_FLAG_UNK1);
 			break;
+		}
 
 		case 0xA:
 		case 0xB:

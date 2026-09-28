@@ -930,7 +930,7 @@ void TMuddyBoat::control()
 		moveByWater();
 
 	switch (mState) {
-	case 1:
+	case 1: {
 		unk140 *= unk144;
 		f32 speed = __fabsf(unk140);
 		if (gpMSound->gateCheck(0x3080)) {
@@ -946,6 +946,7 @@ void TMuddyBoat::control()
 				unk14C = 0.0f;
 		}
 		break;
+	}
 	case 2:
 		if (animIsFinished()) {
 			mLifeTimer = unk168;
