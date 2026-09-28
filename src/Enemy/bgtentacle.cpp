@@ -165,11 +165,14 @@ void TBGTentacleMtxCalc::calc(u16 param_1)
 		fVar1             = root;
 	}
 
-	f32 fVar13 = MsClamp(fVar1, 0.7f, 1.2f);
+	if (fVar1 > 1.2f)
+		fVar1 = 1.2f;
+	else if (fVar1 < 0.7f)
+		fVar1 = 0.7f;
 
-	local_68.scale(fVar13);
-	local_74.scale(fVar13);
-	local_80.scale(fVar13);
+	local_68.scale(fVar1);
+	local_74.scale(fVar1);
+	local_80.scale(fVar1);
 
 	if (mOwner->getState() == 5 && (param_1 == iVar8 || param_1 == uVar9 - 2)) {
 		local_74.set(0.0f, 0.3f, 0.0f);
