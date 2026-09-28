@@ -298,33 +298,40 @@ void TWaterHitPictureHideObj::load(JSUMemoryInputStream& stream)
 	                                (GXColorS10*)&unk16C);
 }
 
+static inline bool isBlueCoinTaken(u8 map, u8 id)
+{
+	return TFlagManager::smInstance->getBlueCoinFlag(map, id);
+}
+
 #pragma dont_inline on
 void TWaterHitPictureHideObj::loadAfter()
 {
 	TMapObjBase::loadAfter();
-	unk138 = TMapObjBaseManager::newAndRegisterObjByEventID(unk134, mName);
+	{
+		const char* actorName = mName;
+		u32 eventID = unk134;
+		unk138 = TMapObjBaseManager::newAndRegisterObjByEventID(eventID,
+		                                                      actorName);
+	}
 	if (unk138) {
 		bool isBlueCoin = (unk138->mActorType == 0x20000010) ? true : false;
 		if (isBlueCoin) {
-			const u8 mapNo = gpMarDirector->mMap;
-			if (TFlagManager::smInstance->getBlueCoinFlag(
-			        mapNo, (u8)unk134))
+			if (isBlueCoinTaken(gpMarDirector->mMap, unk134))
 				unk14C = 0;
 		}
 		bool isShine = (unk138->mActorType == 0x20000013) ? true : false;
 		if (isShine) {
 			int nlen = strlen(mName);
 			unk144   = (u32) new char[nlen + 0x13];
-			snprintf((char*)unk144, nlen + 0x13, "シャイン（%s）カメラ", mName);
+			const char* name = mName;
+			snprintf((char*)unk144, nlen + 0x13, "シャイン（%s）カメラ", name);
 		}
 	}
 	bool isBlueCoin2 = false;
 	if (unk138) {
 		isBlueCoin2 = (unk138->mActorType == 0x20000010) ? true : false;
 	}
-	if (isBlueCoin2
-	    && TFlagManager::smInstance->getBlueCoinFlag(gpMarDirector->mMap,
-	                                                  (u8)unk134)) {
+	if (isBlueCoin2 && isBlueCoinTaken(gpMarDirector->mMap, unk134)) {
 		makeObjDead();
 	} else {
 		switch (mActorType) {
@@ -702,11 +709,6 @@ void THideObjBase::load(JSUMemoryInputStream& stream)
 	TMapObjBase::loadHideObjInfo(stream, &eventId, &unk13C, &unk140, &unk148);
 	setUnk134(eventId);
 	SMS_LoadParticle("/scene/mapObj/ms_watcoin_hit.jpa", 0x57);
-}
-
-static inline bool isBlueCoinTaken(u8 map, u8 id)
-{
-	return TFlagManager::smInstance->getBlueCoinFlag(map, id);
 }
 
 void THideObjBase::loadAfter()
