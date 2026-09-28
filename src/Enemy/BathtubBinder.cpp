@@ -52,6 +52,16 @@ void TBathtubBinder::bind(TLiveActor* actor)
 		float_(actor);
 }
 
+static inline f32 calcLengthXZ(const JGeometry::TVec3<f32>& v)
+{
+	f32 mag = v.x * v.x + v.z * v.z;
+	if (mag <= 0.0f)
+		return mag;
+
+	f32 root = __frsqrte(mag);
+	return 0.5f * root * (3.0f - mag * (root * root)) * mag;
+}
+
 void TBathtubBinder::float_(TLiveActor* actor)
 {
 	if (mBathWaterMgr == nullptr)
@@ -148,8 +158,7 @@ void TBathtubBinder::float_(TLiveActor* actor)
 	if (delta.squared() <= 0.0000038146973f)
 		return;
 
-	JGeometry::TVec3<f32> horizontal(delta.x, 0.0f, delta.z);
-	f32 hLen = horizontal.length();
+	f32 hLen = calcLengthXZ(delta);
 
 	s16 ang = matan(delta.y, hLen);
 	f32 deg = ang * 0.005493164f;
