@@ -25,6 +25,7 @@
 #include <JSystem/J3D/J3DGraphBase/J3DMaterial.hpp>
 #include <JSystem/J3D/J3DGraphBase/J3DShape.hpp>
 #include <JSystem/J3D/J3DGraphBase/J3DSys.hpp>
+#include <JSystem/J3D/J3DGraphBase/J3DTexture.hpp>
 #include <JSystem/J3D/J3DGraphBase/J3DTransform.hpp>
 #include <JSystem/J3D/J3DGraphBase/Components/J3DGXColorS10.hpp>
 #include <JSystem/J3D/J3DGraphAnimator/J3DJoint.hpp>
@@ -134,9 +135,9 @@ void TYoshi::init(TMario* mario) {
 	mHandR = handR;
 
 	{
-		u8* dst = *(u8**)((u8*)handL->getModelData()->getTexture() + 4);
+		u8* dst = (u8*)handL->getModelData()->getTexture()->getResTIMG(0);
 		u8* src
-		    = *(u8**)((u8*)mActor->unk4->getModelData()->getTexture() + 4);
+		    = (u8*)mActor->unk4->getModelData()->getTexture()->getResTIMG(0);
 		for (int j = 0; j < 8; ++j)
 			((u32*)dst)[j] = ((u32*)src)[j];
 		*(u32*)(dst + 0x1C) = (u32)((src + *(u32*)(dst + 0x1C)) - dst);
@@ -144,9 +145,9 @@ void TYoshi::init(TMario* mario) {
 		DCFlushRange(dst, 0x20);
 	}
 	{
-		u8* dst = *(u8**)((u8*)handR->getModelData()->getTexture() + 4);
+		u8* dst = (u8*)handR->getModelData()->getTexture()->getResTIMG(0);
 		u8* src
-		    = *(u8**)((u8*)mActor->unk4->getModelData()->getTexture() + 4);
+		    = (u8*)mActor->unk4->getModelData()->getTexture()->getResTIMG(0);
 		for (int j = 0; j < 8; ++j)
 			((u32*)dst)[j] = ((u32*)src)[j];
 		*(u32*)(dst + 0x1C) = (u32)((src + *(u32*)(dst + 0x1C)) - dst);
