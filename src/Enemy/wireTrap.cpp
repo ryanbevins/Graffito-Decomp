@@ -43,9 +43,11 @@ const GXColorS10 cRedColor  = { 0xD2, 0x14, 0x0F, 0x00 };
 const GXColorS10 cBlueColor = { 0x0F, 0x14, 0xD2, 0x00 };
 } // namespace
 
-static inline JGeometry::TVec3<f32> makeWireTrapDir(f32 x, f32 z)
+static inline JGeometry::TVec3<f32> makeWireTrapDir(f32 theta, f32 radius)
 {
-	return JGeometry::TVec3<f32>(x, 0.0f, z);
+	f32 c = radius * JMACos(theta);
+	f32 s = radius * JMASin(theta);
+	return JGeometry::TVec3<f32>(s, 0.0f, c);
 }
 
 TWireTrapManager::TWireTrapManager(const char* name)
@@ -312,11 +314,8 @@ void TWireTrap::load(JSUMemoryInputStream& stream)
 	mSpine->reset();
 	mSpine->setNext(getNerveFromMode(mColorType));
 
-	u16 ang = (u16)(182.04445f * mRotation.y);
 	const JGeometry::TVec3<f32>& wdir = getWireBinderDirect()->getDirDirect();
-	JGeometry::TVec3<f32> v = makeWireTrapDir(
-	    1.0f * jmaSinTable[(ang >> jmaSinShift)],
-	    1.0f * jmaCosTable[(ang >> jmaSinShift)]);
+	JGeometry::TVec3<f32> v = makeWireTrapDir(mRotation.y, 1.0f);
 	if (0.0f <= v.x * wdir.x + v.y * wdir.y + v.z * wdir.z)
 		mWireDir = 1.0f;
 	else
