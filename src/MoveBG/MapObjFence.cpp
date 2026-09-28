@@ -438,6 +438,16 @@ void TRevolvingFenceInner::setGroundCollision()
 void TRevolvingFenceInner::controlGroundRoof()
 {
 	switch (mState) {
+	case 3:
+	case 5:
+		if (mMActor->curAnmEndsNext(0, nullptr)) {
+			mState = 2;
+			mMActor->setFrameRate(0.0f, 0);
+			mMActor->getFrameCtrl(0)->setFrame(0.0f);
+			mMActor->calc();
+			onMapObjFlag(0x100);
+		}
+		break;
 	case 4:
 	case 6:
 		if (mMActor->curAnmEndsNext(0, nullptr)) {
@@ -448,15 +458,8 @@ void TRevolvingFenceInner::controlGroundRoof()
 			onMapObjFlag(0x100);
 		}
 		break;
-	case 3:
-	case 5:
-		if (mMActor->curAnmEndsNext(0, nullptr)) {
-			mState = 2;
-			mMActor->setFrameRate(0.0f, 0);
-			mMActor->getFrameCtrl(0)->setFrame(0.0f);
-			mMActor->calc();
-			onMapObjFlag(0x100);
-		}
+	case 1:
+	case 2:
 		break;
 	}
 }
