@@ -669,8 +669,7 @@ const char** TTobiPuku::getBasNameTable() const { return pukupuku_bastable; }
 
 void TTobiPuku::scalingChangeActor()
 {
-	f32 xzScale = MsClamp(mJuiceBlock->unk140.x + 0.02f, 0.0f,
-	                     TSmallEnemyManager::mBlockXZScale);
+	f32 xzScale = MsClamp(mJuiceBlock->unk140.x + 0.02f, 0.0f, 3.0f);
 
 	mJuiceBlock->unk140.z  = xzScale;
 	mJuiceBlock->unk140.x  = xzScale;
