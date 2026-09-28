@@ -650,21 +650,20 @@ void TCloset::moveObject()
 		}
 	}
 	for (s32 i = 0; i < unk148; ++i) {
-		f32 cur = unk138[i];
-		if (cur == 0.0f)
+		if (unk138[i] == 0.0f)
 			continue;
-		if (fabsf(cur) > unk160) {
-			unk13C[i] += cur;
-			if (cur > 0.0f)
-				unk138[i] = cur - unk15C;
+		if (fabsf(unk138[i]) > unk160) {
+			unk13C[i] += unk138[i];
+			if (unk138[i] > 0.0f)
+				unk138[i] -= unk15C;
 			else
-				unk138[i] = cur + unk15C;
+				unk138[i] += unk15C;
 			bool changed = false;
 			if (unk13C[i] >= 360.0f) {
 				unk13C[i] -= 360.0f;
 				changed = true;
 			}
-			if (unk13C[i] < 0.0f) {
+			if (unk13C[i] <= 0.0f) {
 				unk13C[i] += 360.0f;
 				changed = true;
 			}
@@ -677,13 +676,13 @@ void TCloset::moveObject()
 			}
 			continue;
 		}
-		unk13C[i] += cur;
+		unk13C[i] += unk138[i];
 		bool changed = false;
 		if (unk13C[i] >= 360.0f) {
 			unk13C[i] -= 360.0f;
 			changed = true;
 		}
-		if (unk13C[i] < 0.0f) {
+		if (unk13C[i] <= 0.0f) {
 			unk13C[i] += 360.0f;
 			changed = true;
 		}
@@ -698,20 +697,20 @@ void TCloset::moveObject()
 		if ((angInt % 180) != 0)
 			continue;
 		unk138[i] = 0.0f;
-		if (unk13C[i] > 180.0f && unk13C[i] < 360.0f)
-			continue;
-		for (s32 j = 0; j < unk148; ++j) {
-			if (j == i)
-				continue;
-			if (unk138[j] != 0.0f)
-				return;
-			if (unk13C[j] >= 180.0f && unk13C[j] < 360.0f)
-				return;
+		if (unk13C[i] <= 180.0f || unk13C[i] >= 360.0f) {
+			for (s32 j = 0; j < unk148; ++j) {
+				if (i != j) {
+					if (unk138[j] != 0.0f)
+						return;
+					if (unk13C[j] >= 180.0f && unk13C[j] < 360.0f)
+						return;
+				}
+			}
+			unk16C = 1;
+			if (gpMSound->gateCheck(0x484D))
+				MSoundSESystem::MSoundSE::startSoundSystemSE(0x484D, 0,
+				                                             nullptr, 0);
 		}
-		unk16C = 1;
-		if (gpMSound->gateCheck(0x484D))
-			MSoundSESystem::MSoundSE::startSoundSystemSE(0x484D, 0,
-			                                             nullptr, 0);
 	}
 }
 void TCloset::calcRootMatrix()
