@@ -954,9 +954,8 @@ void TYoshi::movement()
 	case 7: {
 		s16 curAngle = mEggRotSpeed;
 		s16 target   = mMario->mFaceAngle.y;
-		mEggRotSpeed
-		    = curAngle + (s16)(*(f32*)((u8*)&mSearch.mTurnRate)
-		                       * (s16)(target - curAngle));
+		mEggRotSpeed = curAngle
+		               + *(f32*)((u8*)&mSearch.mTurnRate) * (target - curAngle);
 		break;
 	}
 	case 8:
