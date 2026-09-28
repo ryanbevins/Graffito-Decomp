@@ -119,8 +119,8 @@ struct J3DAnmTexPatternFullData {
 	/* 0x08 */ u8 field_0x8;
 	/* 0x09 */ u8 field_0x9;
 	/* 0x0A */ s16 mFrameMax;
-	/* 0x0C */ u16 field_0xc;
-	/* 0x0E */ u16 field_0xe;
+	/* 0x0C */ u16 field_0xc; // material count
+	/* 0x0E */ u16 field_0xe; // texture index count (mValuesOffset entries)
 	/* 0x10 */ s32 mTableOffset;
 	/* 0x14 */ s32 mValuesOffset;
 	/* 0x18 */ s32 mUpdateMaterialIDOffset;
@@ -188,8 +188,10 @@ struct J3DAnmTransformKeyData {
 	/* 0x08 */ u8 mAttribute;
 	/* 0x09 */ u8 mDecShift;
 	/* 0x0A */ s16 mFrameMax;
-	/* 0x0C */ u16 field_0xc;
-	/* 0x10 */ int field_0x10;
+	/* 0x0C */ u16 field_0xc;  // joint count
+	/* 0x0E */ u16 field_0xe;  // scale value count
+	/* 0x10 */ u16 field_0x10; // rotation value count
+	/* 0x12 */ u16 field_0x12; // translation value count
 	/* 0x14 */ s32 mTableOffset;
 	/* 0x18 */ s32 mScaleOffset;
 	/* 0x1c */ s32 mRotOffset;
