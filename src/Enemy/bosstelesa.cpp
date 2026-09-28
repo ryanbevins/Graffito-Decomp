@@ -239,12 +239,11 @@ void TBossTelesa::loadAfter()
 
 	unk354 = JDrama::TNameRefGen::search<TObjManager>("テレサマネージャー");
 
-	JGeometry::TVec3<f32> position(0.0f, 0.0f, 0.0f);
-	JGeometry::TVec3<f32> rotation(0.0f, 0.0f, 0.0f);
-	JGeometry::TVec3<f32> scale(1.0f, 1.0f, 1.0f);
 	for (int i = 0; i < 5; ++i)
-		TMapObjBaseManager::newAndRegisterObj("bottle_large", position,
-		                                      rotation, scale);
+		TMapObjBaseManager::newAndRegisterObj(
+		    "bottle_large", JGeometry::TVec3<f32>(0.0f, 0.0f, 0.0f),
+		    JGeometry::TVec3<f32>(0.0f, 0.0f, 0.0f),
+		    JGeometry::TVec3<f32>(1.0f, 1.0f, 1.0f));
 
 	SMS_LoadParticle("/scene/btelesa/jpa/ms_btls_fhit.jpa", 0xD7);
 	SMS_LoadParticle("/scene/btelesa/jpa/ms_btls_fhit_pe.jpa", 0xD8);
