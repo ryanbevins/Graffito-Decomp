@@ -1386,11 +1386,8 @@ void TRoulette::moveObject()
 			                                          nullptr, 0, 4);
 		mPosition.y -= 1.0f;
 	}
-	J3DModel* model = mMActor->getModel();
-	JGeometry::TVec3<f32>& roulettePos = unk150->mPosition;
-	roulettePos.x = model->mNodeMatrices[1][0][3];
-	roulettePos.y = mPosition.y - 100.0f;
-	roulettePos.z = model->mNodeMatrices[1][2][3];
+	MtxPtr mtx = mMActor->getModel()->getAnmMtx(1);
+	unk150->mPosition.set(mtx[0][3], mPosition.y - 100.0f, mtx[2][3]);
 }
 void TRoulette::calcRootMatrix()
 {
