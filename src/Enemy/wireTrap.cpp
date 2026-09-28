@@ -48,189 +48,6 @@ static inline JGeometry::TVec3<f32> makeWireTrapDir(f32 x, f32 z)
 	return JGeometry::TVec3<f32>(x, 0.0f, z);
 }
 
-DEFINE_NERVE(TNerveWireTrapGoWait, TLiveActor)
-{
-	TWireTrap* self = (TWireTrap*)spine->getBody();
-	if (self->getSaveParam2()->mGoTimerMax.get() < spine->getTime())
-		return TRUE;
-	return FALSE;
-}
-
-DEFINE_NERVE(TNerveWireTrapWait, TLiveActor)
-{
-	TWireTrap* self = (TWireTrap*)spine->getBody();
-	if (self->mWaitTime < spine->getTime())
-		return TRUE;
-	return FALSE;
-}
-
-DEFINE_NERVE(TNerveWireTrapSearch, TLiveActor)
-{
-	TWireTrap* self = (TWireTrap*)spine->getBody();
-
-	bool transit = false;
-	if (!SMS_IsMarioOnWire()) {
-		transit = false;
-	} else {
-		if (self->mBiriTimer > 0)
-			self->mBiriTimer -= 1;
-
-		JGeometry::TVec3<f32> delta = *gpMarioPos;
-		delta.x -= self->mPosition.x;
-		delta.y -= self->mPosition.y;
-		delta.z -= self->mPosition.z;
-
-		const JGeometry::TVec3<f32>& wdir
-		    = self->getWireBinderDirect()->getDirDirect();
-		f32 dot = delta.x * wdir.x + delta.y * wdir.y + delta.z * wdir.z;
-		int sign;
-		if (dot > 0.0f)
-			sign = 1;
-		else if (dot < 0.0f)
-			sign = -1;
-		else
-			sign = 0;
-		self->mWireDir = (f32)sign;
-
-		JGeometry::TVec3<f32> vel = self->getWireDir();
-		f32 s;
-		if (self->mShakeTimer > 0)
-			s = 1.0f + self->mShakeWidth * (f32)self->mShakeTimer / 30.0f;
-		else
-			s = 1.0f;
-		vel.scale(self->mWireDir * s);
-		vel.scale(self->mScaleSpeed);
-		self->mLinearVelocity = vel;
-		transit = false;
-	}
-
-	if (transit) {
-		spine->pushAfterCurrent(this);
-		spine->pushAfterCurrent(&TNerveWireTrapWait::theNerve());
-		return TRUE;
-	}
-	return FALSE;
-}
-
-DEFINE_NERVE(TNerveWireTrapOnewayMoveEnd, TLiveActor)
-{
-	TWireTrap* self = (TWireTrap*)spine->getBody();
-	self->unk64 |= 1;
-
-	self->mScaleRate -= 1.0f / self->getSaveParam2()->mScaleTimerMax.get();
-
-	bool done;
-	if (self->mScaleRate <= 0.0f) {
-		self->mScaleRate = 0.0f;
-		done             = true;
-		self->unk64 &= ~1;
-	} else {
-		done = false;
-	}
-
-	if (done) {
-		f32 base = 0.0f < self->mWireDir ? 0.0f : 1.0f;
-		self->getWireBinderDirect()->getPoint(&self->mPosition,
-		                                      self->mWireDir * 0.01f + base);
-		return TRUE;
-	}
-	return FALSE;
-}
-
-DEFINE_NERVE(TNerveWireTrapOnewayMove, TLiveActor)
-{
-	TWireTrap* self = (TWireTrap*)spine->getBody();
-
-	if (spine->getTime() == 0 && self->mScaleRate < 1.0f) {
-		spine->pushAfterCurrent(this);
-		spine->pushAfterCurrent(&TNerveWireTrapGoWait::theNerve());
-		spine->pushAfterCurrent(&TNerveWireTrapOnewayMoveStart::theNerve());
-		return TRUE;
-	}
-
-	if (self->mBiriTimer > 0)
-		self->mBiriTimer -= 1;
-
-	bool transit;
-	if (self->getWireBinderDirect()->isEndWire(self->mPosition,
-	                                           self->mWireDir)) {
-		transit = true;
-	} else {
-		JGeometry::TVec3<f32> vel = self->getWireDir();
-		f32 s;
-		if (self->mShakeTimer > 0)
-			s = 1.0f + self->mShakeWidth * (f32)self->mShakeTimer / 30.0f;
-		else
-			s = 1.0f;
-		vel.scale(self->mWireDir * s);
-		vel.scale(self->mScaleSpeed);
-		self->mLinearVelocity = vel;
-		transit = false;
-	}
-
-	if (transit) {
-		spine->pushAfterCurrent(this);
-		spine->pushAfterCurrent(&TNerveWireTrapWait::theNerve());
-		spine->pushAfterCurrent(&TNerveWireTrapOnewayMoveEnd::theNerve());
-		return TRUE;
-	}
-	return FALSE;
-}
-
-DEFINE_NERVE(TNerveWireTrapOnewayMoveStart, TLiveActor)
-{
-	TWireTrap* self = (TWireTrap*)spine->getBody();
-	self->unk64 |= 1;
-
-	self->mScaleRate += 1.0f / self->getSaveParam2()->mScaleTimerMax.get();
-
-	bool done;
-	if (1.0f <= self->mScaleRate) {
-		self->mScaleRate = 1.0f;
-		done             = true;
-		self->unk64 &= ~1;
-	} else {
-		done = false;
-	}
-
-	if (done)
-		return TRUE;
-	return FALSE;
-}
-
-DEFINE_NERVE(TNerveWireTrapReturnMove, TLiveActor)
-{
-	TWireTrap* self = (TWireTrap*)spine->getBody();
-
-	if (self->getBiriTimer() > 0)
-		self->mBiriTimer -= 1;
-
-	bool transit;
-	if (self->getWireBinderDirect()->isEndWire(self->mPosition,
-	                                           self->mWireDir)) {
-		self->mWireDir *= -1.0f;
-		transit = true;
-	} else {
-		JGeometry::TVec3<f32> vel = self->getWireDir();
-		f32 s;
-		if (self->mShakeTimer > 0)
-			s = 1.0f + self->mShakeWidth * (f32)self->mShakeTimer / 30.0f;
-		else
-			s = 1.0f;
-		vel.scale(self->mWireDir * s);
-		vel.scale(self->mScaleSpeed);
-		self->mLinearVelocity = vel;
-		transit = false;
-	}
-
-	if (transit) {
-		spine->pushAfterCurrent(this);
-		spine->pushAfterCurrent(&TNerveWireTrapWait::theNerve());
-		return TRUE;
-	}
-	return FALSE;
-}
-
 TWireTrapManager::TWireTrapManager(const char* name)
     : TEnemyManager(name)
 {
@@ -561,4 +378,187 @@ void TWireTrapManager::createModelData()
 		{ nullptr, 0, 0 },
 	};
 	createModelDataArray(entry);
+}
+
+DEFINE_NERVE(TNerveWireTrapReturnMove, TLiveActor)
+{
+	TWireTrap* self = (TWireTrap*)spine->getBody();
+
+	if (self->getBiriTimer() > 0)
+		self->mBiriTimer -= 1;
+
+	bool transit;
+	if (self->getWireBinderDirect()->isEndWire(self->mPosition,
+	                                           self->mWireDir)) {
+		self->mWireDir *= -1.0f;
+		transit = true;
+	} else {
+		JGeometry::TVec3<f32> vel = self->getWireDir();
+		f32 s;
+		if (self->mShakeTimer > 0)
+			s = 1.0f + self->mShakeWidth * (f32)self->mShakeTimer / 30.0f;
+		else
+			s = 1.0f;
+		vel.scale(self->mWireDir * s);
+		vel.scale(self->mScaleSpeed);
+		self->mLinearVelocity = vel;
+		transit = false;
+	}
+
+	if (transit) {
+		spine->pushAfterCurrent(this);
+		spine->pushAfterCurrent(&TNerveWireTrapWait::theNerve());
+		return TRUE;
+	}
+	return FALSE;
+}
+
+DEFINE_NERVE(TNerveWireTrapOnewayMoveStart, TLiveActor)
+{
+	TWireTrap* self = (TWireTrap*)spine->getBody();
+	self->unk64 |= 1;
+
+	self->mScaleRate += 1.0f / self->getSaveParam2()->mScaleTimerMax.get();
+
+	bool done;
+	if (1.0f <= self->mScaleRate) {
+		self->mScaleRate = 1.0f;
+		done             = true;
+		self->unk64 &= ~1;
+	} else {
+		done = false;
+	}
+
+	if (done)
+		return TRUE;
+	return FALSE;
+}
+
+DEFINE_NERVE(TNerveWireTrapOnewayMove, TLiveActor)
+{
+	TWireTrap* self = (TWireTrap*)spine->getBody();
+
+	if (spine->getTime() == 0 && self->mScaleRate < 1.0f) {
+		spine->pushAfterCurrent(this);
+		spine->pushAfterCurrent(&TNerveWireTrapGoWait::theNerve());
+		spine->pushAfterCurrent(&TNerveWireTrapOnewayMoveStart::theNerve());
+		return TRUE;
+	}
+
+	if (self->mBiriTimer > 0)
+		self->mBiriTimer -= 1;
+
+	bool transit;
+	if (self->getWireBinderDirect()->isEndWire(self->mPosition,
+	                                           self->mWireDir)) {
+		transit = true;
+	} else {
+		JGeometry::TVec3<f32> vel = self->getWireDir();
+		f32 s;
+		if (self->mShakeTimer > 0)
+			s = 1.0f + self->mShakeWidth * (f32)self->mShakeTimer / 30.0f;
+		else
+			s = 1.0f;
+		vel.scale(self->mWireDir * s);
+		vel.scale(self->mScaleSpeed);
+		self->mLinearVelocity = vel;
+		transit = false;
+	}
+
+	if (transit) {
+		spine->pushAfterCurrent(this);
+		spine->pushAfterCurrent(&TNerveWireTrapWait::theNerve());
+		spine->pushAfterCurrent(&TNerveWireTrapOnewayMoveEnd::theNerve());
+		return TRUE;
+	}
+	return FALSE;
+}
+
+DEFINE_NERVE(TNerveWireTrapOnewayMoveEnd, TLiveActor)
+{
+	TWireTrap* self = (TWireTrap*)spine->getBody();
+	self->unk64 |= 1;
+
+	self->mScaleRate -= 1.0f / self->getSaveParam2()->mScaleTimerMax.get();
+
+	bool done;
+	if (self->mScaleRate <= 0.0f) {
+		self->mScaleRate = 0.0f;
+		done             = true;
+		self->unk64 &= ~1;
+	} else {
+		done = false;
+	}
+
+	if (done) {
+		f32 base = 0.0f < self->mWireDir ? 0.0f : 1.0f;
+		self->getWireBinderDirect()->getPoint(&self->mPosition,
+		                                      self->mWireDir * 0.01f + base);
+		return TRUE;
+	}
+	return FALSE;
+}
+
+DEFINE_NERVE(TNerveWireTrapSearch, TLiveActor)
+{
+	TWireTrap* self = (TWireTrap*)spine->getBody();
+
+	bool transit = false;
+	if (!SMS_IsMarioOnWire()) {
+		transit = false;
+	} else {
+		if (self->mBiriTimer > 0)
+			self->mBiriTimer -= 1;
+
+		JGeometry::TVec3<f32> delta = *gpMarioPos;
+		delta.x -= self->mPosition.x;
+		delta.y -= self->mPosition.y;
+		delta.z -= self->mPosition.z;
+
+		const JGeometry::TVec3<f32>& wdir
+		    = self->getWireBinderDirect()->getDirDirect();
+		f32 dot = delta.x * wdir.x + delta.y * wdir.y + delta.z * wdir.z;
+		int sign;
+		if (dot > 0.0f)
+			sign = 1;
+		else if (dot < 0.0f)
+			sign = -1;
+		else
+			sign = 0;
+		self->mWireDir = (f32)sign;
+
+		JGeometry::TVec3<f32> vel = self->getWireDir();
+		f32 s;
+		if (self->mShakeTimer > 0)
+			s = 1.0f + self->mShakeWidth * (f32)self->mShakeTimer / 30.0f;
+		else
+			s = 1.0f;
+		vel.scale(self->mWireDir * s);
+		vel.scale(self->mScaleSpeed);
+		self->mLinearVelocity = vel;
+		transit = false;
+	}
+
+	if (transit) {
+		spine->pushAfterCurrent(this);
+		spine->pushAfterCurrent(&TNerveWireTrapWait::theNerve());
+		return TRUE;
+	}
+	return FALSE;
+}
+
+DEFINE_NERVE(TNerveWireTrapWait, TLiveActor)
+{
+	TWireTrap* self = (TWireTrap*)spine->getBody();
+	if (self->mWaitTime < spine->getTime())
+		return TRUE;
+	return FALSE;
+}
+
+DEFINE_NERVE(TNerveWireTrapGoWait, TLiveActor)
+{
+	TWireTrap* self = (TWireTrap*)spine->getBody();
+	if (self->getSaveParam2()->mGoTimerMax.get() < spine->getTime())
+		return TRUE;
+	return FALSE;
 }
