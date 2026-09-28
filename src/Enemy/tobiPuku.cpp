@@ -1161,24 +1161,30 @@ TTobiPukuLaunchPadManager::TTobiPukuLaunchPadManager(const char* name)
 {
 }
 
+// fabricated
+static inline bool isTobiPukuRolling(TTobiPuku* puku)
+{
+	if (puku->mSpine->getCurrentNerve() == &TNerveTobiPukuLand::theNerve()
+	    || puku->mSpine->getCurrentNerve()
+	           == &TNerveTobiPukuPrepareFly::theNerve()
+	    || puku->mSpine->getCurrentNerve()
+	           == &TNerveTobiPukuReturnLaunch::theNerve())
+		return true;
+	return false;
+}
+
 int TobiPukuRollCallback(J3DNode* node, int timing)
 {
 	if (timing == 0) {
-		TTobiPuku* puku = gpCurTobiPuku;
-		if (!puku)
+		if (!gpCurTobiPuku || !isTobiPukuRolling(gpCurTobiPuku))
 			return 1;
 
-		const TNerveBase<TLiveActor>* nerve
-		    = puku->mSpine->getCurrentNerve();
-		if (nerve != &TNerveTobiPukuLand::theNerve()
-		    && nerve != &TNerveTobiPukuPrepareFly::theNerve()
-		    && nerve != &TNerveTobiPukuReturnLaunch::theNerve())
-			return 1;
-
-		s32 phase = (s32)(puku->unk1EC * 182.04445f);
-		u16 idx   = (u16)phase >> jmaSinShift;
-		f32 sin   = jmaSinTable[idx];
-		f32 cos   = jmaCosTable[idx];
+		J3DJoint* joint = (J3DJoint*)node;
+		MtxPtr jointMtx
+		    = gpCurTobiPuku->mMActor->unk4->mNodeMatrices[joint->getJntNo()];
+		s32 phase = (s32)(gpCurTobiPuku->unk1EC * 182.04445f);
+		f32 sin   = jmaSinTable[(u16)phase >> jmaSinShift];
+		f32 cos   = jmaCosTable[(u16)phase >> jmaSinShift];
 		Mtx roll;
 		roll[0][0] = cos;
 		roll[0][1] = -sin;
@@ -1193,9 +1199,6 @@ int TobiPukuRollCallback(J3DNode* node, int timing)
 		roll[2][2] = 1.0f;
 		roll[2][3] = 0.0f;
 
-		J3DJoint* joint = (J3DJoint*)node;
-		MtxPtr jointMtx
-		    = puku->mMActor->unk4->mNodeMatrices[joint->getJntNo()];
 		PSMTXConcat(jointMtx, roll, roll);
 		PSMTXConcat(J3DSys::mCurrentMtx, roll, J3DSys::mCurrentMtx);
 	}
