@@ -138,8 +138,8 @@ int TFruitsBoat::setBckTrack(const char* name)
 			mBckAnm = table->getAnmPtr(i);
 
 			mBckFrameCtrl = new J3DFrameCtrl(0);
-			mBckFrameCtrl->init(((s16*)mBckAnm)[1]);
-			mBckFrameCtrl->setAttribute(((u8*)mBckAnm)[0]);
+			mBckFrameCtrl->init(mBckAnm->getFrameMax());
+			mBckFrameCtrl->setAttribute(mBckAnm->getAttribute());
 
 			f32 r = getSaveParam2()->mSLBckMoveSpeed.get();
 			mBckFrameCtrl->setRate(r * SMSGetAnmFrameRate());
