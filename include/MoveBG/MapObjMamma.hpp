@@ -138,7 +138,7 @@ public:
 	void loadAfter();
 	TLeanMirror(const char*);
 
-	static u32 mGoTargetTime;
+	static s32 mGoTargetTime;
 	static u32 mDemoWaitTime;
 	static u32 mDemoLightTime;
 

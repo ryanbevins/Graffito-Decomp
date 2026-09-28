@@ -64,7 +64,7 @@ u32 TSandBombBase::mExlodingRumbleTime   = 20;
 
 f32 TSandCastle::mCollisionRate = 1.7f;
 
-u32 TLeanMirror::mGoTargetTime  = 600;
+s32 TLeanMirror::mGoTargetTime  = 600;
 u32 TLeanMirror::mDemoWaitTime  = 0xFFFFFFFF;
 u32 TLeanMirror::mDemoLightTime = 360;
 
@@ -101,6 +101,16 @@ static inline TLiveActor* findLiveActor(const char* name)
 static inline f32 vecLength(const JGeometry::TVec3<f32>& vec)
 {
 	return vec.length();
+}
+
+static inline f32 calcAngle(const JGeometry::TVec3<f32>& a,
+                             const JGeometry::TVec3<f32>& b)
+{
+	JGeometry::TVec3<f32> axis;
+	axis.cross(a, b);
+	f32 len = axis.length();
+	f32 dot = a.dot(b);
+	return atan2f(len, dot);
 }
 
 static inline void addLeanMirrorImpulse(TLeanMirror* mirror, THitActor* actor,
@@ -769,12 +779,7 @@ void TLeanMirror::release()
 
 	unk18C.cross(up, unk180);
 
-	JGeometry::TVec3<f32> axis(up.y * unk180.z - up.z * unk180.y,
-	                           up.z * unk180.x - up.x * unk180.z,
-	                           up.x * unk180.y - up.y * unk180.x);
-	f32 crossLen = JGeometry::TUtil<f32>::sqrt(axis.squared());
-	f32 dot      = up.dot(unk180);
-	unk198       = fabsf(atan2f(crossLen, dot)) / (f32)mGoTargetTime;
+	unk198 = fabsf(calcAngle(up, unk180)) / (f32)mGoTargetTime;
 
 	mLifeTimer = mGoTargetTime;
 	mState     = 2;
