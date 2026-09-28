@@ -1179,11 +1179,12 @@ void TMapObjTurn::control()
 	}
 	}
 
-	mtx[0][3] = mPosition.x;
-	mtx[1][3] = mPosition.y;
-	mtx[2][3] = mPosition.z;
+	MtxPtr src = mtx;
+	mtx[0][3]  = mPosition.x;
+	mtx[1][3]  = mPosition.y;
+	mtx[2][3]  = mPosition.z;
 	mtx[1][3] -= mYOffset;
-	MTXCopy(mtx, getModel()->getAnmMtx(0));
+	MTXCopy(src, getModel()->getAnmMtx(0));
 }
 
 BOOL TMapObjTurn::receiveMessage(THitActor* sender, u32 message)
