@@ -314,7 +314,7 @@ public:
 	int getResultFromAng(f32);
 
 public:
-	/* 0x198 */ u32 unk198;
+	/* 0x198 */ s32 unk198;
 	/* 0x19C */ u8 unk19C[3];
 	/* 0x19F */ u8 unk19F[3];
 	/* 0x1A2 */ u8 unk1A2;

@@ -1110,7 +1110,7 @@ void TItemSlotDrum::moveObject()
 	}
 	for (s32 i = 0; i < unk148; ++i) {
 		if (unk19C[i] != 0) {
-			if ((u32)getForcastResult(i) == unk198) {
+			if (getForcastResult(i) == unk198) {
 				unk19C[i] = 0;
 				unk19F[i] = 0;
 			}
@@ -1144,8 +1144,13 @@ void TItemSlotDrum::moveObject()
 		unk13C[i] = (f32)((s32)(unk13C[i] / (f32)unk168) * unk168);
 		unk138[i] = 0.0f;
 		gpMSound->startSoundActor(0x292C, &mPosition, 0, nullptr, 0, 4);
-		bool allStopped = (unk138[0] == 0.0f) && (unk138[1] == 0.0f)
-		    && (unk138[2] == 0.0f);
+		bool allStopped = true;
+		if (unk138[0] != 0.0f)
+			allStopped = false;
+		if (unk138[1] != 0.0f)
+			allStopped = false;
+		if (unk138[2] != 0.0f)
+			allStopped = false;
 		if (allStopped) {
 			unk1A2 = 1;
 			generateItem();
@@ -1155,7 +1160,7 @@ void TItemSlotDrum::moveObject()
 				continue;
 			TMsRange<f32> retryRange(0.0f, 1.0f);
 			f32 picked = retryRange.rand();
-			if (picked < 0.9f) {
+			if (picked <= 0.9f) {
 				unk19C[j] = 1;
 				continue;
 			}
