@@ -799,26 +799,28 @@ void TCasinoPanelGate::moveObject()
 				allStopped = false;
 			continue;
 		}
+		allStopped = false;
 		if (fabsf(cur) > unk160) {
 			unk13C[i] += cur;
-			if (cur > 0.0f)
-				unk138[i] = cur - unk15C;
+			if (unk138[i] > 0.0f)
+				unk138[i] -= unk15C;
 			else
-				unk138[i] = cur + unk15C;
+				unk138[i] += unk15C;
 			bool changed = false;
 			if (unk13C[i] >= 360.0f) {
 				unk13C[i] -= 360.0f;
 				changed = true;
 			}
-			if (unk13C[i] < 0.0f) {
+			if (unk13C[i] <= 0.0f) {
 				unk13C[i] += 360.0f;
 				changed = true;
 			}
 			if (changed) {
+				f32 volume = __fabsf(unk138[i]);
 				if (gpMSound->gateCheck(0x389E))
 					MSoundSESystem::MSoundSE::startSoundActorWithInfo(
-					    0x389E, &mPosition, nullptr, fabsf(unk138[i]),
-					    0, 0, nullptr, 0, 4);
+					    0x389E, &mPosition, nullptr, volume, 0, 0, nullptr,
+					    0, 4);
 			}
 			continue;
 		}
@@ -828,15 +830,16 @@ void TCasinoPanelGate::moveObject()
 			unk13C[i] -= 360.0f;
 			changed = true;
 		}
-		if (unk13C[i] < 0.0f) {
+		if (unk13C[i] <= 0.0f) {
 			unk13C[i] += 360.0f;
 			changed = true;
 		}
 		if (changed) {
+			f32 volume = __fabsf(unk138[i]);
 			if (gpMSound->gateCheck(0x389E))
 				MSoundSESystem::MSoundSE::startSoundActorWithInfo(
-				    0x389E, &mPosition, nullptr, fabsf(unk138[i]), 0, 0,
-				    nullptr, 0, 4);
+				    0x389E, &mPosition, nullptr, volume, 0, 0, nullptr, 0,
+				    4);
 		}
 		s32 angInt = (s32)fabsf(unk13C[i]);
 		if ((angInt % 180) == 0) {
