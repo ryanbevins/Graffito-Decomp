@@ -762,9 +762,8 @@ void TBossWanwanMtxCalc::calc(u16 joint_no)
 		mtxPtr[1][0]  = zero;
 		mtxPtr[0][0]  = zero;
 
-		s16 angle = static_cast<s16>(mOwner->unk168 * (65536.0f / 360.0f));
-		f32 sin   = JMASSin(angle);
-		f32 cos   = JMASCos(angle);
+		f32 sin = JMASin(mOwner->unk168);
+		f32 cos = JMACos(mOwner->unk168);
 
 		mtxPtr[0][0] = 1.0f;
 		mtxPtr[0][1] = zero;
