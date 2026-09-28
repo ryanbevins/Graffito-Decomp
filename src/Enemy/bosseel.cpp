@@ -2251,7 +2251,7 @@ DEFINE_NERVE(TNerveBossEelWaitAppear, TLiveActor)
 
 	Vec pos = *gpMarioPos;
 	pos.y += 75.0f;
-	if (eel->unk1AC->isInCube(pos, 0)) {
+	if (eel->unk1AC->isInCube(pos, (s32)0)) {
 		spine->pushAfterCurrent(&TNerveBossEelFirstSpin::theNerve());
 		return TRUE;
 	}
