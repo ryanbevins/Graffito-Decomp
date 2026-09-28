@@ -73,3 +73,11 @@ instruction text for these rows (braces enclose the whole changed instruction).
 `check-diff-noise.py` treats relocation argument difference flags as structural,
 including changed constant values and callees. Run their regression tests with
 `python3 -m unittest discover -s tools/tests`.
+
+`tools/agent/nerve_order.py [src/...cpp]` prints TUs whose `DEFINE_NERVE` order
+differs from the retail `instance$NNNN` numbering order (instances identified by
+the nerve vtable store, so fully inlined `theNerve` bodies are covered). Parse
+order sets the nerve-static bss offsets (`addi r5,rX,off` before
+`__register_global_object`). `tools/agent/move_nerves.py <cpp> <TNerve...>`
+moves those blocks to the end of the file in the given order (the usual fix for
+`-inline deferred` TUs). Always measure: some TUs are byte-neutral or mixed.
