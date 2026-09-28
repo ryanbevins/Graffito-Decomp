@@ -10,18 +10,19 @@ import sys
 
 
 def retail_order(asm):
-    fn = None
+    # Identify each instance$NNNN by the nerve vtable stored into it, so fully
+    # inlined theNerve bodies (no out-of-line theNerve__ symbol) are covered too.
+    lines = open(asm, encoding="utf-8", errors="replace").read().splitlines()
     seen = {}
-    for line in open(asm, encoding="utf-8", errors="replace"):
-        m = re.match(r"\.fn (\S+?),", line)
-        if m:
-            fn = m.group(1)
+    for i, line in enumerate(lines):
+        m = re.search(r"stw r0, instance\$(\d+)@sda21", line)
+        if not m:
             continue
-        m = re.search(r"li r3, instance\$(\d+)@sda21", line)
-        if m and fn and fn.startswith("theNerve__"):
-            name = re.match(r"theNerve__\d+(\w+?)Fv", fn)
-            if name:
-                seen.setdefault(int(m.group(1)), name.group(1))
+        for near in lines[max(0, i - 3):i + 4]:
+            v = re.search(r"__vt__\d+(TNerve\w+?)@l", near)
+            if v:
+                seen.setdefault(int(m.group(1)), v.group(1))
+                break
     return [seen[k] for k in sorted(seen)]
 
 
