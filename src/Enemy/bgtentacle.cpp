@@ -646,7 +646,7 @@ bool TBGTentacle::isAttacking() const
 	return false;
 }
 
-bool TBGTentacle::canTake() const { }
+bool TBGTentacle::canTake() const { return false; }
 
 f32 TBGTentacle::getNodeLen() const
 {

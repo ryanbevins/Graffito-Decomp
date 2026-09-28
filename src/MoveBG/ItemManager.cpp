@@ -57,6 +57,7 @@ TShine* TItemManager::makeShineAppearWithTime(const char* param_1, int param_2,
 TShine* TItemManager::makeShineAppearWithTimeOffset(const char*, int, f32, f32,
                                                     f32, int, int, int)
 {
+	return nullptr;
 }
 
 TShine* TItemManager::makeShineAppearWithDemo(const char* param_1,

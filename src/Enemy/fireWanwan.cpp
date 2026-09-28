@@ -671,11 +671,11 @@ void TFireWanwanTailHit::movementBody(const JGeometry::TVec3<f32>& param_1)
 
 void TFireWanwanTailHit::bindBody() { }
 
-JGeometry::TVec3<f32> TFireWanwanTailHit::getBodyNthPos(int i) const { }
+JGeometry::TVec3<f32> TFireWanwanTailHit::getBodyNthPos(int i) const { return JGeometry::TVec3<f32>(0.0f, 0.0f, 0.0f); }
 
-f32 TFireWanwanTailHit::getBodyTailPow() const { }
+f32 TFireWanwanTailHit::getBodyTailPow() const { return 0.0f; }
 
-f32 TFireWanwanTailHit::getBodyHeadPow() const { }
+f32 TFireWanwanTailHit::getBodyHeadPow() const { return 0.0f; }
 
 f32 TFireWanwanTailHit::calcApartPow()
 {
@@ -747,7 +747,7 @@ void TFireWanwanTailHit::changeBodyToSilver(f32 param_1)
 	unkBC->init(cBodyColorOnSilver, unkBC->getCurrent(), param_1);
 }
 
-f32 TFireWanwanTailHit::getTailLength() const { }
+f32 TFireWanwanTailHit::getTailLength() const { return 0.0f; }
 
 const JGeometry::TVec3<f32>& TFireWanwanTailHit::getHostPos() const
 {

@@ -118,7 +118,7 @@ void TDLTexQuadMulti::setChangeNum(u16) { }
 
 void TDLTexQuadMulti::createDLBuffer(u16) { }
 
-bool TDLTexQuadMulti::request(const JGeometry::TVec3<f32>*) { }
+bool TDLTexQuadMulti::request(const JGeometry::TVec3<f32>*) { return false; }
 
 void TDLTexQuadMulti::setEnd() { }
 

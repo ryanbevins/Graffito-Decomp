@@ -663,7 +663,7 @@ bool TTelesa::isFlying()
 
 // is this an actual predicate or some kind of a "trans Y with isReset flag
 // accounted for"???
-bool TTelesa::isResetTransY() { }
+bool TTelesa::isResetTransY() { return false; }
 
 void TTelesa::forceKill()
 {

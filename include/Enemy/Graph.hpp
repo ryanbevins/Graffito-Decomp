@@ -40,7 +40,7 @@ public:
 	void setUnk8(f32 v) { unk8 = v; }
 	void incUnk4() { ++unk4; }
 	int getUnk4() { return unk4; }
-	int setUnk4(int v) { unk4 = v; }
+	int setUnk4(int v) { unk4 = v; return v; }
 	bool checkFlag(u32 f) const { return unk0->mFlags & f; }
 
 public:
