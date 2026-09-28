@@ -50,160 +50,6 @@ static inline JGeometry::TVec3<f32> makeHorizontalVec(f32 x, f32 z)
 	return JGeometry::TVec3<f32>(x, 0.0f, z);
 }
 
-DEFINE_NERVE(TNerveKukkuFall, TLiveActor)
-{
-	TKukku* self = (TKukku*)spine->getBody();
-
-	if (spine->getTime() == 0) {
-		self->getMActor()->setBck("tori_wait");
-		self->setCurAnmSound();
-		J3DFrameCtrl* fc = self->getMActor()->getFrameCtrl(0);
-		fc->setRate(2.0f * SMSGetAnmFrameRate());
-
-		TKukkuParams* params = self->getSaveParam2();
-		JGeometry::TVec3<f32> vel;
-		vel.x = 0.0f;
-		vel.y = -params->mWaterPowerY.get();
-		vel.z = 0.0f;
-		self->mVelocity = vel;
-		self->dropCoins();
-	}
-
-	if (!self->checkLiveFlag(LIVE_FLAG_AIRBORNE)) {
-		SMS_EasyEmitParticle<E_SMS_EFFECT_ONETIME_NORMAL>(
-		    (E_SMS_EFFECT_ONETIME_NORMAL)0xA1, &self->mPosition, nullptr,
-		    JGeometry::TVec3<f32>(1.0f, 1.0f, 1.0f));
-		SMS_EasyEmitParticle<E_SMS_EFFECT_ONETIME_NORMAL>(
-		    (E_SMS_EFFECT_ONETIME_NORMAL)0xA2, &self->mPosition, nullptr,
-		    JGeometry::TVec3<f32>(1.0f, 1.0f, 1.0f));
-		spine->pushAfterCurrent(&TNerveSmallEnemyDie::theNerve());
-		return TRUE;
-	}
-
-	JGeometry::TVec3<f32> vel = self->mVelocity;
-	f32 fric                  = self->getSaveParam2()->mAirFric.get();
-	vel.x *= fric;
-	vel.y *= fric;
-	vel.z *= fric;
-	vel.y += self->getSaveParam2()->mUpperVelocityY.get();
-
-	bool landed = false;
-	if (-0.1f < vel.y) {
-		vel.y  = 0.0f;
-		landed = true;
-	}
-	self->mVelocity = vel;
-
-	if (landed) {
-		spine->pushAfterCurrent(&TNerveKukkuRecoverGraph::theNerve());
-		return TRUE;
-	}
-	return FALSE;
-}
-
-DEFINE_NERVE(TNerveKukkuPostFall, TLiveActor)
-{
-	TKukku* self = (TKukku*)spine->getBody();
-
-	if (spine->getTime() == 0) {
-		self->getMActor()->setBck("tori_back");
-		self->setCurAnmSound();
-		JGeometry::TVec3<f32> vel(0.0f, 0.0f, 0.0f);
-		self->mVelocity = vel;
-	}
-
-	if (self->checkCurAnmEnd(0)) {
-		if (self->getSaveParam2()->mHabatakiTimer.get() < spine->getTime()) {
-			spine->pushAfterCurrent(&TNerveKukkuGraphWander::theNerve());
-			return TRUE;
-		}
-	}
-	return FALSE;
-}
-
-DEFINE_NERVE(TNerveKukkuRecoverGraph, TLiveActor)
-{
-	TKukku* self = (TKukku*)spine->getBody();
-
-	if (spine->getTime() == 0) {
-		self->getMActor()->setBck("tori_back");
-		self->setCurAnmSound();
-		JGeometry::TVec3<f32> vel(0.0f, 0.0f, 0.0f);
-		self->mVelocity = vel;
-	}
-
-	if (self->getSaveParam2()->mHabatakiTimer.get() < spine->getTime()) {
-		spine->pushAfterCurrent(&TNerveKukkuGraphWander::theNerve());
-		return TRUE;
-	}
-
-	self->recover();
-	return FALSE;
-}
-
-inline void TKukku::shootBall(TKukkuBall* ball)
-{
-	JGeometry::TVec3<f32> dir;
-	dir.set(0.0f, 1.0f, 0.0f);
-	dir.setLength(getSaveParam2()->mShootSpeed.get());
-	getModel()->getModelData()->getJointName()->getIndex(
-	    "null_osen");
-	ball->shoot(mPosition, dir);
-	unk1AC = getSaveParam2()->mShootInterval.get();
-	if (gpMSound->gateCheck(0x28f3)) {
-		MSoundSESystem::MSoundSE::startSoundActor(
-		    0x28f3, &mPosition, 0, nullptr, 0, 4);
-	}
-}
-
-DEFINE_NERVE(TNerveKukkuGraphWander, TLiveActor)
-{
-	TKukku* self = (TKukku*)spine->getBody();
-
-	if (spine->getTime() == 0) {
-		JGeometry::TVec3<f32> zero(0.0f, 0.0f, 0.0f);
-		self->mVelocity = zero;
-		self->getTracer()->reset();
-		self->goToShortestNextGraphNode();
-		if (self->getMActor()->checkCurAnm("tori_back", 0)) {
-			self->getMActor()->setBck("tori_back");
-			self->setCurAnmSound();
-		} else {
-			self->getMActor()->setBck("tori_wait");
-			self->setCurAnmSound();
-		}
-	}
-
-	if (self->isReachedToGoal()) {
-		self->goToRandomNextGraphNode();
-		if (!self->getMActor()->checkCurAnm("tori_wait", 0)) {
-			self->getMActor()->setBck("tori_wait");
-			self->setCurAnmSound();
-		}
-	}
-
-	JGeometry::TVec3<f32> toMario = *gpMarioPos;
-	toMario.x -= self->mPosition.x;
-	toMario.y -= self->mPosition.y;
-	toMario.z -= self->mPosition.z;
-	toMario.y = 0.0f;
-
-	f32 range = self->getSaveParam2()->mSearchRange.get();
-	if (toMario.x * toMario.x + toMario.y * toMario.y + toMario.z * toMario.z
-	    < range * range) {
-		if (self->isShootWaiting()) {
-			self->unk1AC -= 1;
-		} else {
-			TKukkuBall* found = self->getFreeBall();
-			if (found)
-				self->shootBall(found);
-		}
-	}
-
-	self->walk();
-	return FALSE;
-}
-
 void TKukkuManager::createModelData()
 {
 	static const TModelDataLoadEntry entry[] = {
@@ -590,4 +436,158 @@ void TKukku::calcRootMatrix()
 		gpMarioParticleManager->emitAndBindToMtxPtr(
 		    0x18c, getModel()->getAnmMtx(unk1A8), 1, this);
 	}
+}
+
+inline void TKukku::shootBall(TKukkuBall* ball)
+{
+	JGeometry::TVec3<f32> dir;
+	dir.set(0.0f, 1.0f, 0.0f);
+	dir.setLength(getSaveParam2()->mShootSpeed.get());
+	getModel()->getModelData()->getJointName()->getIndex(
+	    "null_osen");
+	ball->shoot(mPosition, dir);
+	unk1AC = getSaveParam2()->mShootInterval.get();
+	if (gpMSound->gateCheck(0x28f3)) {
+		MSoundSESystem::MSoundSE::startSoundActor(
+		    0x28f3, &mPosition, 0, nullptr, 0, 4);
+	}
+}
+
+DEFINE_NERVE(TNerveKukkuGraphWander, TLiveActor)
+{
+	TKukku* self = (TKukku*)spine->getBody();
+
+	if (spine->getTime() == 0) {
+		JGeometry::TVec3<f32> zero(0.0f, 0.0f, 0.0f);
+		self->mVelocity = zero;
+		self->getTracer()->reset();
+		self->goToShortestNextGraphNode();
+		if (self->getMActor()->checkCurAnm("tori_back", 0)) {
+			self->getMActor()->setBck("tori_back");
+			self->setCurAnmSound();
+		} else {
+			self->getMActor()->setBck("tori_wait");
+			self->setCurAnmSound();
+		}
+	}
+
+	if (self->isReachedToGoal()) {
+		self->goToRandomNextGraphNode();
+		if (!self->getMActor()->checkCurAnm("tori_wait", 0)) {
+			self->getMActor()->setBck("tori_wait");
+			self->setCurAnmSound();
+		}
+	}
+
+	JGeometry::TVec3<f32> toMario = *gpMarioPos;
+	toMario.x -= self->mPosition.x;
+	toMario.y -= self->mPosition.y;
+	toMario.z -= self->mPosition.z;
+	toMario.y = 0.0f;
+
+	f32 range = self->getSaveParam2()->mSearchRange.get();
+	if (toMario.x * toMario.x + toMario.y * toMario.y + toMario.z * toMario.z
+	    < range * range) {
+		if (self->isShootWaiting()) {
+			self->unk1AC -= 1;
+		} else {
+			TKukkuBall* found = self->getFreeBall();
+			if (found)
+				self->shootBall(found);
+		}
+	}
+
+	self->walk();
+	return FALSE;
+}
+
+DEFINE_NERVE(TNerveKukkuFall, TLiveActor)
+{
+	TKukku* self = (TKukku*)spine->getBody();
+
+	if (spine->getTime() == 0) {
+		self->getMActor()->setBck("tori_wait");
+		self->setCurAnmSound();
+		J3DFrameCtrl* fc = self->getMActor()->getFrameCtrl(0);
+		fc->setRate(2.0f * SMSGetAnmFrameRate());
+
+		TKukkuParams* params = self->getSaveParam2();
+		JGeometry::TVec3<f32> vel;
+		vel.x = 0.0f;
+		vel.y = -params->mWaterPowerY.get();
+		vel.z = 0.0f;
+		self->mVelocity = vel;
+		self->dropCoins();
+	}
+
+	if (!self->checkLiveFlag(LIVE_FLAG_AIRBORNE)) {
+		SMS_EasyEmitParticle<E_SMS_EFFECT_ONETIME_NORMAL>(
+		    (E_SMS_EFFECT_ONETIME_NORMAL)0xA1, &self->mPosition, nullptr,
+		    JGeometry::TVec3<f32>(1.0f, 1.0f, 1.0f));
+		SMS_EasyEmitParticle<E_SMS_EFFECT_ONETIME_NORMAL>(
+		    (E_SMS_EFFECT_ONETIME_NORMAL)0xA2, &self->mPosition, nullptr,
+		    JGeometry::TVec3<f32>(1.0f, 1.0f, 1.0f));
+		spine->pushAfterCurrent(&TNerveSmallEnemyDie::theNerve());
+		return TRUE;
+	}
+
+	JGeometry::TVec3<f32> vel = self->mVelocity;
+	f32 fric                  = self->getSaveParam2()->mAirFric.get();
+	vel.x *= fric;
+	vel.y *= fric;
+	vel.z *= fric;
+	vel.y += self->getSaveParam2()->mUpperVelocityY.get();
+
+	bool landed = false;
+	if (-0.1f < vel.y) {
+		vel.y  = 0.0f;
+		landed = true;
+	}
+	self->mVelocity = vel;
+
+	if (landed) {
+		spine->pushAfterCurrent(&TNerveKukkuRecoverGraph::theNerve());
+		return TRUE;
+	}
+	return FALSE;
+}
+
+DEFINE_NERVE(TNerveKukkuPostFall, TLiveActor)
+{
+	TKukku* self = (TKukku*)spine->getBody();
+
+	if (spine->getTime() == 0) {
+		self->getMActor()->setBck("tori_back");
+		self->setCurAnmSound();
+		JGeometry::TVec3<f32> vel(0.0f, 0.0f, 0.0f);
+		self->mVelocity = vel;
+	}
+
+	if (self->checkCurAnmEnd(0)) {
+		if (self->getSaveParam2()->mHabatakiTimer.get() < spine->getTime()) {
+			spine->pushAfterCurrent(&TNerveKukkuGraphWander::theNerve());
+			return TRUE;
+		}
+	}
+	return FALSE;
+}
+
+DEFINE_NERVE(TNerveKukkuRecoverGraph, TLiveActor)
+{
+	TKukku* self = (TKukku*)spine->getBody();
+
+	if (spine->getTime() == 0) {
+		self->getMActor()->setBck("tori_back");
+		self->setCurAnmSound();
+		JGeometry::TVec3<f32> vel(0.0f, 0.0f, 0.0f);
+		self->mVelocity = vel;
+	}
+
+	if (self->getSaveParam2()->mHabatakiTimer.get() < spine->getTime()) {
+		spine->pushAfterCurrent(&TNerveKukkuGraphWander::theNerve());
+		return TRUE;
+	}
+
+	self->recover();
+	return FALSE;
 }
