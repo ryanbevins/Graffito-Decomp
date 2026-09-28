@@ -403,7 +403,7 @@ void TBaseNPC::behaveToHitObject_(THitActor* hitter, EnumHitNpcObjectKind kind)
 	}
 
 	if (mSpine->getCurrentNerve() == &TNerveNPCTalk::theNerve()
-	    && *(s32*)((u8*)mSpine + 0x20) < 0x4)
+	    && mSpine->getTime() < 0x4)
 		return;
 
 	if (kind == HIT_NPC_OBJECT_KIND_UNK1)
@@ -664,7 +664,7 @@ void TBaseNPC::setPosAndInitAfterSinkBottom()
 		}
 	}
 
-	*(s32*)((u8*)mSpine + 0x8)        = 0;
+	mSpine->reset();
 	*(s32*)((u8*)mUnk18C + 0x24)      = 0;
 	*(f32*)((u8*)mUnk18C + 0x28)      = 0.0f;
 	**(s32**)((u8*)this + 0x190)      = -1;
@@ -673,7 +673,7 @@ void TBaseNPC::setPosAndInitAfterSinkBottom()
 
 	if (polluted && isPollutionNpc() && !(mActionFlag & 0x400)) {
 		unk64 |= 0x1;
-		mSpine->setNext(*(const TNerveBase<TLiveActor>**)((u8*)mSpine + 0x18));
+		mSpine->setNext(mSpine->getDefault());
 		mSpine->pushNerve(&TNerveNPCSink::theNerve());
 		mSpine->pushNerve(&TNerveNPCSink::theNerve());
 
@@ -688,9 +688,9 @@ void TBaseNPC::setPosAndInitAfterSinkBottom()
 		mVelocity.z   = 0.0f;
 	} else {
 		unk64 &= ~0x1;
-		mSpine->setNext(*(const TNerveBase<TLiveActor>**)((u8*)mSpine + 0x18));
+		mSpine->setNext(mSpine->getDefault());
 		mSpine->pushNerve(
-		    *(const TNerveBase<TLiveActor>**)((u8*)mSpine + 0x18));
+		    mSpine->getDefault());
 		resetPos.y += 2.0f;
 		mVelocity.x = 0.0f;
 		mVelocity.y = 5.0f;

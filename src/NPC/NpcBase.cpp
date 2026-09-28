@@ -147,7 +147,7 @@ void TBaseNPC::perform(u32 flags, JDrama::TGraphics* graphics)
 		doUpdate = false;
 	} else if ((flags & 1) && mHolder == nullptr && !(mLiveFlag & 0x80)
 	           && belongToGround() == 0
-	           && *(int*)((u8*)mSpine + 0x20) != 0
+	           && mSpine->getTime() != 0
 	           && mActorType != 0x04000018
 	           && isNerveMaybeDontMovement()
 	           && !(mLiveFlag & 0x800000)) {
@@ -258,7 +258,7 @@ void TBaseNPC::perform(u32 flags, JDrama::TGraphics* graphics)
 			f32 distSq  = diff.x * diff.x + diff.y * diff.y + diff.z * diff.z;
 			f32 distMax = CLBSquared<f32>(anmOffDist);
 			if (distSq > distMax && !hasMtxEffectFlag
-			    && *(int*)((u8*)mSpine + 0x20) > 2) {
+			    && mSpine->getTime() > 2) {
 				drewWithAnim = true;
 				execMotionBlend_();
 			}
