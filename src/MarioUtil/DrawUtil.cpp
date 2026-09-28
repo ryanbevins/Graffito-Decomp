@@ -362,7 +362,8 @@ void TTrembleModelEffect::clash(f32 power)
 	switch (unk8 & 2) {
 	case 0:
 		for (u32 i = 0; i < unk0->mModelData->getVtxNum(); ++i) {
-			JGeometry::TVec3<s16> position = clashVtxS16(unk14[i], unk20[i]);
+			JGeometry::TVec3<s16> position;
+			position = clashVtxS16(unk14[i], unk20[i]);
 
 			unk14[i] = position;
 			unk18[0][i] = position;

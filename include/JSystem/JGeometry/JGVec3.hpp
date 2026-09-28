@@ -32,6 +32,12 @@ public:
 	// 	z = z_;
 	// }
 
+	TVec3& operator=(const TVec3& other)
+	{
+		*(S16Vec*)this = *(S16Vec*)&other;
+		return *this;
+	}
+
 	void set(s16 x_, s16 y_, s16 z_)
 	{
 		x = (s16)x_;
