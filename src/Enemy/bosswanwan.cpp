@@ -49,7 +49,7 @@ static const char* bwanwan_bastable[] = {
 void TBossWanwanMtxCalc::joinAnm(int index)
 {
 	J3DAnmTransform* anm
-	    = mOwner->mMActorKeeper->getMActorAnmData()->getUnk2C()->getAnmPtr(
+	    = mOwner->getActorKeeper()->getMActorAnmData()->getUnk2C()->getAnmPtr(
 	        index);
 	if (unk54 != anm) {
 		unk58 = unk54;
