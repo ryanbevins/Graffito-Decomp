@@ -49,122 +49,6 @@ static const char* rocket_bastable[] = {
 	nullptr,
 };
 
-DEFINE_NERVE(TNerveRocketWait, TLiveActor)
-{
-	TRocket* self = (TRocket*)spine->getBody();
-	if (spine->getTime() == 0) {
-		self->mLiveFlag |= LIVE_FLAG_UNK10;
-		self->setBckAnm(3);
-	}
-	return FALSE;
-}
-
-DEFINE_NERVE(TNerveRocketFly, TLiveActor)
-{
-	TRocket* self = (TRocket*)spine->getBody();
-	if (spine->getTime() == 0) {
-		self->setBckAnm(1);
-
-		TWaterGun* wg = (TWaterGun*)SMS_GetMarioWaterGun();
-		MtxPtr mtx    = wg->getEmitMtx(0);
-
-		f32 speed = self->mParams->mSLReleaseSpeed.value;
-		JGeometry::TVec3<f32> v;
-		v.x             = speed * mtx[0][0];
-		v.y             = speed * mtx[1][0];
-		v.z             = speed * mtx[2][0];
-		self->mVelocity = v;
-
-		self->mLiveFlag |= LIVE_FLAG_AIRBORNE;
-		((TRocketManager*)self->mManager)->mActiveFlag = 1;
-		self->mUnk1A0                                  = 0;
-
-		f32 wrapped = callMsWrap(MsGetRotFromZaxisY(v), 0.0f, 360.0f);
-		self->mRotation.x = 0.0f;
-		self->mRotation.y = wrapped;
-		self->mRotation.z = 0.0f;
-
-		self->unk64 &= ~1u;
-	}
-
-	bool match = (self->mCurrentBckAnm == 1) ? true : false;
-	if (!match)
-		self->setBckAnm(1);
-
-	JGeometry::TVec3<f32> vel = self->mVelocity;
-	self->mRotation.x         = MsGetRotFromZaxis(vel).x;
-
-	gpMarioParticleManager->emitAndBindToPosPtr(0x179, &self->mPosition, 1,
-	                                            self);
-
-	if (self->mSpine->getTime() > self->mParams->mSLFlyLimitTime.value)
-		self->kill();
-
-	if (!self->checkLiveFlag(LIVE_FLAG_CLIPPED_OUT))
-		self->getModel();
-
-	return FALSE;
-}
-
-DEFINE_NERVE(TNerveRocketPossessedNozzle, TLiveActor)
-{
-	TRocket* self = (TRocket*)spine->getBody();
-	if (spine->getTime() == 0) {
-		SMSRumbleMgr->start(0x15, 0xa, (f32*)nullptr);
-		if (gpMSound->gateCheck(0x180c)) {
-			MSoundSESystem::MSoundSE::startSoundActor(
-			    0x180c, &self->mPosition, 0, nullptr, 0, 4);
-		}
-		if (gpMSound->gateCheck(0x825)) {
-			MSoundSESystem::MSoundSE::startSoundActor(
-			    0x825, &self->mPosition, 0, nullptr, 0, 4);
-		}
-		((TRocketManager*)self->mManager)->mActiveFlag = 0;
-		self->mLiveFlag &= ~LIVE_FLAG_UNK10;
-		self->mUnk1A0 = 1;
-		self->setBckAnm(0);
-	}
-
-	SMS_SendMessageToMario((THitActor*)self, 5);
-
-	u8* gamepad = *(u8**)*(u8**)((u8*)gpMarDirector + 0x18);
-
-	u8 marioJumpFrames = (u8)(int)*(f32*)(gamepad + 0xb4);
-	if (marioJumpFrames > 0x14) {
-		if (self->getHitPoints() > 1)
-			self->mHitPoints -= 1;
-	}
-
-	bool bckMatch = (self->mCurrentBckAnm == 2) ? true : false;
-	if (!bckMatch) {
-		if (gpMSound->gateCheck(0x4807)) {
-			MSoundSESystem::MSoundSE::startSoundSystemSE(0x4807, 0, nullptr, 0);
-		}
-		self->setBckAnm(2);
-	}
-
-	bool firePressed;
-	u8* gamepad2 = *(u8**)*(u8**)((u8*)gpMarDirector + 0x18);
-	if (*(u32*)(gamepad2 + 0xd4) & 0x400) {
-		self->unk190 = 2.0f;
-		self->expandCollision();
-		if (gpMSound->gateCheck(3)) {
-			MSoundSESystem::MSoundSE::startSoundActor(3, &self->mPosition, 0,
-			                                          nullptr, 0, 4);
-		}
-		SMSRumbleMgr->start(0x15, 5, (f32*)nullptr);
-		firePressed = true;
-	} else {
-		firePressed = false;
-	}
-
-	if (firePressed) {
-		spine->pushAfterCurrent(&TNerveRocketFly::theNerve());
-		return TRUE;
-	}
-	return FALSE;
-}
-
 const char** TRocket::getBasNameTable() const { return rocket_bastable; }
 
 bool TRocket::isAttack()
@@ -455,4 +339,120 @@ TRocketParams::TRocketParams(const char* path)
     , PARAM_INIT(mSLFlyLimitTime, 300)
 {
 	load(mPrmPath);
+}
+
+DEFINE_NERVE(TNerveRocketPossessedNozzle, TLiveActor)
+{
+	TRocket* self = (TRocket*)spine->getBody();
+	if (spine->getTime() == 0) {
+		SMSRumbleMgr->start(0x15, 0xa, (f32*)nullptr);
+		if (gpMSound->gateCheck(0x180c)) {
+			MSoundSESystem::MSoundSE::startSoundActor(
+			    0x180c, &self->mPosition, 0, nullptr, 0, 4);
+		}
+		if (gpMSound->gateCheck(0x825)) {
+			MSoundSESystem::MSoundSE::startSoundActor(
+			    0x825, &self->mPosition, 0, nullptr, 0, 4);
+		}
+		((TRocketManager*)self->mManager)->mActiveFlag = 0;
+		self->mLiveFlag &= ~LIVE_FLAG_UNK10;
+		self->mUnk1A0 = 1;
+		self->setBckAnm(0);
+	}
+
+	SMS_SendMessageToMario((THitActor*)self, 5);
+
+	u8* gamepad = *(u8**)*(u8**)((u8*)gpMarDirector + 0x18);
+
+	u8 marioJumpFrames = (u8)(int)*(f32*)(gamepad + 0xb4);
+	if (marioJumpFrames > 0x14) {
+		if (self->getHitPoints() > 1)
+			self->mHitPoints -= 1;
+	}
+
+	bool bckMatch = (self->mCurrentBckAnm == 2) ? true : false;
+	if (!bckMatch) {
+		if (gpMSound->gateCheck(0x4807)) {
+			MSoundSESystem::MSoundSE::startSoundSystemSE(0x4807, 0, nullptr, 0);
+		}
+		self->setBckAnm(2);
+	}
+
+	bool firePressed;
+	u8* gamepad2 = *(u8**)*(u8**)((u8*)gpMarDirector + 0x18);
+	if (*(u32*)(gamepad2 + 0xd4) & 0x400) {
+		self->unk190 = 2.0f;
+		self->expandCollision();
+		if (gpMSound->gateCheck(3)) {
+			MSoundSESystem::MSoundSE::startSoundActor(3, &self->mPosition, 0,
+			                                          nullptr, 0, 4);
+		}
+		SMSRumbleMgr->start(0x15, 5, (f32*)nullptr);
+		firePressed = true;
+	} else {
+		firePressed = false;
+	}
+
+	if (firePressed) {
+		spine->pushAfterCurrent(&TNerveRocketFly::theNerve());
+		return TRUE;
+	}
+	return FALSE;
+}
+
+DEFINE_NERVE(TNerveRocketFly, TLiveActor)
+{
+	TRocket* self = (TRocket*)spine->getBody();
+	if (spine->getTime() == 0) {
+		self->setBckAnm(1);
+
+		TWaterGun* wg = (TWaterGun*)SMS_GetMarioWaterGun();
+		MtxPtr mtx    = wg->getEmitMtx(0);
+
+		f32 speed = self->mParams->mSLReleaseSpeed.value;
+		JGeometry::TVec3<f32> v;
+		v.x             = speed * mtx[0][0];
+		v.y             = speed * mtx[1][0];
+		v.z             = speed * mtx[2][0];
+		self->mVelocity = v;
+
+		self->mLiveFlag |= LIVE_FLAG_AIRBORNE;
+		((TRocketManager*)self->mManager)->mActiveFlag = 1;
+		self->mUnk1A0                                  = 0;
+
+		f32 wrapped = callMsWrap(MsGetRotFromZaxisY(v), 0.0f, 360.0f);
+		self->mRotation.x = 0.0f;
+		self->mRotation.y = wrapped;
+		self->mRotation.z = 0.0f;
+
+		self->unk64 &= ~1u;
+	}
+
+	bool match = (self->mCurrentBckAnm == 1) ? true : false;
+	if (!match)
+		self->setBckAnm(1);
+
+	JGeometry::TVec3<f32> vel = self->mVelocity;
+	self->mRotation.x         = MsGetRotFromZaxis(vel).x;
+
+	gpMarioParticleManager->emitAndBindToPosPtr(0x179, &self->mPosition, 1,
+	                                            self);
+
+	if (self->mSpine->getTime() > self->mParams->mSLFlyLimitTime.value)
+		self->kill();
+
+	if (!self->checkLiveFlag(LIVE_FLAG_CLIPPED_OUT))
+		self->getModel();
+
+	return FALSE;
+}
+
+DEFINE_NERVE(TNerveRocketWait, TLiveActor)
+{
+	TRocket* self = (TRocket*)spine->getBody();
+	if (spine->getTime() == 0) {
+		self->mLiveFlag |= LIVE_FLAG_UNK10;
+		self->setBckAnm(3);
+	}
+	return FALSE;
 }
