@@ -26,7 +26,6 @@ template <> f32 CLBLinearInbetween<f32>(f32, f32, f32);
 template <> f32 CLBEaseOutInbetween<f32>(f32, f32, f32);
 template <> f32 CLBTwoDegreeGeneralInbetween<f32>(f32, f32, f32, f32);
 template <> BOOL CLBChaseGeneralConstantSpecifySpeed<f32>(f32*, f32, f32);
-template <> s16 CLBRoundf<s16>(f32);
 
 extern const char* cSunVolumeName;
 extern const char* cSunsetVolumeName;

@@ -9,8 +9,6 @@
 #include <MoveBG/MapObjManager.hpp>
 #include <System/MarDirector.hpp>
 
-template <> s16 CLBRoundf<s16>(f32);
-
 static inline bool isCoinAppearBlocked(const TMarDirector* director)
 {
 	bool blocked = true;
