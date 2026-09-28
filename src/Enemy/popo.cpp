@@ -489,7 +489,7 @@ void TPopo::calcRootMatrix()
 	gpCurPopo = this;
 
 	MtxPtr centerMtx = getModel()->getAnmMtx(mCenterJntIndex);
-	copyMtxTrans(mCollision->mPosition, centerMtx);
+	mCollision->mPosition.set(centerMtx[0][3], centerMtx[1][3], centerMtx[2][3]);
 
 	if (unk1B4) {
 		unk190 = 0.8f * unk198 / mPopoParams->mSLWaterScaleMax.get();
@@ -500,8 +500,7 @@ void TPopo::calcRootMatrix()
 
 		TPosition3f rootMtx;
 		if (mSpine->getCurrentNerve() == &TNervePopoFly::theNerve()) {
-			rootMtx.identity33();
-			rootMtx.setTrans(mPosition);
+			rootMtx.translation(mPosition.x, mPosition.y, mPosition.z);
 		} else {
 			TWaterGun* gun = (TWaterGun*)SMS_GetMarioWaterGun();
 			MtxPtr emit    = gun->getEmitMtx(0);
@@ -539,17 +538,11 @@ void TPopo::calcRootMatrix()
 		}
 
 		TPosition3f nozzleOffset;
-		nozzleOffset.identity33();
-		nozzleOffset.ref(0, 3) = 7.0f * unk198 + mNozzleOffsetZ;
-		nozzleOffset.ref(1, 3) = 0.0f;
-		nozzleOffset.ref(2, 3) = 0.0f;
+		nozzleOffset.translation(7.0f * unk198 + mNozzleOffsetZ, 0.0f, 0.0f);
 		PSMTXConcat(rootMtx, nozzleOffset, rootMtx);
 
 		TPosition3f bodyOffset;
-		bodyOffset.identity33();
-		bodyOffset.ref(0, 3) = mTestBodyScale * unk198;
-		bodyOffset.ref(1, 3) = 0.0f;
-		bodyOffset.ref(2, 3) = 0.0f;
+		bodyOffset.translation(mTestBodyScale * unk198, 0.0f, 0.0f);
 		PSMTXConcat(rootMtx, bodyOffset, bodyOffset);
 
 		mPosition.x = bodyOffset.at(0, 3);
@@ -557,13 +550,14 @@ void TPopo::calcRootMatrix()
 		mPosition.z = bodyOffset.at(2, 3);
 
 		if (unk1BC[0]) {
-			PSMTXCopy(centerMtx, unk200);
+			MtxPtr emitMtx = unk200;
+			PSMTXCopy(mMActor->getModel()->getAnmMtx(mCenterJntIndex), emitMtx);
 			unk200[0][3] = bodyOffset.at(0, 3);
 			unk200[1][3] = bodyOffset.at(1, 3);
 			unk200[2][3] = bodyOffset.at(2, 3);
 
 			JPABaseEmitter* emitter = gpMarioParticleManager
-			                              ->emitAndBindToMtxPtr(0x13D, unk200,
+			                              ->emitAndBindToMtxPtr(0x13D, emitMtx,
 			                                                    1, this);
 			if (emitter) {
 				emitter->unk154.set(unk230);
@@ -574,7 +568,7 @@ void TPopo::calcRootMatrix()
 		Mtx rot;
 		MsMtxSetRotRPH(rot, mTestAng_x, mTestAng_y, mTestAng_z);
 		PSMTXConcat(rootMtx, rot, rootMtx);
-		PSMTXCopy(rootMtx, getModel()->getBaseTRMtx());
+		getModel()->setBaseTRMtx(rootMtx);
 	} else {
 		TSpineEnemy::calcRootMatrix();
 	}
