@@ -937,6 +937,21 @@ static int PopoNonScaleCallback(J3DNode* node, int timing)
 	return 1;
 }
 
+// fabricated
+static inline f32 calcPopoAxisLength(const JGeometry::TVec3<f32>& v)
+{
+	f32 xSq  = v.x * v.x;
+	f32 ySq  = v.y * v.y;
+	f32 zSq  = v.z * v.z;
+	f32 xySq = xSq + ySq;
+	f32 mag  = zSq + xySq;
+	if (mag <= 0.0f)
+		return mag;
+
+	f32 root = __frsqrte(mag);
+	return 0.5f * root * (3.0f - mag * (root * root)) * mag;
+}
+
 static int PopoPossessedCallback(J3DNode* node, int timing)
 {
 	if (timing == 0) {
@@ -983,12 +998,19 @@ static int PopoPossessedCallback(J3DNode* node, int timing)
 			MsMtxSetRotRPH(rot, 0.0f, 270.0f, 0.0f);
 			PSMTXConcat(gpCurPopo->unk1D0, rot, gpCurPopo->unk1D0);
 
-			JGeometry::TVec3<f32> axisX(mtx[0][0], mtx[1][0], mtx[2][0]);
-			gpCurPopo->unk230.y = axisX.length();
-			JGeometry::TVec3<f32> axisY(mtx[0][1], mtx[1][1], mtx[2][1]);
-			gpCurPopo->unk230.z = axisY.length();
-			JGeometry::TVec3<f32> axisZ(mtx[0][2], mtx[1][2], mtx[2][2]);
-			gpCurPopo->unk230.x = axisZ.length();
+			JGeometry::TVec3<f32> axis[3];
+			axis[0].x = mtx[0][0];
+			axis[0].y = mtx[1][0];
+			axis[0].z = mtx[2][0];
+			gpCurPopo->unk230.y = calcPopoAxisLength(axis[0]);
+			axis[1].x = mtx[0][1];
+			axis[1].y = mtx[1][1];
+			axis[1].z = mtx[2][1];
+			gpCurPopo->unk230.z = calcPopoAxisLength(axis[1]);
+			axis[2].x = mtx[0][2];
+			axis[2].y = mtx[1][2];
+			axis[2].z = mtx[2][2];
+			gpCurPopo->unk230.x = calcPopoAxisLength(axis[2]);
 
 			JPABaseEmitter* emitter
 			    = gpMarioParticleManager->emitAndBindToMtxPtr(
