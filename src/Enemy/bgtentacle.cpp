@@ -135,8 +135,8 @@ void TBGTentacleMtxCalc::calc(u16 param_1)
 		if (fVar13 == 0.0f) {
 			fVar1 = 1.0f;
 		} else {
-			f32 tmp = fVar13 * 3.0f;
-			fVar1   = mOwner->getNodeLen() / tmp;
+			fVar13 *= 3.0f;
+			fVar1 = mOwner->getNodeLen() / fVar13;
 		}
 
 		JGeometry::TVec3<f32> tmp1;
