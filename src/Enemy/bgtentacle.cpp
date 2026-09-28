@@ -354,8 +354,7 @@ void TBGTakeHit::perform(u32 param_1, JDrama::TGraphics* param_2)
 			local_8c.scale(0.1f);
 
 			if (!unk74.isZero()) {
-				// TODO: one more inlining layer?!
-				mOwner->getLastNode()->addVelocity(unk74);
+				mOwner->addLastNodeVelocity(unk74);
 				local_8c += unk74;
 			}
 

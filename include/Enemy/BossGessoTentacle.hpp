@@ -177,6 +177,10 @@ public:
 	// fabricated
 	TNode* getFirstNode() { return &mNodes[0]; }
 	TNode* getLastNode() { return &mNodes[mNodeNum - 1]; }
+	void addLastNodeVelocity(const JGeometry::TVec3<f32>& v)
+	{
+		getLastNode()->addVelocity(v);
+	}
 	int getState() const { return mState; }
 	TTentacleParams* getParams() { return mParams; }
 	MActor* getUnk2C() { return unk2C; }
