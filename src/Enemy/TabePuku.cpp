@@ -630,6 +630,22 @@ DEFINE_NERVE(TNerveTabePukuDive, TLiveActor)
 	return FALSE;
 }
 
+static inline bool checkDragRelease(TTabePuku* self)
+{
+	bool release = self->mTouchedWall || !self->isAirborne();
+	if (!release) {
+		JGeometry::TVec3<f32> base = getTabePukuGoalRef(self);
+		base.sub(self->mPosition);
+		release = base.length() > self->getSaveParam2()->mDragLength.get();
+	}
+	if (release) {
+		SMS_SendMessageToMario(self, HIT_MESSAGE_UNK8);
+		self->mHeldObject = nullptr;
+		return true;
+	}
+	return false;
+}
+
 DEFINE_NERVE(TNerveTabePukuDrag, TLiveActor)
 {
 	TTabePuku* self = (TTabePuku*)spine->getBody();
@@ -645,17 +661,7 @@ DEFINE_NERVE(TNerveTabePukuDrag, TLiveActor)
 
 	self->swimTo(self->mDragDirection);
 
-	bool shouldRelease = self->mTouchedWall || !self->isAirborne();
-	if (!shouldRelease) {
-		JGeometry::TVec3<f32> base = getTabePukuGoalRef(self);
-		base.sub(self->mPosition);
-		shouldRelease = JGeometry::TUtil<f32>::sqrt(base.dot(base))
-		                > self->getSaveParam2()->mDragLength.get();
-	}
-
-	if (shouldRelease) {
-		SMS_SendMessageToMario(self, HIT_MESSAGE_UNK8);
-		self->mHeldObject = nullptr;
+	if (checkDragRelease(self)) {
 		spine->pushAfterCurrent(&TNerveTabePukuRecoverGraph::theNerve());
 		return TRUE;
 	}
