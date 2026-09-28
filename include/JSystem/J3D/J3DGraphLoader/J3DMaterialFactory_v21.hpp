@@ -45,13 +45,13 @@ struct J3DMaterialBlock_v21 : public JUTDataBlockHeader {
 	/* 0x50 */ void* mpTevStageInfo;
 	/* 0x54 */ void* mpTevSwapModeInfo;
 	/* 0x58 */ void* mpTevSwapModeTableInfo;
-	/* 0x68 */ void* mpFogInfo;
-	/* 0x6C */ void* mpAlphaCompInfo;
-	/* 0x70 */ void* mpBlendInfo;
-	/* 0x74 */ void* mpZModeInfo;
-	/* 0x78 */ void* mpZCompLoc;
-	/* 0x7C */ void* mpDither;
-	/* 0x80 */ void* mpNBTScaleInfo;
+	/* 0x5C */ void* mpFogInfo;
+	/* 0x60 */ void* mpAlphaCompInfo;
+	/* 0x64 */ void* mpBlendInfo;
+	/* 0x68 */ void* mpZModeInfo;
+	/* 0x6C */ void* mpZCompLoc;
+	/* 0x70 */ void* mpDither;
+	/* 0x74 */ void* mpNBTScaleInfo;
 };
 
 struct J3DMaterialInitData_v21 {
@@ -69,21 +69,21 @@ struct J3DMaterialInitData_v21 {
 	/* 0x024 */ u8 field_0x024[16];
 	/* 0x034 */ u16 mTexMtxIdx[8];
 	/* 0x044 */ u8 field_0x044[44];
-	/* 0xXXX */ u16 mTexNoIdx[8];
-	/* 0xXXX */ u16 mTevKColorIdx[4];
-	/* 0xXXX */ u8 mTevKColorSel[16];
-	/* 0xXXX */ u8 mTevKAlphaSel[16];
-	/* 0xXXX */ u16 mTevOrderIdx[16];
-	/* 0xXXX */ u16 mTevColorIdx[4];
-	/* 0xXXX */ u16 mTevStageIdx[16];
-	/* 0xXXX */ u16 mTevSwapModeIdx[16];
-	/* 0xXXX */ u16 mTevSwapModeTableIdx[4];
-	/* 0xXXX */ u8 field_0x12c[24];
-	/* 0xXXX */ u16 mFogIdx;
-	/* 0xXXX */ u16 mAlphaCompIdx;
-	/* 0xXXX */ u16 mBlendIdx;
-	/* 0xXXX */ u16 mNBTScaleIdx;
-};
+	/* 0x070 */ u16 mTexNoIdx[8];
+	/* 0x080 */ u16 mTevKColorIdx[4];
+	/* 0x088 */ u8 mTevKColorSel[16];
+	/* 0x098 */ u8 mTevKAlphaSel[16];
+	/* 0x0A8 */ u16 mTevOrderIdx[16];
+	/* 0x0C8 */ u16 mTevColorIdx[4];
+	/* 0x0D0 */ u16 mTevStageIdx[16];
+	/* 0x0F0 */ u16 mTevSwapModeIdx[16];
+	/* 0x110 */ u16 mTevSwapModeTableIdx[4];
+	/* 0x118 */ u8 field_0x118[24];
+	/* 0x130 */ u16 mFogIdx;
+	/* 0x132 */ u16 mAlphaCompIdx;
+	/* 0x134 */ u16 mBlendIdx;
+	/* 0x136 */ u16 mNBTScaleIdx;
+}; // Size: 0x138
 
 class J3DMaterialFactory_v21 {
 public:
