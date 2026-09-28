@@ -16,8 +16,6 @@
 #include <System/MarioGamePad.hpp>
 #include <dolphin/mtx.h>
 
-extern "C" int snprintf(char*, unsigned long, const char*, ...);
-
 extern const char* cCameraBckNameGate;
 
 #define mInbetween unk6C
