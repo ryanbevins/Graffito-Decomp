@@ -122,7 +122,10 @@ void TPinnaCoaster::control()
 	JGeometry::TVec3<f32> delta = mPosition;
 	delta.sub(unk140);
 	JGeometry::TVec3<f32> speedDelta(delta);
-	f32 speed = speedDelta.length();
+	f32 xSq   = speedDelta.x * speedDelta.x;
+	f32 ySq   = speedDelta.y * speedDelta.y;
+	f32 zSq   = speedDelta.z * speedDelta.z;
+	f32 speed = JGeometry::TUtil<f32>::sqrt(zSq + (xSq + ySq));
 
 	if (switchSnd != 0 && gpMSound->gateCheck(0x305a)) {
 		MSoundSESystem::MSoundSE::startSoundActorWithInfo(
