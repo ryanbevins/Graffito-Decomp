@@ -671,10 +671,7 @@ void TYoshi::thinkUpper()
 		TWaterGun* waterGun = mMario->mWaterGun;
 		if (*(s32*)((u8*)waterGun + 0x1C80) != 0) {
 			TNozzleBase* nozzle = waterGun->getCurrentNozzle();
-			typedef s32 (*GetNozzleKind)(TNozzleBase*);
-			GetNozzleKind getNozzleKind
-			    = *(GetNozzleKind*)(*(u32*)((u8*)nozzle + 0x364) + 0xC);
-			if (getNozzleKind(nozzle) == 1) {
+			if (nozzle->getNozzleKind() == 1) {
 				nozzle = waterGun->getCurrentNozzle();
 				if (*(s8*)((u8*)nozzle + 0x385) == 1) {
 					active = 1;
