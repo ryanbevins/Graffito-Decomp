@@ -1130,14 +1130,16 @@ void TMapObjTurn::control()
 			rot += 360.0f;
 		mRotation.x = rot;
 
-		makeTurnMtxRotX(mtx, mRotation.x);
+		MtxPtr m = mtx;
+
+		makeTurnMtxRotX(m, mRotation.x);
 		if (mRotation.y != 0.0f) {
-			makeTurnMtxRotX(mtx, mRotation.x);
+			makeTurnMtxRotX(m, mRotation.x);
 			Mtx yMtx;
 			makeTurnMtxRotY(yMtx, mRotation.y);
-			MTXConcat(yMtx, mtx, mtx);
+			MTXConcat(yMtx, m, m);
 		} else {
-			makeTurnMtxRotX(mtx, mRotation.x);
+			makeTurnMtxRotX(m, mRotation.x);
 		}
 		break;
 	}
@@ -1149,7 +1151,9 @@ void TMapObjTurn::control()
 			rot += 360.0f;
 		mRotation.y = rot;
 
-		makeTurnMtxRotY(mtx, mRotation.y);
+		MtxPtr m = mtx;
+
+		makeTurnMtxRotY(m, mRotation.y);
 		break;
 	}
 	case 2: {
@@ -1160,14 +1164,16 @@ void TMapObjTurn::control()
 			rot += 360.0f;
 		mRotation.z = rot;
 
-		makeTurnMtxRotZ(mtx, mRotation.z);
+		MtxPtr m = mtx;
+
+		makeTurnMtxRotZ(m, mRotation.z);
 		if (mRotation.y != 0.0f) {
-			makeTurnMtxRotZ(mtx, mRotation.z);
+			makeTurnMtxRotZ(m, mRotation.z);
 			Mtx yMtx;
 			makeTurnMtxRotY(yMtx, mRotation.y);
-			MTXConcat(yMtx, mtx, mtx);
+			MTXConcat(yMtx, m, m);
 		} else {
-			makeTurnMtxRotZ(mtx, mRotation.z);
+			makeTurnMtxRotZ(m, mRotation.z);
 		}
 		break;
 	}
