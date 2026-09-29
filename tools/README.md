@@ -81,3 +81,10 @@ order sets the nerve-static bss offsets (`addi r5,rX,off` before
 `__register_global_object`). `tools/agent/move_nerves.py <cpp> <TNerve...>`
 moves those blocks to the end of the file in the given order (the usual fix for
 `-inline deferred` TUs). Always measure: some TUs are byte-neutral or mixed.
+
+`python3 tools/agent/read_dol_word.py ADDRESS [ADDRESS ...]` reads four-byte
+words directly from the retail DOL by virtual address and prints the file
+offset, raw bytes, unsigned integer, and float interpretations. Addresses may
+use `0x` notation; `--dol PATH` selects another DOL. Use this to verify constants
+before changing source values inferred from reconstructed objects. Check the
+target object's relocations separately; this tool does not inspect ELF files.
