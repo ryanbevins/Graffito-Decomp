@@ -198,8 +198,9 @@ void TWireTrap::calcRootMatrix()
 	JGeometry::TQuat4<f32> quat;
 	JGeometry::TVec3<f32> dir
 	    = getWireBinderDirect()->getDirAtPos(mPosition, mWireDir);
+	JGeometry::TVec3<f32> up(0.0f, 1.0f, 0.0f);
 	dir.scale(mWireDir, dir);
-	SMS_CalcToDirMatrix(mtx, dir, JGeometry::TVec3<f32>(0.0f, 1.0f, 0.0f));
+	SMS_CalcToDirMatrix(mtx, dir, up);
 
 	mtx.getQuat(quat);
 
