@@ -390,24 +390,22 @@ bool TBeeHive::doWait()
 
 void TBeeHive::calcRootMatrix()
 {
-	JGeometry::TQuat4<f32> base = mCenterQuat;
+	JGeometry::TQuat4<f32> quat = mCenterQuat;
 
 	f32 angle = 0.5f * mAngularVelocity.x;
-	f32 sinAngle = sinf(angle);
-	f32 cosAngle = cosf(angle);
-	JGeometry::TQuat4<f32> roll(sinAngle, 0.0f, 0.0f, cosAngle);
+	JGeometry::TQuat4<f32> roll(sinf(angle), 0.0f, 0.0f, cosf(angle));
 
-	JGeometry::TQuat4<f32> quat;
-	quat.mul(base, mCurrentQuat);
+	quat.mul(quat, mCurrentQuat);
 	quat.mul(quat, roll);
 
 	TRotation3f mtx;
 	mtx.setSQ(mScaling, quat);
 	mtx.mMtx[0][3] = mPosition.x;
-	mtx.mMtx[1][3] = mPosition.y + 120.0f;
+	mtx.mMtx[1][3] = mPosition.y;
 	mtx.mMtx[2][3] = mPosition.z;
+	mtx.mMtx[1][3] += 120.0f;
 
-	PSMTXCopy(mtx, (MtxPtr)((u8*)getModel() + 0x20));
+	getModel()->setBaseTRMtx(mtx);
 }
 
 void TBeeHive::controlSound()

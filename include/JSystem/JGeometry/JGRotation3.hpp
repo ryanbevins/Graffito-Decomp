@@ -233,35 +233,7 @@ public:
 #endif
 
 	void setSQ(const JGeometry::TVec3<f32>& scale,
-	           const JGeometry::TQuat4<f32>& qt)
-	{
-		f32 f2  = 2.0f * qt.x * qt.x;
-		f32 f9  = 2.0f * qt.y * qt.y;
-		f32 f10 = 2.0f * qt.z * qt.z;
-
-		f32 f6 = 1.0f - f2;
-		f32 f0 = 1.0f - f9;
-
-		f32 f11 = 2.0f * qt.x * qt.y;
-		f32 f7  = 2.0f * qt.y * qt.z;
-		f32 f12 = 2.0f * qt.x * qt.z;
-
-		f32 f5  = 2.0f * qt.w * qt.x;
-		f32 f3  = 2.0f * qt.w * qt.y;
-		f32 f13 = 2.0f * qt.w * qt.z;
-
-		this->ref(0, 0) = scale.x * (f0 - f10);
-		this->ref(0, 1) = scale.x * (f11 - f13);
-		this->ref(0, 2) = scale.x * (f12 + f3);
-
-		this->ref(1, 0) = scale.y * (f11 + f13);
-		this->ref(1, 1) = scale.y * (f6 - f10);
-		this->ref(1, 2) = scale.y * (f7 - f5);
-
-		this->ref(2, 0) = scale.z * (f12 - f3);
-		this->ref(2, 1) = scale.z * (f7 + f5);
-		this->ref(2, 2) = scale.z * (f6 - f9);
-	}
+	           const JGeometry::TQuat4<f32>& qt);
 
 	// from TP, may be useful in the future?
 	void getEulerXYZ(JGeometry::TVec3<f32>&) const;
@@ -407,6 +379,33 @@ public:
 		this->ref(2, 2) = param_3;
 	}
 };
+
+template <class T>
+void TRotation3<T>::setSQ(const JGeometry::TVec3<f32>& scale,
+                          const JGeometry::TQuat4<f32>& qt)
+{
+	f32 yy = 2.0f * qt.y * qt.y;
+	f32 zz = 2.0f * qt.z * qt.z;
+	f32 xx = 2.0f * qt.x * qt.x;
+	f32 xy = 2.0f * qt.x * qt.y;
+	f32 xz = 2.0f * qt.x * qt.z;
+	f32 wz = 2.0f * qt.w * qt.z;
+	f32 wy = 2.0f * qt.w * qt.y;
+	f32 yz = 2.0f * qt.y * qt.z;
+	f32 wx = 2.0f * qt.w * qt.x;
+
+	this->ref(0, 0) = scale.x * (1.0f - yy - zz);
+	this->ref(0, 1) = scale.x * (xy - wz);
+	this->ref(0, 2) = scale.x * (xz + wy);
+
+	this->ref(1, 0) = scale.y * (xy + wz);
+	this->ref(1, 1) = scale.y * (1.0f - xx - zz);
+	this->ref(1, 2) = scale.y * (yz - wx);
+
+	this->ref(2, 0) = scale.z * (xz - wy);
+	this->ref(2, 1) = scale.z * (yz + wx);
+	this->ref(2, 2) = scale.z * (1.0f - xx - yy);
+}
 
 } // namespace JGeometry
 
