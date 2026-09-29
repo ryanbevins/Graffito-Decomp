@@ -1320,19 +1320,19 @@ void TMapObjBall::touchGround(JGeometry::TVec3<f32>* pos)
 		} else {
 			rebound(pos);
 		}
-	}
-	if (!(mLiveFlag & 0x80)) {
-		mVelocity.x = unk180 * mGroundPlane->mNormal.x + mVelocity.x;
-		mVelocity.z = unk180 * mGroundPlane->mNormal.z + mVelocity.z;
-	}
-	mVelocity.x = mVelocity.x * mMapObjData->mPhysical->unk4->unk10;
-	mVelocity.z = mVelocity.z * mMapObjData->mPhysical->unk4->unk10;
-	if (isActorType(0x400000D0)) {
-		f32 thresh = mMapObjData->mPhysical->unk4->unkC;
-		if (fabsf(mVelocity.x) > thresh || fabsf(mVelocity.z) > thresh) {
-			if (gpMSound->gateCheck(0x1009)) {
-				MSoundSESystem::MSoundSE::startSoundActor(
-				    0x1009, (Vec*)&mPosition, 0, nullptr, 0, 4);
+		if (!(mLiveFlag & 0x80)) {
+			mVelocity.x = unk180 * mGroundPlane->mNormal.x + mVelocity.x;
+			mVelocity.z = unk180 * mGroundPlane->mNormal.z + mVelocity.z;
+		}
+		mVelocity.x = mVelocity.x * mMapObjData->mPhysical->unk4->unk10;
+		mVelocity.z = mVelocity.z * mMapObjData->mPhysical->unk4->unk10;
+		if (isActorType(0x400000D0)) {
+			f32 thresh = mMapObjData->mPhysical->unk4->unkC;
+			if (fabsf(mVelocity.x) > thresh || fabsf(mVelocity.z) > thresh) {
+				if (gpMSound->gateCheck(0x1009)) {
+					MSoundSESystem::MSoundSE::startSoundActor(
+					    0x1009, (Vec*)&mPosition, 0, nullptr, 0, 4);
+				}
 			}
 		}
 	}
