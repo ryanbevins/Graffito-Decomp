@@ -122,14 +122,17 @@ void TBiancoGateKeeper::perform(u32 flags, JDrama::TGraphics* graphics)
 	}
 
 	if (doMove) {
-		unk178->unk50 -= unk158;
-		if (unk178->unk50 < 0.0f)
-			unk178->unk50 = 0.0f;
-		else if (unk178->unk50 > 1.0f)
-			unk178->unk50 = 1.0f;
-
-		controlCollision();
+		f32 rate          = -unk158;
+		TBGKMtxCalc* calc = unk178;
+		calc->unk50 += rate;
+		if (calc->unk50 < 0.0f)
+			calc->unk50 = 0.0f;
+		else if (calc->unk50 > 1.0f)
+			calc->unk50 = 1.0f;
 	}
+
+	if (doMove)
+		controlCollision();
 
 	BOOL doAnim = flags & 2;
 	if (doAnim) {
