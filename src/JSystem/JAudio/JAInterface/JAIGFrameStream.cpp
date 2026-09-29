@@ -868,13 +868,13 @@ namespace StreamLib {
 
 						JASystem::DSPInterface::getDSPHandle(assign_ch[i]->unk0)
 						    ->setPitch(pitch);
+						started = true;
 						if (header.unk10 != 0)
 							buffer->unk74 = -1;
 						JASystem::DSPInterface::getDSPHandle(assign_ch[i]->unk0)
 						    ->flushChannel();
 					}
 
-					started = true;
 					if (adpcmbuf_state != 3)
 						adpcmbuf_state = 0;
 				}
