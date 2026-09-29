@@ -194,18 +194,18 @@ void TWireTrap::calcRootMatrix()
 	}
 
 	TPosition3f mtx;
+	JGeometry::TQuat4<f32> spin;
+	JGeometry::TQuat4<f32> quat;
 	JGeometry::TVec3<f32> dir
 	    = getWireBinderDirect()->getDirAtPos(mPosition, mWireDir);
 	dir.scale(mWireDir, dir);
 	SMS_CalcToDirMatrix(mtx, dir, JGeometry::TVec3<f32>(0.0f, 1.0f, 0.0f));
 
-	JGeometry::TQuat4<f32> quat;
 	mtx.getQuat(quat);
 
 	mRotation.z += -17.75f;
 	mRotation.z = std::fmodf(360.0f + (mRotation.z - 0.0f), 360.0f) + 0.0f;
 
-	JGeometry::TQuat4<f32> spin;
 	spin.setRotate(JGeometry::TVec3<f32>(0.0f, 0.0f, 1.0f),
 	               mRotation.z * 0.017453294f);
 
