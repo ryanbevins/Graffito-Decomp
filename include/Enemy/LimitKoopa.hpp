@@ -48,7 +48,7 @@ class TLimitKoopa;
 // vtable: perform (overriding TLiveActor::perform position) and attack_ (new).
 class TLimitKoopaParts : public TLiveActor {
 public:
-	TLimitKoopaParts(const char*);
+	TLimitKoopaParts(const char*, u32, TLimitKoopa*, f32);
 
 	virtual void perform(u32, JDrama::TGraphics*);
 	virtual void attack_(THitActor*) = 0;
@@ -58,28 +58,28 @@ public:
 
 class TLimitKoopaBody : public TLimitKoopaParts {
 public:
-	TLimitKoopaBody(const char*);
+	TLimitKoopaBody(TLimitKoopa*);
 	virtual BOOL receiveMessage(THitActor*, u32);
 	virtual void attack_(THitActor*);
 };
 
 class TLimitKoopaHead : public TLimitKoopaParts {
 public:
-	TLimitKoopaHead(const char*);
+	TLimitKoopaHead(TLimitKoopa*);
 	virtual BOOL receiveMessage(THitActor*, u32);
 	virtual void attack_(THitActor*);
 };
 
 class TLimitKoopaHand : public TLimitKoopaParts {
 public:
-	TLimitKoopaHand(const char*);
+	TLimitKoopaHand(TLimitKoopa*);
 	virtual BOOL receiveMessage(THitActor*, u32);
 	virtual void attack_(THitActor*);
 };
 
 class TLimitKoopaFlame : public TLimitKoopaParts {
 public:
-	TLimitKoopaFlame(const char*);
+	TLimitKoopaFlame(TLimitKoopa*);
 	virtual BOOL receiveMessage(THitActor*, u32);
 	virtual void attack_(THitActor*);
 };

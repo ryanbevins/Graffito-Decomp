@@ -106,28 +106,39 @@ void TLimitKoopaManager::loadAfter()
 // TLimitKoopaParts hierarchy
 // ---------------------------------------------------------------------------
 
-inline TLimitKoopaParts::TLimitKoopaParts(const char* name)
+inline TLimitKoopaParts::TLimitKoopaParts(const char* name, u32 actor_type,
+                                         TLimitKoopa* owner, f32 radius)
     : TLiveActor(name)
+    , mOwner(owner)
+{
+	owner->registerToGroup(this);
+	initHitActor(actor_type, 5, 0x80000000, radius, radius, radius, radius);
+	onHitFlag(0x2);
+	onHitFlag(0x4);
+	onHitFlag(0x1);
+}
+
+inline TLimitKoopaBody::TLimitKoopaBody(TLimitKoopa* owner)
+    : TLimitKoopaParts("\x83\x4E\x83\x62\x83\x70\x82\xCC\x91\xCC",
+                       0x08000033, owner, 100.0f)
 {
 }
 
-inline TLimitKoopaBody::TLimitKoopaBody(const char* name)
-    : TLimitKoopaParts(name)
+inline TLimitKoopaHead::TLimitKoopaHead(TLimitKoopa* owner)
+    : TLimitKoopaParts("\x83\x4E\x83\x62\x83\x70\x82\xCC\x93\xAA",
+                       0x08000031, owner, 100.0f)
 {
 }
 
-inline TLimitKoopaHead::TLimitKoopaHead(const char* name)
-    : TLimitKoopaParts(name)
+inline TLimitKoopaHand::TLimitKoopaHand(TLimitKoopa* owner)
+    : TLimitKoopaParts("\x83\x4E\x83\x62\x83\x70\x82\xCC\x8E\xE8",
+                       0x08000032, owner, 100.0f)
 {
 }
 
-inline TLimitKoopaHand::TLimitKoopaHand(const char* name)
-    : TLimitKoopaParts(name)
-{
-}
-
-inline TLimitKoopaFlame::TLimitKoopaFlame(const char* name)
-    : TLimitKoopaParts(name)
+inline TLimitKoopaFlame::TLimitKoopaFlame(TLimitKoopa* owner)
+    : TLimitKoopaParts("\x83\x4E\x83\x62\x83\x70\x82\xCC\x93\x66\x82\xAD\x89\x8A",
+                       0x08000030, owner, 100.0f)
 {
 }
 
@@ -325,57 +336,14 @@ void TLimitKoopa::loadAfter()
 {
 	JDrama::TNameRef::loadAfter();
 
-	for (int i = 0; i < 10; i++) {
-		TLimitKoopaFlame* p = new TLimitKoopaFlame(
-		    "\x83\x4E\x83\x62\x83\x70\x82\xCC\x93\x66\x82\xAD\x89\x8A");
-		p->mOwner = this;
-		registerToGroup(p);
-		p->initHitActor(0x08000030, 5, 0x80000000, 100.0f, 100.0f, 100.0f,
-		                100.0f);
-		p->onHitFlag(0x2);
-		p->onHitFlag(0x4);
-		p->onHitFlag(0x1);
-		mFlameHitActors[i] = p;
-	}
+	for (int i = 0; i < 10; i++)
+		mFlameHitActors[i] = new TLimitKoopaFlame(this);
 
-	for (int i = 0; i < 2; i++) {
-		TLimitKoopaHand* p
-		    = new TLimitKoopaHand("\x83\x4E\x83\x62\x83\x70\x82\xCC\x8E\xE8");
-		p->mOwner = this;
-		registerToGroup(p);
-		p->initHitActor(0x08000032, 5, 0x80000000, 100.0f, 100.0f, 100.0f,
-		                100.0f);
-		p->onHitFlag(0x2);
-		p->onHitFlag(0x4);
-		p->onHitFlag(0x1);
-		(&unk1A0)[i] = p;
-	}
+	for (int i = 0; i < 2; i++)
+		(&unk1A0)[i] = new TLimitKoopaHand(this);
 
-	{
-		TLimitKoopaHead* p
-		    = new TLimitKoopaHead("\x83\x4E\x83\x62\x83\x70\x82\xCC\x93\xAA");
-		p->mOwner = this;
-		registerToGroup(p);
-		p->initHitActor(0x08000031, 5, 0x80000000, 100.0f, 100.0f, 100.0f,
-		                100.0f);
-		p->onHitFlag(0x2);
-		p->onHitFlag(0x4);
-		p->onHitFlag(0x1);
-		mHeadHitActor = p;
-	}
-
-	{
-		TLimitKoopaBody* p
-		    = new TLimitKoopaBody("\x83\x4E\x83\x62\x83\x70\x82\xCC\x91\xCC");
-		p->mOwner = this;
-		registerToGroup(p);
-		p->initHitActor(0x08000033, 5, 0x80000000, 100.0f, 100.0f, 100.0f,
-		                100.0f);
-		p->onHitFlag(0x2);
-		p->onHitFlag(0x4);
-		p->onHitFlag(0x1);
-		unk1AC = p;
-	}
+	mHeadHitActor = new TLimitKoopaHead(this);
+	unk1AC = new TLimitKoopaBody(this);
 }
 
 void TLimitKoopa::setUpHitActors()
