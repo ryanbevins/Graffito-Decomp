@@ -658,14 +658,15 @@ int MarioHeadCtrl(J3DNode* param_1, int param_2)
 		} else {
 
 			TMario* mario = gpMarioForCallBack;
+			s16* unk      = &mario->unkFC;
 			f32 anmSpeed;
 			if (mario->fabricatedIsPumping()) {
-				anmSpeed = mario->mUpperBodyParams.mPumpAnmSpeed.get();
+				anmSpeed = mario->mBodyAngleParamsWaterGun.mHeadRot.get();
 			} else {
-				anmSpeed = mario->mDirtyParams.mSlipAnmSpeed.get();
+				anmSpeed = mario->mBodyAngleParamsFree.mHeadRot.get();
 			}
 
-			s16 headAngle = -mario->unk100 * anmSpeed;
+			s16 headAngle = -unk[2] * anmSpeed;
 			MsMtxSetRotRPH(transform, 0.0f, SHORTANGLE2DEG(headAngle), 0.0f);
 			s16 gunAngle = gpMarioForCallBack->mWaterGun->getCurrentNozzle()
 			                   ->getGunAngle()
