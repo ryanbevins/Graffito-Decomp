@@ -391,7 +391,7 @@ inline TBWPicket::TBWPicket(TBossWanwan* owner, const char* name)
 	             ((TBWParams*)mOwner->getSaveParam())->mSLPicketHeight.get());
 	TIdxGroupObj* group
 	    = JDrama::TNameRefGen::search<TIdxGroupObj>("敵グループ");
-	group->add(this);
+	group->getChildren().push_back(this);
 	offHitFlag(HIT_FLAG_NO_COLLISION);
 	mMActor = mOwner->mMActorKeeper->createMActor("bwanwan_picket.bmd", 0);
 }
