@@ -965,32 +965,10 @@ void TKoopa::setUpHitActors()
 
 	TKoopaParams* prm = (TKoopaParams*)((TEnemyManager*)mManager)->unk38;
 	MtxPtr headMtx = mMActor->getModel()->getAnmMtx(mHeadJointIndex);
-	THitActor* head = mHeadHitActor;
-	f32 headY       = headMtx[1][3] - 200.0f;
-	f32 headX       = headMtx[0][3];
-	f32 headZ       = headMtx[2][3];
-	f32 headRadius  = prm->headRadius.get();
-	f32 headHeight  = headRadius * 2.0f;
-	head->mPosition.set<f32>(headX, headY, headZ);
-	head->offHitFlag(0x2);
-	head->offHitFlag(0x4);
-	head->offHitFlag(0x1);
-	head->mAttackRadius = headRadius;
-	head->mAttackHeight = headHeight;
-	head->mDamageRadius = headRadius;
-	head->mDamageHeight = headHeight;
-	head->calcEntryRadius();
-
-	THitActor* body = mBodyHitActor;
-	body->mPosition.set(mPosition);
-	body->offHitFlag(0x2);
-	body->offHitFlag(0x4);
-	body->offHitFlag(0x1);
-	body->mAttackRadius = 800.0f;
-	body->mAttackHeight = 2000.0f;
-	body->mDamageRadius = 800.0f;
-	body->mDamageHeight = 2000.0f;
-	body->calcEntryRadius();
+	JGeometry::TVec3<f32> headPosition(headMtx[0][3],
+	                                  headMtx[1][3] - 200.0f, headMtx[2][3]);
+	mHeadHitActor->set(headPosition, prm->headRadius.get(), 0.0f);
+	mBodyHitActor->set(mPosition, 800.0f, 2000.0f);
 }
 
 inline const TNerveKoopaTurnR& TNerveKoopaTurnR::theNerve()
