@@ -665,6 +665,9 @@ void TCannon::init(TLiveManager* manager)
 	SDLModelData* marioData
 	    = new SDLModelData(J3DModelLoaderDataBase::load(marioRes, 0x10010000));
 	unk1BC = new TSharedParts(this, 0, marioData, 3, "<TSharedParts>");
+	for (u8 i = 0; i < getModel()->getModelData()->getJointNum(); ++i) {
+		// The retail build retains this loop with an empty body.
+	}
 	unk258 = new TMapCollisionMove();
 	unk258->init(2, 0, 0, nullptr);
 }
