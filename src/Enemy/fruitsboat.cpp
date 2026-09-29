@@ -404,10 +404,10 @@ void TFruitsBoat::moveObject()
 
 	JGeometry::TVec3<f32> rot = MsGetRotFromZaxis(delta);
 
-	f32 rotXDeg = rot.x * 0.005493164f;
-	f32 wrapped = callMsWrap(rotXDeg, mRotation.x - 180.0f,
-	                         mRotation.x + 180.0f);
-	f32 diffAng = wrapped - mRotation.x;
+	rot.x *= 0.005493164f;
+	f32 wrapped = callMsWrap(mRotation.x, rot.x - 180.0f,
+	                         rot.x + 180.0f);
+	f32 diffAng = rot.x - wrapped;
 	f32 clamped;
 	if (diffAng >= 0.0f)
 		clamped = diffAng > sMaxRotationStep ? sMaxRotationStep : diffAng;
