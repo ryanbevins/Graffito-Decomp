@@ -279,9 +279,10 @@ TBathtubGrip::TBathtubGrip(TBathtub* bathtub, f32 angle, MActorAnmData* data,
 
 	void* res = JKRFileLoader::getGlbResource(
 	    "/scene/map/map/stand_effect/stand_effect.bmd");
+	u32 modelFlags = 0x50050000;
 	J3DModel* model
-	    = new J3DModel(J3DModelLoaderDataBase::load(res, 0x50050000), 0, 1);
-	unk25C->setModel(model, 0x50050000);
+	    = new J3DModel(J3DModelLoaderDataBase::load(res, modelFlags), 0, 1);
+	unk25C->setModel(model, modelFlags);
 
 	unk254 = 0;
 	unk244 = bathtub;
