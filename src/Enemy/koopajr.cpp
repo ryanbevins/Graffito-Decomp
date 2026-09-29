@@ -792,6 +792,20 @@ void TKoopaJrSubmarine::calcRootMatrix()
 	getModel()->setBaseScale(mScaling);
 }
 
+void TKoopaJrSubmarine::makeDirection()
+{
+	if (unk170)
+		return;
+
+	JGeometry::TVec3<f32> direction = mVelocity;
+	direction.normalize();
+	TDirectionCalc target;
+	target.makeDirection(direction);
+	f32 angle = target.mDirection;
+	f32 turn = TDirectionCalc::d2r(getSaveParam2()->mSLRotationSpeed.get());
+	unk16C.mDirection = unk16C.calcTurnDirection(angle, turn);
+}
+
 void TKoopaJrSubmarine::checkNerve()
 {
 	if (unk1A0->mSpine->getCurrentNerve() == &TNerveKoopaJrWait::theNerve()) {
@@ -804,13 +818,7 @@ void TKoopaJrSubmarine::checkNerve()
 	mVelocity.y *= 0.95f;
 	mVelocity.z *= 0.95f;
 
-	if (!unk170) {
-		JGeometry::TVec3<f32> direction = mVelocity;
-		direction.normalize();
-		unk16C.mDirection = unk16C.calcTurnDirection(
-		    atan2f(direction.z, direction.x),
-		    getSaveParam2()->mSLRotationSpeed.get() * 3.1415927f / 180.0f);
-	}
+	makeDirection();
 
 	if (mSpine->getCurrentNerve() == &TNerveKoopaJrSubmarineWait::theNerve())
 		return;

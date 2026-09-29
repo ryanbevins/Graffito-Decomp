@@ -280,6 +280,7 @@ public:
 	virtual const char** getBasNameTable() const;
 	virtual void reset();
 
+	void makeDirection();
 	void checkNerve();
 	void makeRoundVelocity();
 	void makeRelativeAngle();
