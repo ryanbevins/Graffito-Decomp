@@ -1302,10 +1302,8 @@ void TEnemyMario::emRunAwayToNearestNode()
 			    0x1976, &mPosition, 0, nullptr, 0, 4);
 		break;
 	case 100: {
-		JGeometry::TVec3<f32> dir;
-		dir.x = target.x - emDownPos(this).x;
-		dir.y = target.y - emDownPos(this).y;
-		dir.z = target.z - emDownPos(this).z;
+		JGeometry::TVec3<f32> dir = target;
+		dir.sub(emDownPos(this));
 
 		dir.normalize();
 
