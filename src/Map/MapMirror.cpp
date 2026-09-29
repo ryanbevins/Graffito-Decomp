@@ -52,7 +52,7 @@ void TMirrorCamera::drawSetting(MtxPtr param_1)
 	Mtx afStack_38;
 	f32 fovy = gpCamera->mFovy;
 	C_MTXLightPerspective(afStack_38, unk80 * fovy,
-	                      gpCamera->mAspect, 1.0f, -1.0f, 1.0f, 1.0f);
+	                      gpCamera->mAspect, 0.5f, -0.5f, 0.5f, 0.5f);
 
 	Mtx afStack_68;
 	MTXConcat(getUnk30(), param_1, afStack_68);
