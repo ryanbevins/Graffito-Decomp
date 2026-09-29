@@ -2,6 +2,7 @@
 #define JGEOMETRY_ROTATION3_IDENTITY33_OUT_OF_LINE
 
 #include <StackPadding.h>
+#include <M3DUtil/InfectiousStrings.hpp>
 #include <Enemy/Koopa.hpp>
 #include <Enemy/BathtubBinder.hpp>
 #include <JSystem/JGeometry/JGUtil.hpp>
