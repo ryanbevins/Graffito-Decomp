@@ -737,12 +737,10 @@ void TBossEel::perform(u32 flags, JDrama::TGraphics* graphics)
 		mPosition.y = unk150.y + unk1E8->mSLInitTransYOffset.value + unk1F4;
 
 		TCubeGeneralInfo* largeCube = &(*unk1AC->unk14)[0];
-		largeCube->unkC.x          = mPosition.x;
-		largeCube->unkC.y          = mPosition.y + 9600.0f * mScaling.y;
-		largeCube->unkC.z          = mPosition.z;
-		largeCube->unk24.x         = 7000.0f * mScaling.x;
-		largeCube->unk24.y         = 10000.0f * mScaling.y;
-		largeCube->unk24.z         = 7000.0f * mScaling.z;
+		largeCube->unkC.set(mPosition.x, mPosition.y + 9600.0f * mScaling.y,
+		                    mPosition.z);
+		largeCube->unk24.set(7000.0f * mScaling.x, 10000.0f * mScaling.y,
+		                     7000.0f * mScaling.z);
 
 		moveObject();
 		mMActor->calcAnm();
