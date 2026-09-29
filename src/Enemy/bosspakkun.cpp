@@ -823,7 +823,7 @@ void TBossPakkunMtxCalc::calcHeadDir(u16 joint_no)
 	Mtx headMtx;
 	f32 sin = JMASin(headYaw);
 	f32 cos = JMACos(headYaw);
-	headMtx[0][0] = 25.0f;
+	headMtx[0][0] = 1.0f;
 	headMtx[0][1] = 0.0f;
 	headMtx[0][2] = 0.0f;
 	headMtx[0][3] = 0.0f;
