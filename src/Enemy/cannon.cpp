@@ -182,9 +182,8 @@ void TCannon::killerShoot()
 		                                         killer->getGravityY());
 		velocity.scale(velocityRate);
 
-		killer->mRotation.x = 0.0f;
-		killer->mRotation.y = MsAngleWrap(MsGetRotFromZaxisY(velocity));
-		killer->mRotation.z = 0.0f;
+		f32 yaw = MsAngleWrap(MsGetRotFromZaxisY(velocity));
+		killer->mRotation.set(0.0f, yaw, 0.0f);
 		killer->mScaling.set(0.1f, 0.1f, 0.1f);
 
 		if (gpMarDirector->mState == 1) {
