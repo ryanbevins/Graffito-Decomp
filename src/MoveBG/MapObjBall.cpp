@@ -1060,11 +1060,10 @@ void TMapObjBall::calcCurrentMtx()
 		        > mMapObjData->mPhysical->unk4->unkC
 		    || fabsf(JGeometry::TVec3<f32>(mVelocity).z)
 		           > mMapObjData->mPhysical->unk4->unkC) {
-			JGeometry::TVec3<f32> v5 = mVelocity;
-			JGeometry::TVec3<f32> v6 = mVelocity;
 			JGeometry::TVec3<f32> result;
-			getVerticalVecToTargetXZ(mPosition.x + v6.x,
-			                         mPosition.z + v6.z, &result);
+			getVerticalVecToTargetXZ(
+			    mPosition.x + JGeometry::TVec3<f32>(mVelocity).x,
+			    mPosition.z + JGeometry::TVec3<f32>(mVelocity).z, &result);
 
 			JGeometry::TVec3<f32> v7 = mVelocity;
 			JGeometry::TVec3<f32> v8(v7.x, v7.y, v7.z);
