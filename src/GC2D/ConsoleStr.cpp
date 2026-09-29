@@ -238,11 +238,10 @@ void TConsoleStr::perform(u32 param_1, JDrama::TGraphics* param_2)
 		if (unk2B8 == 1 && unk18 > 60.0f) {
 			for (int i = 0; i < 3; ++i) {
 				int local_b0[3] = { 4, 10, 20 };
-				TBoundPane* pane = unk28[i];
 
-				u8 uVar13 = pane->getPane()->getAlpha();
+				u8 uVar13 = unk28[i]->getPane()->getAlpha();
 				u8 trailAlpha = uVar13;
-				JUTRect local_a0 = pane->getPane()->getBounds();
+				JUTRect local_a0 = unk28[i]->getPane()->getBounds();
 
 				for (int j = 0; j < 3; ++j) {
 					int iVar9 = local_b0[j];
@@ -262,8 +261,8 @@ void TConsoleStr::perform(u32 param_1, JDrama::TGraphics* param_2)
 					}
 				}
 
-				pane->getPane()->setAlpha(uVar13);
-				pane->getPane()->resize(local_a0.getWidth(),
+				unk28[i]->getPane()->setAlpha(uVar13);
+				unk28[i]->getPane()->resize(local_a0.getWidth(),
 				                        local_a0.getHeight());
 			}
 		}
