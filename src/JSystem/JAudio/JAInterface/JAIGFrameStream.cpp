@@ -898,6 +898,7 @@ namespace StreamLib {
 					rightPan = 1.4142f * JASystem::Calc::sinfT(outpan);
 				} else {
 					leftPan = 1.4142f * JASystem::Calc::sinfT(1.0f - outpan);
+					rightPan = 1.0f;
 				}
 
 				baseVolume = 0x7fff;
