@@ -51,7 +51,7 @@ public:
 
 	JGeometry::TVec3<f32> getCenterOfGravity() const;
 	void appearBee(int);
-	BOOL doWait();
+	bool doWait();
 	void controlSound();
 	void controlCollision();
 	void receiveMessageFromChild(TBee*);

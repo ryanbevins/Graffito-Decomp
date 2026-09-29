@@ -38,14 +38,14 @@ static void playBeeHiveSound(const JGeometry::TVec3<f32>& pos, f32 volume)
 		    0x28f7, (const Vec*)&pos, nullptr, volume, 0, 0, nullptr, 0, 4);
 }
 
-static void setBoidLeaderWaitParams(TBoidLeader* leader)
+static void setBoidLeaderWaitParams(TBeeHive* hive)
 {
-	leader->mParam20 = 25.0f;
-	leader->mParam24 = 80.0f;
-	leader->mParam28 = 8.0f;
-	leader->mParam2C = 8.0f;
-	leader->mParam30 = 85.0f;
-	leader->mParam34 = 0.001f;
+	hive->mBoidLeader->mParam20 = 25.0f;
+	hive->mBoidLeader->mParam24 = 80.0f;
+	hive->mBoidLeader->mParam28 = 8.0f;
+	hive->mBoidLeader->mParam2C = 8.0f;
+	hive->mBoidLeader->mParam30 = 85.0f;
+	hive->mBoidLeader->mParam34 = 0.001f;
 }
 
 static BOOL isMarioWaterIn()
@@ -64,21 +64,21 @@ static BOOL isMarioWaterIn()
 	return FALSE;
 }
 
-static void setBoidLeaderMarioGoal(TBoidLeader* leader, f32 offset_y)
+static void setBoidLeaderMarioGoal(TBeeHive* hive, f32 offset_y)
 {
-	setBoidLeaderWaitParams(leader);
+	setBoidLeaderWaitParams(hive);
 
-	leader->mGoalTarget = (THitActor*)gpMarioAddress;
-	leader->mGoalOffset.set(0.0f, offset_y, 0.0f);
+	hive->mBoidLeader->mGoalTarget = (THitActor*)gpMarioAddress;
+	hive->mBoidLeader->mGoalOffset
+	    = JGeometry::TVec3<f32>(0.0f, offset_y, 0.0f);
 }
 
 static void setBoidLeaderHomeGoal(TBeeHive* hive)
 {
-	TBoidLeader* leader = hive->mBoidLeader;
-	setBoidLeaderWaitParams(leader);
+	setBoidLeaderWaitParams(hive);
 
-	leader->mGoalTarget = hive->mPosition;
-	leader->mGoalOffset.set(0.0f, 0.0f, 0.0f);
+	hive->mBoidLeader->mGoalTarget = hive->mPosition;
+	hive->mBoidLeader->mGoalOffset = JGeometry::TVec3<f32>(0.0f, 0.0f, 0.0f);
 }
 
 static inline void setBeeHiveRotate(JGeometry::TQuat4<f32>& quat,
@@ -131,7 +131,7 @@ DEFINE_NERVE(TNerveBeeHiveMarioWaterIn, TLiveActor)
 {
 	TBeeHive* hive = (TBeeHive*)spine->getBody();
 	if (spine->getTime() == 0)
-		setBoidLeaderMarioGoal(hive->mBoidLeader, 500.0f);
+		setBoidLeaderMarioGoal(hive, 500.0f);
 
 	if (hive->getBeeParams()->mGiveupTimer.get() < spine->getTime()) {
 		spine->pushAfterCurrent(&TNerveBeeHiveReset::theNerve());
@@ -150,7 +150,7 @@ DEFINE_NERVE(TNerveBeeHiveAttack, TLiveActor)
 {
 	TBeeHive* hive = (TBeeHive*)spine->getBody();
 	if (spine->getTime() == 0)
-		setBoidLeaderMarioGoal(hive->mBoidLeader, 200.0f);
+		setBoidLeaderMarioGoal(hive, 200.0f);
 
 	if (isMarioWaterIn()) {
 		spine->pushAfterCurrent(&TNerveBeeHiveMarioWaterIn::theNerve());
@@ -191,7 +191,7 @@ DEFINE_NERVE(TNerveBeeHiveBreak, TLiveActor)
 			hive->appearBee(i);
 
 		hive->mWaitTimer = hive->mBoidLeader->mNumActors;
-		setBoidLeaderMarioGoal(hive->mBoidLeader, 200.0f);
+		setBoidLeaderMarioGoal(hive, 200.0f);
 	}
 
 	if (hive->checkCurAnmEnd(0)) {
@@ -348,7 +348,7 @@ void TBeeHive::appearBee(int index)
 	mBoidLeader->mBoidData[index].mPosition = mPosition;
 }
 
-BOOL TBeeHive::doWait()
+bool TBeeHive::doWait()
 {
 	TBeeHiveParams* params = getBeeParams();
 	f32 oldVelocity       = mAngularVelocity.y;
@@ -379,7 +379,7 @@ BOOL TBeeHive::doWait()
 	JGeometry::TVec3<f32> diff = *gpMarioPos;
 	diff -= mPosition;
 
-	setBoidLeaderWaitParams(mBoidLeader);
+	setBoidLeaderWaitParams(this);
 	if (diff.squared() <= params->mSearchRange.get() * params->mSearchRange.get()) {
 		mBoidLeader->mGoalTarget = (THitActor*)gpMarioAddress;
 		mBoidLeader->mGoalOffset.set(0.0f, 200.0f, 0.0f);
