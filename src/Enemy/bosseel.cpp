@@ -2616,17 +2616,19 @@ DEFINE_NERVE(TNerveBossEelEat, TLiveActor)
 				if (emitter)
 					emitter->setScale(eel->mScaling);
 			}
-		} else if (eel->mMActor->checkCurBckFromIndex(12)) {
-			if (SMS_SendMessageToMario(eel, HIT_MESSAGE_UNK8)) {
-				eel->mHeldObject = nullptr;
-				SMS_SendMessageToMario(eel, 0xE);
-				gpMarDirector->fireEndDemoCamera();
-				eel->unk21C = FALSE;
-			}
+		} else {
+			if (eel->mMActor->checkCurBckFromIndex(12)) {
+				if (SMS_SendMessageToMario(eel, HIT_MESSAGE_UNK8)) {
+					eel->mHeldObject = nullptr;
+					SMS_SendMessageToMario(eel, 0xE);
+					gpMarDirector->fireEndDemoCamera();
+					eel->unk21C = FALSE;
+				}
 
-			spine->reset();
-			spine->setDefaultNext();
-			spine->pushAfterCurrent(&TNerveBossEelQuickBack::theNerve());
+				spine->reset();
+				spine->setDefaultNext();
+				spine->pushAfterCurrent(&TNerveBossEelQuickBack::theNerve());
+			}
 			return TRUE;
 		}
 	}
