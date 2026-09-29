@@ -1123,8 +1123,7 @@ void TBossEelHeartCoin::perform(u32 flags, JDrama::TGraphics* graphics)
 	if (calcFlag) {
 		for (int i = 0; i < 20; ++i) {
 			MtxPtr mtx = unk18->getModel()->mNodeMatrices[i + 2];
-			TCoin* coin = mCoins[i];
-			coin->mPosition.set(mtx[0][3], mtx[1][3], mtx[2][3]);
+			mCoins[i]->mPosition.set(mtx[0][3], mtx[1][3], mtx[2][3]);
 		}
 	}
 }
