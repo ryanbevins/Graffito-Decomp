@@ -1192,10 +1192,9 @@ void TMapObjBall::boundByActor(THitActor* actor)
 		           > mMapObjData->mPhysical->unk4->unkC
 		    && fabsf(JGeometry::TVec3<f32>(mVelocity).z)
 		           > mMapObjData->mPhysical->unk4->unkC) {
-			f32 add     = 1.0f + unk16C;
-			mVelocity.x = mVelocity.x - add * (diff.x * dot);
+			mVelocity.x = mVelocity.x - (1.0f + unk16C) * (diff.x * dot);
 			mVelocity.y = mVelocity.y + unk168;
-			mVelocity.z = mVelocity.z - add * (diff.z * dot);
+			mVelocity.z = mVelocity.z - (1.0f + unk16C) * (diff.z * dot);
 			actor->receiveMessage(this, 0x10);
 			if (!isActorType(0x400000D0)) {
 				if (gpMSound->gateCheck(0x3862)) {
