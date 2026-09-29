@@ -134,7 +134,7 @@ void TBiancoGateKeeper::perform(u32 flags, JDrama::TGraphics* graphics)
 	if (doMove)
 		controlCollision();
 
-	BOOL doAnim = flags & 2;
+	u32 doAnim = flags & 2;
 	if (doAnim) {
 		if (gpMSound->gateCheck(0x210B))
 			MSoundSESystem::MSoundSE::startSoundActor(
