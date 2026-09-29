@@ -1549,10 +1549,8 @@ void TBossEelTooth::perform(u32 flags, JDrama::TGraphics* graphics)
 					if (unk68->getMActor()->checkCurBckFromIndex(0x16)) {
 						unk68->getMActor()->setBckFromIndex(0x14);
 
-						JGeometry::TVec3<f32> pos;
-						pos.x = unk88[0][3];
-						pos.y = unk88[1][3] + unk7C;
-						pos.z = unk88[2][3];
+						JGeometry::TVec3<f32> pos(
+						    unk88[0][3], unk7C + unk88[1][3], unk88[2][3]);
 
 						TBEelTears* tears = (TBEelTears*)gpConductor
 						    ->makeOneEnemyAppear(pos, cBossEelTearsManagerName,
