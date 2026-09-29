@@ -19,6 +19,7 @@
 // rogue includes needed for matching sinit & bss
 #include <MSound/MSSetSound.hpp>
 #include <MSound/MSoundBGM.hpp>
+#include <M3DUtil/InfectiousStrings.hpp>
 
 static inline void setEffectMtxOnTex0(J3DMaterial* material, MtxPtr mtx)
 {
