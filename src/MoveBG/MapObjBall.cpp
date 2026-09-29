@@ -1679,7 +1679,7 @@ void TBigWatermelon::control()
 	case 0xA:
 		break;
 	case 0xD: {
-		if (mLifeTimer <= 0) {
+		if (!isLifeTimerActive()) {
 			JGeometry::TVec3<f32> scale(1.0f, 1.0f, 1.0f);
 			emitAndScale(0x6B, 0, &mPosition, scale);
 			emitAndScale(0x6C, 0, &mPosition, scale);
