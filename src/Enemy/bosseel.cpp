@@ -1146,10 +1146,11 @@ void TBossEelEye::perform(u32 flags, JDrama::TGraphics* graphics)
 
 		Mtx mtx;
 		PSMTXCopy(getConnectedMtx(), mtx);
-		PSMTXCopy(mtx, unk18->getModel()->unk20);
+		MtxPtr partMtx = mtx;
+		PSMTXCopy(partMtx, unk18->getModel()->unk20);
 
 		if (unk50 == 0)
-			PSMTXCopy(mtx, unk1C);
+			PSMTXCopy(partMtx, unk1C);
 
 		f32 blend = unk64 - 0.01f;
 		if (blend > 1.0f)
