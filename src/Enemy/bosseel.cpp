@@ -2687,9 +2687,8 @@ DEFINE_NERVE(TNerveBossEelDie, TLiveActor)
 			    cBossEelShineName, cBossEelShineCameraName, mtx[0][3],
 			    mtx[1][3], mtx[2][3]);
 
-			void* part = *(void**)((u8*)eel + 0x184);
-			*(s32*)((u8*)part + 0x70) = 0;
-			((THitActor*)part)->onHitFlag(HIT_FLAG_NO_COLLISION);
+			eel->unk16C[6]->unk70 = 0;
+			eel->unk16C[6]->onHitFlag(HIT_FLAG_NO_COLLISION);
 			eel->setBckAnm(4);
 		}
 	}
