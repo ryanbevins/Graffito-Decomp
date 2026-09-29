@@ -1380,7 +1380,7 @@ void TMapObjBall::rebound(JGeometry::TVec3<f32>* pos)
 void TMapObjBall::touchWall(JGeometry::TVec3<f32>* pos,
                             TBGWallCheckRecord* record)
 {
-	if (!(mLiveFlag & 0x80) && !isActorType(0x400000D0)) {
+	if (!isAirborne() && !isActorType(0x400000D0)) {
 		JGeometry::TVec3<f32> v;
 		v = mVelocity;
 		f32 mag
