@@ -972,6 +972,7 @@ void TKoopaJrSubmarine::makeKillerVelocity(TBathtubKiller* killer,
 		toMario.y = 0.0f;
 		toMario.normalize();
 
+		f32 fanAngle = 0.62831855f;
 		JGeometry::TVec3<f32> axis;
 		axis.x = direction.y * toMario.z - direction.z * toMario.y;
 		axis.y = direction.z * toMario.x - direction.x * toMario.z;
@@ -984,13 +985,14 @@ void TKoopaJrSubmarine::makeKillerVelocity(TBathtubKiller* killer,
 
 		axis = toMario;
 		int slot     = unk180 % 4;
-		f32 fanAngle = 0.62831855f;
 		if (slot == 0) {
-			fanAngle = -0.15707964f;
+			f32 angle = 0.15707964f;
+			fanAngle = -angle;
 		} else if (slot == 1) {
 			fanAngle = 0.15707964f;
 		} else if (slot == 2) {
-			fanAngle = -0.31415927f;
+			f32 angle = 0.31415927f;
+			fanAngle = -angle;
 		} else if (slot == 3) {
 			fanAngle = 0.31415927f;
 		}
