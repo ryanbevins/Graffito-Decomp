@@ -97,48 +97,46 @@ int KoopaNeckCallBack(J3DNode* node, int timing)
 	}
 
 	f32 focus = koopa->getNeckFocus();
-	if (focus > 0.0f) {
-		JGeometry::TVec3<f32> localX(mtx[0][0], mtx[1][0], mtx[2][0]);
-		JGeometry::TVec3<f32> localY(mtx[0][1], mtx[1][1], mtx[2][1]);
+	JGeometry::TVec3<f32> localX(mtx[0][0], mtx[1][0], mtx[2][0]);
+	JGeometry::TVec3<f32> localY(mtx[0][1], mtx[1][1], mtx[2][1]);
 
-		f32 yDot = localY.dot(toMario);
-		JGeometry::TVec3<f32> projected(
-		    toMario.x - localY.x * yDot, toMario.y - localY.y * yDot,
-		    toMario.z - localY.z * yDot);
+	f32 yDot = localY.dot(toMario);
+	JGeometry::TVec3<f32> projected(
+	    toMario.x - localY.x * yDot, toMario.y - localY.y * yDot,
+	    toMario.z - localY.z * yDot);
 
-		if (!projected.isZero())
-			projected.normalize();
-		if (!toMario.isZero())
-			toMario.normalize();
+	if (!projected.isZero())
+		projected.normalize();
+	if (!toMario.isZero())
+		toMario.normalize();
 
-		f32 frontDot = localX.dot(projected);
-		if (frontDot < 0.5f)
-			focus *= (1.0f + frontDot) / 1.5f;
+	f32 frontDot = localX.dot(projected);
+	if (frontDot < 0.5f)
+		focus *= (1.0f + frontDot) / 1.5f;
 
-		JGeometry::TQuat4<f32> turn;
-		turn.setRotate(localX, projected, focus);
-		turn.normalize();
+	JGeometry::TQuat4<f32> turn;
+	turn.setRotate(localX, projected, focus);
+	turn.normalize();
 
-		if (!koopa->isFlaming()) {
-			JGeometry::TVec3<f32> cross;
-			cross.cross(projected, toMario);
-			f32 angle = fabsf(atan2f(cross.length(), projected.dot(toMario)));
-			if (toMario.dot(localY) < 0.0f)
-				angle = -angle;
+	if (!koopa->isFlaming()) {
+		JGeometry::TVec3<f32> cross;
+		cross.cross(projected, toMario);
+		f32 angle = fabsf(atan2f(cross.length(), projected.dot(toMario)));
+		if (toMario.dot(localY) < 0.0f)
+			angle = -angle;
 
-			JGeometry::TVec3<f32> axis;
-			turn.getZDir(axis);
-			JGeometry::TQuat4<f32> pitch;
-			pitch.setRotate(axis, angle * focus);
-			pitch.normalize();
-			turn.mul(pitch, turn);
-		}
-
-		TPosition3f turnMtx;
-		turnMtx.setQuat(turn);
-		turnMtx.zeroTrans();
-		((TMtx34f*)mtx)->concat(*(TMtx34f*)mtx, turnMtx);
+		JGeometry::TVec3<f32> axis;
+		turn.getZDir(axis);
+		JGeometry::TQuat4<f32> pitch;
+		pitch.setRotate(axis, angle * focus);
+		pitch.normalize();
+		turn.mul(pitch, turn);
 	}
+
+	TPosition3f turnMtx;
+	turnMtx.setQuat(turn);
+	turnMtx.zeroTrans();
+	((TMtx34f*)mtx)->concat(*(TMtx34f*)mtx, turnMtx);
 
 	PSMTXCopy(mtx, J3DSys::mCurrentMtx);
 	return 1;
