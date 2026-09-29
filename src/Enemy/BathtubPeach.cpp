@@ -101,7 +101,7 @@ DEFINE_NERVE(TNervePeachEscape, TLiveActor)
 	f32 peachDeg = SHORTANGLE2DEG((s16)matan(peach->mPosition.z - bathtubZ,
 	                                         peach->mPosition.x - bathtubX));
 	f32 angleDiff
-	    = std::fmodf(360.0f + peachDeg - marioDeg - -180.0f, 360.0f) + -180.0f;
+	    = std::fmodf(360.0f + (peachDeg - marioDeg - -180.0f), 360.0f) + -180.0f;
 
 	TBathtubPeachParams* params
 	    = (TBathtubPeachParams*)((TEnemyManager*)peach->getManager())->getSaveParam();
@@ -109,11 +109,11 @@ DEFINE_NERVE(TNervePeachEscape, TLiveActor)
 	f32 newAngle;
 	if (angleDiff < 0.0f) {
 		newAngle
-		    = std::fmodf(360.0f + (marioDeg - angleParam) - -180.0f, 360.0f)
+		    = std::fmodf(360.0f + ((marioDeg - angleParam) - -180.0f), 360.0f)
 		      + -180.0f;
 	} else {
 		newAngle
-		    = std::fmodf(360.0f + (marioDeg + angleParam) - -180.0f, 360.0f)
+		    = std::fmodf(360.0f + ((marioDeg + angleParam) - -180.0f), 360.0f)
 		      + -180.0f;
 	}
 
@@ -154,19 +154,19 @@ DEFINE_NERVE(TNervePeachEscape, TLiveActor)
 		f32 targetRot
 		    = SHORTANGLE2DEG((s16)matan(dz, dx)) - 90.0f;
 		f32 diff = std::fmodf(
-		               360.0f + (targetRot - peach->mRotation.y) - -180.0f,
+		               360.0f + ((targetRot - peach->mRotation.y) - -180.0f),
 		               360.0f)
 		           + -180.0f;
 		if (diff < -turnSpeed2) {
 			peach->mRotation.y
 			    = std::fmodf(
-			          360.0f + (peach->mRotation.y - turnSpeed2) - -180.0f,
+			          360.0f + ((peach->mRotation.y - turnSpeed2) - -180.0f),
 			          360.0f)
 			      + -180.0f;
 		} else if (diff > turnSpeed2) {
 			peach->mRotation.y
 			    = std::fmodf(
-			          360.0f + (peach->mRotation.y + turnSpeed2) - -180.0f,
+			          360.0f + ((peach->mRotation.y + turnSpeed2) - -180.0f),
 			          360.0f)
 			      + -180.0f;
 		} else {
