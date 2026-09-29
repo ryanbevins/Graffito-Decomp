@@ -265,7 +265,7 @@ void TMapObjBase::startAnim(u16 param_1)
 				int track = prev->unk8;
 				mMActor->getFrameCtrl(track)->setRate(0.0f);
 				mMActor->getFrameCtrl(track)->setFrame(0.0f);
-				*((u32*)mMActor->getUnk28(track)) = 0xffffffff;
+				mMActor->getUnk28(track)->unk0 = 0xffffffff;
 				unkFE = 0xffff;
 			}
 		}

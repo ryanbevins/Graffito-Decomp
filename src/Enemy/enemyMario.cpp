@@ -618,7 +618,7 @@ void TEnemyMario::perform(u32 flags, JDrama::TGraphics* graphics)
 		}
 
 		if (mAction != ACTION_RUNNING || marioUnk14E(this) == 0) {
-			checkController(graphics);
+			playerControl(graphics);
 			setPositions();
 		}
 	}
@@ -628,17 +628,17 @@ void TEnemyMario::perform(u32 flags, JDrama::TGraphics* graphics)
 			calcAnim(2, graphics);
 
 		if (emEnemyModel(this) != nullptr) {
-			J3DModel* model = mModel->getModel();
-			for (u16 i = 0; i < model->getModelData()->getJointNum(); ++i)
-				PSMTXCopy(emEnemyModel(this)->mNodeMatrices[i],
-				          model->mNodeMatrices[i]);
+			for (u16 i = 0; i < mModel->getModel()->getModelData()->getJointNum();
+			     ++i)
+				PSMTXCopy(mModel->getModel()->mNodeMatrices[i],
+				          emEnemyModel(this)->mNodeMatrices[i]);
 			emEnemyModel(this)->calcWeightEnvelopeMtx();
 		} else {
 			ownerActor->calcAnm();
-			J3DModel* model = mModel->getModel();
-			for (u16 i = 0; i < model->getModelData()->getJointNum(); ++i)
-				PSMTXCopy(ownerModel->mNodeMatrices[i],
-				          model->mNodeMatrices[i]);
+			for (u16 i = 0; i < mModel->getModel()->getModelData()->getJointNum();
+			     ++i)
+				PSMTXCopy(mModel->getModel()->mNodeMatrices[i],
+				          ownerModel->mNodeMatrices[i]);
 			ownerModel->calcWeightEnvelopeMtx();
 			PSMTXCopy(ownerModel->mNodeMatrices[mBoneIDs[5]],
 			          emEnemyShadowModel(this)->unk20);
