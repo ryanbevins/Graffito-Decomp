@@ -54,6 +54,7 @@ public:
 class TKoopaParts : public THitActor {
 public:
 	TKoopaParts(const char*, u32, TKoopa*, f32);
+	void set(const JGeometry::TVec3<f32>&, f32, f32);
 
 	virtual void perform(u32, JDrama::TGraphics*);
 	virtual void control();

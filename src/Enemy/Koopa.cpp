@@ -204,6 +204,22 @@ void TKoopaParts::perform(u32 flags, JDrama::TGraphics* graphics)
 	}
 }
 
+void TKoopaParts::set(const JGeometry::TVec3<f32>& position, f32 radius,
+                      f32 height)
+{
+	if (height <= 0.0f)
+		height = 2.0f * radius;
+	mPosition.set(position);
+	offHitFlag(0x2);
+	offHitFlag(0x4);
+	offHitFlag(0x1);
+	mAttackRadius = radius;
+	mAttackHeight = height;
+	mDamageRadius = radius;
+	mDamageHeight = height;
+	calcEntryRadius();
+}
+
 void TKoopaParts::control() { }
 
 void TKoopaBody::attack_(THitActor* actor)
@@ -306,17 +322,7 @@ void TKoopaFlame::control()
 
 		JGeometry::TVec3<f32> position;
 		position.scaleAdd(unk8C, unk6C, unk78);
-		f32 radius = unk90;
-		f32 height = unk94 <= 0.0f ? 2.0f * radius : unk94;
-		mPosition.set(position);
-		offHitFlag(0x2);
-		offHitFlag(0x4);
-		offHitFlag(0x1);
-		mAttackRadius = radius;
-		mAttackHeight = height;
-		mDamageRadius = radius;
-		mDamageHeight = height;
-		calcEntryRadius();
+		set(position, unk90, unk94);
 	}
 }
 
