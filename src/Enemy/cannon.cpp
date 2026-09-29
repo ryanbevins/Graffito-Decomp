@@ -250,6 +250,15 @@ void TCannon::killerShoot()
 	}
 }
 
+void TCannon::hitHead(TBombHei* bomb)
+{
+	if (mSpine->getCurrentNerve() != &TNerveCannonDamage::theNerve()
+	    && bomb->isDamageToCannon()) {
+		mSpine->pushNerve(&TNerveCannonDamage::theNerve());
+		bomb->kill();
+	}
+}
+
 void TCannon::bombShoot()
 {
 	if (unk1A4 == nullptr)
@@ -772,6 +781,8 @@ BOOL TChorobei::receiveMessage(THitActor*, u32)
 	return FALSE;
 }
 
+// Retail keeps the collision scan out of line in TCannon::moveObject.
+#pragma dont_inline on
 void TChorobei::checkHit()
 {
 	for (int i = 0; i < mColCount; ++i) {
@@ -780,14 +791,7 @@ void TChorobei::checkHit()
 			SMS_SendMessageToMario(this, HIT_MESSAGE_ATTACK);
 
 		if (actor->isActorType(0x1000001e)) {
-			TBombHei* bomb = (TBombHei*)actor;
-			TCannon* cannon = unk68;
-			if (cannon->mSpine->getCurrentNerve()
-			        != &TNerveCannonDamage::theNerve()
-			    && bomb->isDamageToCannon()) {
-				cannon->mSpine->pushNerve(&TNerveCannonDamage::theNerve());
-				bomb->kill();
-			}
+			unk68->hitHead((TBombHei*)actor);
 		}
 
 		if (actor->isActorType(0x1000001f)) {
@@ -798,6 +802,8 @@ void TChorobei::checkHit()
 		}
 	}
 }
+
+#pragma dont_inline off
 
 void TChorobei::perform(u32 flags, JDrama::TGraphics* graphics)
 {

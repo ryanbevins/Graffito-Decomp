@@ -6,6 +6,7 @@
 #include <Strategic/SharedParts.hpp>
 #include <JSystem/JGeometry.hpp>
 
+class TBombHei;
 class SDLModelData;
 class TMapCollisionMove;
 
@@ -86,6 +87,7 @@ public:
 	bool isObject();
 	void setKillerGoalPoint();
 	void killerShoot();
+	void hitHead(TBombHei*);
 	void bombShoot();
 	void bombSet();
 	virtual bool isHitVallid(u32);
