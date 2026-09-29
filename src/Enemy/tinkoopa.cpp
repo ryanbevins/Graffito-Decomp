@@ -1064,15 +1064,15 @@ void TTinKoopa::init(TLiveManager* manager)
 	unk1EC = gpConductor->getGraphByName("killer");
 	unk1E8 = new f32[unk1EC->unk8 - 1];
 
-	JGeometry::TVec3<f32> prev = unk1EC->indexToPoint(0);
+	JGeometry::TVec3<f32> current = unk1EC->indexToPoint(0);
 	f32 total                  = 0.0f;
 	for (int i = 0; i < unk1EC->unk8 - 1; ++i) {
-		JGeometry::TVec3<f32> current = unk1EC->indexToPoint(i + 1);
+		JGeometry::TVec3<f32> prev = current;
+		current = unk1EC->indexToPoint(i + 1);
 		JGeometry::TVec3<f32> diff;
 		diff.sub(prev, current);
 		unk1E8[i] = diff.length();
 		total += unk1E8[i];
-		prev = current;
 	}
 
 	unk1F4 = new TTinKoopaLaunchSchedule(11, this);
