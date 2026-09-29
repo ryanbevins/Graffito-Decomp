@@ -73,7 +73,7 @@ public:
 #endif
 
 	// fabricated
-	void insert(T* const& obj) { getChildren().push_back(obj); }
+	void insert(T* obj) { getChildren().push_back(obj); }
 };
 
 template <class T, class U>

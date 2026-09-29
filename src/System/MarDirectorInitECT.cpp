@@ -44,8 +44,9 @@ void TMarDirector::initECTGft(
 		param_1->push_back(graffitiEfbTex, 0x80);
 
 		param_1->push_back(new JDrama::TViewport(rect, "graffito"), 0x8);
-		param_1->push_back(new JDrama::TOrthoProj(0.0f, 0.0f, 512.0f, 512.0f),
-		                   0x10);
+		JDrama::TOrthoProj* ortho
+		    = new JDrama::TOrthoProj(0.0f, 0.0f, 512.0f, 512.0f);
+		param_1->push_back(ortho, 0x10);
 		param_1->push_back(drawInit, 0x8);
 		param_1->push_back(graffitiGroup, 0x1000000);
 		param_1->push_back(graffitiEfbTex, 0x8);
@@ -54,21 +55,29 @@ void TMarDirector::initECTGft(
 			JDrama::TEfbCtrlTex* efbTex = new JDrama::TEfbCtrlTex("graffito");
 			scene->insert(efbTex);
 			const ResTIMG* img = gpPollution->getLayer(i)->getUnk58();
-			efbTex->mImagePtr  = (u8*)img + img->imageDataOffset;
-			efbTex->mWidth     = img->width;
-			efbTex->mHeight    = img->height;
-			efbTex->mTexFmt    = GX_CTF_R8;
+			efbTex->mImagePtr = (u8*)img + img->imageDataOffset;
+			// As in TEfbCtrlTex::setTexAttb, the size goes through a 2-word
+			// block that is copied over mWidth/mHeight in one assignment and
+			// then read back for the source rect.
+			struct Dims {
+				u32 w;
+				u32 h;
+			} dims;
+			dims.w = img->width;
+			dims.h = img->height;
+			*(Dims*)&efbTex->mWidth = dims;
+			efbTex->mTexFmt = GX_CTF_R8;
 			JDrama::TRect rect;
-			rect.set(0, 0, img->width, img->height);
+			rect.set(0, 0, dims.w, dims.h);
 			efbTex->setSrcRect(rect);
 			param_2->push_back(efbTex, 0x80);
 			param_2->push_back(new JDrama::TViewport(rect, "graffito"), 0x8);
-			param_2->push_back(
-			    new JDrama::TOrthoProj(0.0f, 0.0f, img->width, img->height),
-			    0x10);
-			param_1->push_back(drawInit, 0x8);
-			param_1->push_back(graffitiGroup, (i << 16) | 0x2000008);
-			param_1->push_back(efbTex, 0x8);
+			JDrama::TOrthoProj* ortho
+			    = new JDrama::TOrthoProj(0.0f, 0.0f, img->width, img->height);
+			param_2->push_back(ortho, 0x10);
+			param_2->push_back(drawInit, 0x8);
+			param_2->push_back(graffitiGroup, (i << 16) | 0x2000008);
+			param_2->push_back(efbTex, 0x8);
 		}
 	}
 }
