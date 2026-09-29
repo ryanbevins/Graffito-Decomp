@@ -982,6 +982,7 @@ void TKoopaJrSubmarine::makeKillerVelocity(TBathtubKiller* killer,
 		rotation.setRotate(axis, 0.62831855f);
 		rotation.rotate(direction, direction);
 
+		axis = toMario;
 		int slot     = unk180 % 4;
 		f32 fanAngle = 0.62831855f;
 		if (slot == 0) {
@@ -994,7 +995,6 @@ void TKoopaJrSubmarine::makeKillerVelocity(TBathtubKiller* killer,
 			fanAngle = 0.31415927f;
 		}
 
-		axis = toMario;
 		rotation.setRotate(axis, fanAngle);
 		rotation.rotate(direction, direction);
 
