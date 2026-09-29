@@ -56,9 +56,7 @@ public:
 	/* 0x158 */ f32 unk158;
 	/* 0x15C */ J3DAnmTransformKey* mBckAnm;
 	/* 0x160 */ J3DFrameCtrl* mBckFrameCtrl;
-	/* 0x164 */ f32 mWaveNormalX;
-	/* 0x168 */ f32 mWaveNormalY;
-	/* 0x16C */ f32 mWaveNormalZ;
+	/* 0x164 */ JGeometry::TVec3<f32> mWaveNormal;
 	/* 0x170 */ f32 mSwayAngle;
 	/* 0x174 */ f32 mSwayVel;
 };

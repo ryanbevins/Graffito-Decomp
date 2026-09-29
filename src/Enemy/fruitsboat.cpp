@@ -111,9 +111,7 @@ TFruitsBoat::TFruitsBoat(const char* name)
     , unk158(800.0f)
     , mBckAnm(nullptr)
     , mBckFrameCtrl(nullptr)
-    , mWaveNormalX(1.0f)
-    , mWaveNormalY(0.0f)
-    , mWaveNormalZ(0.0f)
+    , mWaveNormal(1.0f, 0.0f, 0.0f)
     , mSwayAngle(0.0f)
     , mSwayVel(0.0f)
 {
@@ -282,7 +280,7 @@ void TFruitsBoat::calcRootMatrix()
 
 	Mtx tmp;
 	f32 deg2rad = mSwayAngle * 0.017453292f;
-	PSMTXRotAxisRad(tmp, (Vec*)&mWaveNormalX, deg2rad);
+	PSMTXRotAxisRad(tmp, &mWaveNormal, deg2rad);
 	PSMTXConcat(tmp, mtx, mtx);
 	PSMTXTransApply(mtx, mtx, mPosition.x, mPosition.y, mPosition.z);
 
@@ -440,25 +438,9 @@ void TFruitsBoat::moveObject()
 					upInitialized = true;
 				}
 				mp.normalize();
-				// Cross product up x mp
-				JGeometry::TVec3<f32> nv;
-				nv.x = up.y * mp.z - up.z * mp.y;
-				nv.y = up.z * mp.x - up.x * mp.z;
-				nv.z = up.x * mp.y - up.y * mp.x;
+				mWaveNormal.cross(up, mp);
+				mWaveNormal.normalize();
 
-				f32 nvLen = nv.x * nv.x + nv.y * nv.y + nv.z * nv.z;
-				if (nvLen < 0.0000038146973f) {
-					nv.set(0.0f, 0.0f, 0.0f);
-				} else {
-					f32 inv = JGeometry::TUtil<f32>::inv_sqrt(nvLen);
-					nv.x *= inv;
-					nv.y *= inv;
-					nv.z *= inv;
-				}
-
-				mWaveNormalX = nv.x;
-				mWaveNormalY = nv.y;
-				mWaveNormalZ = nv.z;
 				mSwayVel += 0.0003f * len;
 			}
 			mLiveFlag |= 0x20000;
@@ -533,9 +515,9 @@ void TFruitsBoat::moveObject()
 				nv.z *= r;
 			}
 
-			mWaveNormalX += (nv.x - mWaveNormalX) * 0.1f;
-			mWaveNormalY += (nv.y - mWaveNormalY) * 0.1f;
-			mWaveNormalZ += (nv.z - mWaveNormalZ) * 0.1f;
+			mWaveNormal.x += (nv.x - mWaveNormal.x) * 0.1f;
+			mWaveNormal.y += (nv.y - mWaveNormal.y) * 0.1f;
+			mWaveNormal.z += (nv.z - mWaveNormal.z) * 0.1f;
 		}
 	}
 
