@@ -245,7 +245,8 @@ void TConsoleStr::perform(u32 param_1, JDrama::TGraphics* param_2)
 
 				for (int j = 0; j < 3; ++j) {
 					int iVar9 = local_b0[j];
-					if (unk34[i][iVar9].x != 0) {
+					JUTPoint& trailPosition = unk34[i][iVar9];
+					if (trailPosition.x != 0) {
 						trailAlpha = (u8)(trailAlpha * 0.7f);
 						unk28[i]->getPane()->setAlpha(trailAlpha);
 
@@ -255,8 +256,8 @@ void TConsoleStr::perform(u32 param_1, JDrama::TGraphics* param_2)
 
 						JUTRect b2 = unk28[i]->getPane()->getBounds();
 						((J2DPicture*)unk28[i]->getPane())
-						    ->draw(unk34[i][iVar9].x,
-						           unk34[i][iVar9].y, b2.getWidth(),
+						    ->draw(trailPosition.x,
+						           trailPosition.y, b2.getWidth(),
 						           b2.getHeight(), false, false, false);
 					}
 				}
