@@ -916,10 +916,11 @@ void TBossWanwan::init(TLiveManager* manager)
 	mMapCollisionManager = new TMapCollisionManager(1, "/scene/bwanwan", this);
 	mMapCollisionManager->init("bwanwan_ofuro_col.col", 2, nullptr);
 
-	TMapCollisionBase* collision = mMapCollisionManager->unk8;
+	TMapCollisionManager* collisionManager = mMapCollisionManager;
 	Mtx mtx;
 	MsMtxSetTRS(mtx, mPosition.x, mPosition.y, mPosition.z, mRotation.x,
 	            mRotation.y, mRotation.z, mScaling.x, mScaling.y, mScaling.z);
+	TMapCollisionBase* collision = collisionManager->unk8;
 	PSMTXCopy(mtx, collision->unk20);
 	collision->setUp();
 	collision = mMapCollisionManager->unk8;
