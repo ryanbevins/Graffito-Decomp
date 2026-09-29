@@ -1202,7 +1202,6 @@ BOOL TNerveKoopaTumble::execute(TSpineBase<TLiveActor>* spine) const
 BOOL TNerveKoopaFlame::execute(TSpineBase<TLiveActor>* spine) const
 {
 	TKoopa* self = (TKoopa*)spine->getBody();
-	TKoopaParams* prm = self->getSaveParam2();
 
 	switch (self->mMActor->getCurAnmIdx(0)) {
 	case 5:
@@ -1235,18 +1234,23 @@ BOOL TNerveKoopaFlame::execute(TSpineBase<TLiveActor>* spine) const
 			JGeometry::TVec3<f32> speed(*gpMarioSpeedX, *gpMarioSpeedY,
 			                             *gpMarioSpeedZ);
 			JGeometry::TVec3<f32> predicted;
-			predicted.x = speed.x * prm->marioEstimationWait.get();
-			predicted.y = speed.y * prm->marioEstimationWait.get();
-			predicted.z = speed.z * prm->marioEstimationWait.get();
+			f32 scale = self->getSaveParam2()->marioEstimationWait.get();
+			predicted.x = speed.x * scale;
+			predicted.y = speed.y * scale;
+			predicted.z = speed.z * scale;
 
 			BOOL hasGrip = bathtub->getNextGrip(
-			    *gpMarioPos, predicted, prm->waitRange.get(), &self->unk150);
+			    *gpMarioPos, predicted,
+			    ((TKoopaParams*)((TEnemyManager*)self->mManager)->unk38)
+			        ->waitRange.get(),
+			    &self->unk150);
 			if (!hasGrip) {
 				JGeometry::TVec3<f32> speed2(
 				    *gpMarioSpeedX, *gpMarioSpeedY, *gpMarioSpeedZ);
-				predicted.x = speed2.x * prm->marioEstimationFire.get();
-				predicted.y = speed2.y * prm->marioEstimationFire.get();
-				predicted.z = speed2.z * prm->marioEstimationFire.get();
+				f32 scale = self->getSaveParam2()->marioEstimationFire.get();
+				predicted.x = speed2.x * scale;
+				predicted.y = speed2.y * scale;
+				predicted.z = speed2.z * scale;
 				self->unk150
 				    = bathtub->getNextJuncture(*gpMarioPos, predicted);
 			}
@@ -1256,9 +1260,11 @@ BOOL TNerveKoopaFlame::execute(TSpineBase<TLiveActor>* spine) const
 			    360.0f);
 			turn += -180.0f;
 			int turnDir;
-			if (turn < -prm->focusRange.get())
+			if (turn < -((TKoopaParams*)((TEnemyManager*)self->mManager)->unk38)
+			               ->focusRange.get())
 				turnDir = -1;
-			else if (turn > prm->focusRange.get())
+			else if (turn > ((TKoopaParams*)((TEnemyManager*)self->mManager)->unk38)
+			               ->focusRange.get())
 				turnDir = 1;
 			else
 				turnDir = 0;
@@ -1277,14 +1283,18 @@ BOOL TNerveKoopaFlame::execute(TSpineBase<TLiveActor>* spine) const
 				    360.0f);
 				flameDiff += -180.0f;
 				self->unk154 = flameDiff < 0.0f;
-				self->changeAnm(5, 0, prm->fireSpeed.get());
+				self->changeAnm(
+				    5, 0, ((TKoopaParams*)((TEnemyManager*)self->mManager)->unk38)
+		                   ->fireSpeed.get());
 				spine->setNext(&TNerveKoopaFlame::theNerve());
 			}
 		}
 		break;
 
 	case 4:
-		if (spine->getTime() < prm->flameCount.get())
+		if (spine->getTime()
+		    < ((TKoopaParams*)((TEnemyManager*)self->mManager)->unk38)
+		          ->flameCount.get())
 			break;
 
 		if ((spine->getTime() & 7) == 0) {
@@ -1293,18 +1303,23 @@ BOOL TNerveKoopaFlame::execute(TSpineBase<TLiveActor>* spine) const
 			JGeometry::TVec3<f32> speed(*gpMarioSpeedX, *gpMarioSpeedY,
 			                             *gpMarioSpeedZ);
 			JGeometry::TVec3<f32> predicted;
-			predicted.x = speed.x * prm->marioEstimationWait.get();
-			predicted.y = speed.y * prm->marioEstimationWait.get();
-			predicted.z = speed.z * prm->marioEstimationWait.get();
+			f32 scale = self->getSaveParam2()->marioEstimationWait.get();
+			predicted.x = speed.x * scale;
+			predicted.y = speed.y * scale;
+			predicted.z = speed.z * scale;
 
 			BOOL hasGrip = bathtub->getNextGrip(
-			    *gpMarioPos, predicted, prm->waitRange.get(), &self->unk150);
+			    *gpMarioPos, predicted,
+			    ((TKoopaParams*)((TEnemyManager*)self->mManager)->unk38)
+			        ->waitRange.get(),
+			    &self->unk150);
 			if (!hasGrip) {
 				JGeometry::TVec3<f32> speed2(
 				    *gpMarioSpeedX, *gpMarioSpeedY, *gpMarioSpeedZ);
-				predicted.x = speed2.x * prm->marioEstimationFire.get();
-				predicted.y = speed2.y * prm->marioEstimationFire.get();
-				predicted.z = speed2.z * prm->marioEstimationFire.get();
+				f32 scale = self->getSaveParam2()->marioEstimationFire.get();
+				predicted.x = speed2.x * scale;
+				predicted.y = speed2.y * scale;
+				predicted.z = speed2.z * scale;
 				self->unk150
 				    = bathtub->getNextJuncture(*gpMarioPos, predicted);
 			}
@@ -1314,23 +1329,33 @@ BOOL TNerveKoopaFlame::execute(TSpineBase<TLiveActor>* spine) const
 			    360.0f);
 			turn += -180.0f;
 			int turnDir;
-			if (turn < -prm->focusRange.get())
+			if (turn < -((TKoopaParams*)((TEnemyManager*)self->mManager)->unk38)
+			               ->focusRange.get())
 				turnDir = -1;
-			else if (turn > prm->focusRange.get())
+			else if (turn > ((TKoopaParams*)((TEnemyManager*)self->mManager)->unk38)
+			               ->focusRange.get())
 				turnDir = 1;
 			else
 				turnDir = 0;
 
 			if (hasGrip || turnDir != 0)
-				self->changeAnm(3, 0, prm->fireSpeed.get());
+				self->changeAnm(
+				    3, 0, ((TKoopaParams*)((TEnemyManager*)self->mManager)->unk38)
+		                   ->fireSpeed.get());
 		} else if (self->mMActor->curAnmEndsNext(0, nullptr)
-		           && spine->getTime() >= prm->flameFocusEndStep.get()) {
-			self->changeAnm(3, 0, prm->fireSpeed.get());
+		           && spine->getTime()
+		                  >= ((TKoopaParams*)((TEnemyManager*)self->mManager)->unk38)
+		                         ->flameFocusEndStep.get()) {
+			self->changeAnm(
+			    3, 0, ((TKoopaParams*)((TEnemyManager*)self->mManager)->unk38)
+		                   ->fireSpeed.get());
 		}
 		break;
 
 	default: {
-		self->changeAnm(5, 0, prm->fireSpeed.get());
+		self->changeAnm(
+		    5, 0, ((TKoopaParams*)((TEnemyManager*)self->mManager)->unk38)
+		                   ->fireSpeed.get());
 		break;
 	}
 	}
