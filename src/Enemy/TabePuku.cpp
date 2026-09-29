@@ -632,18 +632,16 @@ DEFINE_NERVE(TNerveTabePukuDive, TLiveActor)
 
 static inline bool checkDragRelease(TTabePuku* self)
 {
-	bool release = self->mTouchedWall || !self->isAirborne();
-	if (!release) {
+	if (!self->mTouchedWall && self->isAirborne()) {
 		JGeometry::TVec3<f32> base = getTabePukuGoalRef(self);
 		base.sub(self->mPosition);
-		release = base.length() > self->getSaveParam2()->mDragLength.get();
+		f32 distance = base.length();
+		if (self->getSaveParam2()->mDragLength.get() >= distance)
+			return false;
 	}
-	if (release) {
-		SMS_SendMessageToMario(self, HIT_MESSAGE_UNK8);
-		self->mHeldObject = nullptr;
-		return true;
-	}
-	return false;
+	SMS_SendMessageToMario(self, HIT_MESSAGE_UNK8);
+	self->mHeldObject = nullptr;
+	return true;
 }
 
 DEFINE_NERVE(TNerveTabePukuDrag, TLiveActor)
