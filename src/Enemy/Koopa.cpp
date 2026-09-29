@@ -88,9 +88,10 @@ int KoopaNeckCallBack(J3DNode* node, int timing)
 		if (koopa->unk154)
 			angle = -angle;
 
-		Mtx flameRot;
-		MTXRotRad(flameRot, 'y', angle);
-		PSMTXConcat(mtx, flameRot, mtx);
+		TPosition3f flameRot;
+		flameRot.setEularY(angle);
+		flameRot.zeroTrans();
+		((TMtx34f*)mtx)->concat(flameRot, *(TMtx34f*)mtx);
 		MTXRotRad(flameRot, 'x', pitch);
 		PSMTXConcat(mtx, flameRot, mtx);
 	}
