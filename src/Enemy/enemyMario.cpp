@@ -1461,7 +1461,7 @@ void TEnemyMario::emReplayJumpToNearestNode()
 	node  = graph->findNearestNodeIndex(mPosition, 0xffffffff);
 	TGraphNode* currentNode = &graph->getGraphNode(node);
 
-	Vec currentPoint;
+	JGeometry::TVec3<f32> currentPoint;
 	currentNode->getPoint(&currentPoint);
 
 	mPosition.x += (currentPoint.x - mPosition.x) * 0.05f;
@@ -1481,11 +1481,9 @@ void TEnemyMario::emReplayJumpToNearestNode()
 
 	u8* links = emReplayLinkTable(this) + node * 6;
 
-	Vec marioDir;
-	marioDir.x = gpMarioPos->x - currentPoint.x;
-	marioDir.y = gpMarioPos->y - currentPoint.y;
-	marioDir.z = gpMarioPos->z - currentPoint.z;
-	normalizeDir(&marioDir);
+	JGeometry::TVec3<f32> marioDir = *gpMarioPos;
+	marioDir.sub(currentPoint);
+	marioDir.normalize();
 
 	TGraphNode* targetNode = nullptr;
 	u8* settings          = emSettings(this);
