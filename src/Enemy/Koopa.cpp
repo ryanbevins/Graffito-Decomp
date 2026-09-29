@@ -1131,8 +1131,10 @@ BOOL TNerveKoopaWait::execute(TSpineBase<TLiveActor>* spine) const
 			self->changeAnm(
 			    12, 1, ((TKoopaParams*)((TEnemyManager*)self->mManager)->unk38)
 			               ->waitSpeed.get());
-			bool shouldTumble = false;
-			if (self->mMActor->getCurAnmIdx(0) == 12) {
+			bool shouldTumble;
+			if (self->mMActor->getCurAnmIdx(0) != 12) {
+				shouldTumble = false;
+			} else {
 				if (self->mMActor->curAnmEndsNext(0, nullptr)) {
 					shouldTumble = true;
 				} else {
@@ -1142,6 +1144,8 @@ BOOL TNerveKoopaWait::execute(TSpineBase<TLiveActor>* spine) const
 						shouldTumble = true;
 					else if (passesKoopaWaitFrame(self, 700.0f))
 						shouldTumble = true;
+					else
+						shouldTumble = false;
 				}
 			}
 			if (shouldTumble
