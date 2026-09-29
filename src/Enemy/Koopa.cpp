@@ -1109,13 +1109,15 @@ BOOL TNerveKoopaWait::execute(TSpineBase<TLiveActor>* spine) const
 	    360.0f + ((self->unk150 - self->mRotation.y) - -180.0f), 360.0f);
 	turnDiff += -180.0f;
 
-	s32 turn = 0;
+	s32 turn;
 	if (turnDiff < -((TKoopaParams*)((TEnemyManager*)self->mManager)->unk38)
 	                    ->focusRange.get())
 		turn = -1;
 	else if (turnDiff > ((TKoopaParams*)((TEnemyManager*)self->mManager)->unk38)
 	                       ->focusRange.get())
 		turn = 1;
+	else
+		turn = 0;
 
 	if (hasGrip) {
 		switch (turn) {
