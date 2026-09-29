@@ -629,15 +629,10 @@ int MarioHeadCtrl(J3DNode* param_1, int param_2)
 			}
 			JGeometry::TVec3<f32> npcResetToPos
 			    = gpMarDirector->unkA0->getFocalPoint();
-			JGeometry::TVec3<f32> pos;
-			pos.x = gpMarioForCallBack->mPosition.x;
-			pos.y = gpMarioForCallBack->mPosition.y + 112.0f;
-			pos.z = gpMarioForCallBack->mPosition.z;
+			JGeometry::TVec3<f32> pos = gpMarioForCallBack->mPosition;
+			pos.y += 112.0f;
 			JGeometry::TVec3<f32> other = npcResetToPos - pos;
-			f32 mult                    = other.x * other.x + other.z * other.z;
-			if (mult > 0.0f) {
-				mult = JGeometry::TUtil<f32>::sqrt(mult);
-			}
+			f32 mult = std::sqrtf(other.x * other.x + other.z * other.z);
 
 			s16 angle = -matan(mult, other.y);
 			MsMtxSetRotRPH(transform, 0.0f, 0.0f, SHORTANGLE2DEG(angle));
