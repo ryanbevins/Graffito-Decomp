@@ -730,8 +730,6 @@ inline void TYoshi::emitTongue()
 		    > mTongueSearchLength)
 			break;
 	}
-
-	mSearch.mState = 3;
 }
 
 inline void TYoshi::thinkEat()
@@ -771,6 +769,7 @@ void TYoshi::doSearch()
 		mEggRotSpeed = prev + delta;
 		if (delta > -0x100 && delta < 0x100) {
 			emitTongue();
+			mSearch.mState = 3;
 			changeAnimation(3);
 		}
 		break;
@@ -778,6 +777,7 @@ void TYoshi::doSearch()
 	case 2: {
 		if (mTongue->findTarget(false, true) != nullptr) {
 			emitTongue();
+			mSearch.mState = 3;
 		} else {
 			mSearch.mWait = (s16)((f32)(mSearch.mWaitMax - mSearch.mWaitMin)
 			                           * MsRandF()
