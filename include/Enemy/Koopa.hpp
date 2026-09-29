@@ -181,6 +181,7 @@ public:
 	bool isFlaming() const;
 	bool isBreathing() const;
 	bool isProvoking() const;
+	bool isTumbling() const;
 	f32 getFlameDirDegree() const;
 	BOOL allowsLaunch() const;
 	bool effectsTumble() const;

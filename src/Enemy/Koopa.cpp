@@ -507,6 +507,19 @@ bool TKoopa::isProvoking() const
 	return false;
 }
 
+bool TKoopa::isTumbling() const
+{
+	J3DFrameCtrl* ctrl = mMActor->getFrameCtrl(0);
+	f32 frame         = ctrl->getFrame();
+	bool started
+	    = mSpine->getCurrentNerve() == &TNerveKoopaTumble::theNerve()
+	      && frame >= ((TKoopaParams*)((TEnemyManager*)mManager)->unk38)
+	                      ->tumbleStartFrame.get();
+	return started
+	       && frame <= ((TKoopaParams*)((TEnemyManager*)mManager)->unk38)
+	                       ->tumbleEndFrame.get();
+}
+
 void TKoopa::perform(u32 flags, JDrama::TGraphics* graphics)
 {
 	if (flags & 1) {
@@ -526,18 +539,8 @@ void TKoopa::perform(u32 flags, JDrama::TGraphics* graphics)
 	mBodyHitActor->perform(flags, graphics);
 
 	if (flags & 1) {
-		J3DFrameCtrl* ctrl = mMActor->getFrameCtrl(0);
-		f32 frame         = ctrl->getFrame();
-		bool started
-		    = mSpine->getCurrentNerve() == &TNerveKoopaTumble::theNerve()
-		      && frame >= ((TKoopaParams*)((TEnemyManager*)mManager)->unk38)
-		                      ->tumbleStartFrame.get();
-		bool shouldTumble
-		    = started
-		      && frame <= ((TKoopaParams*)((TEnemyManager*)mManager)->unk38)
-		                      ->tumbleEndFrame.get();
 
-		if (shouldTumble) {
+		if (isTumbling()) {
 			TBathtub* bathtub = JDrama::TNameRefGen::search<TBathtub>("バスタブ");
 			bathtub->tumble(mRotation.y,
 			                ((TKoopaParams*)((TEnemyManager*)mManager)->unk38)
