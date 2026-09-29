@@ -945,11 +945,12 @@ void TYoshi::movement()
 
 		doSearch();
 
+		TMario* mario = mMario;
 		if (mCurJuice <= 0) {
 			u8 state = (u8)mState;
 			if (isHatched()) {
 				if (state == MOUNTED)
-					mMario->getOffYoshi(true);
+					mario->getOffYoshi(true);
 				u8 inWater;
 				if (mMario->mState & 0x30000)
 					inWater = 1;
