@@ -1483,7 +1483,7 @@ void TEnemyMario::emReplayJumpToNearestNode()
 	resetHistory();
 	changePlayerStatus(0x0C400201, 0, true);
 
-	u8* links = emReplayLinkTable(this) + node * 6;
+	u8* links = emReplayLinkTable(this);
 	currentNode->getPoint(&mPosition);
 
 	JGeometry::TVec3<f32> marioDir = *gpMarioPos;
@@ -1496,7 +1496,7 @@ void TEnemyMario::emReplayJumpToNearestNode()
 	if (settings[0x7C] == 0) {
 		f32 best = 1.0f;
 		for (int i = 0; i < 3; ++i) {
-			u8 nextNode = links[i * 2];
+			u8 nextNode = links[node * 6 + i * 2];
 			if (nextNode == 0xFF)
 				continue;
 
@@ -1515,7 +1515,7 @@ void TEnemyMario::emReplayJumpToNearestNode()
 			if (dot < best) {
 				best                 = dot;
 				targetNode           = candidateNode;
-				emReplayIndex(this) = links[i * 2 + 1];
+				emReplayIndex(this) = links[node * 6 + i * 2 + 1];
 			}
 		}
 	} else {
@@ -1526,7 +1526,7 @@ void TEnemyMario::emReplayJumpToNearestNode()
 
 		for (int i = 0; i < 3; ++i) {
 			scores[i] = 0.0f;
-			u8 nextNode = links[i * 2];
+			u8 nextNode = links[node * 6 + i * 2];
 			if (nextNode == 0xFF)
 				continue;
 
@@ -1567,9 +1567,9 @@ void TEnemyMario::emReplayJumpToNearestNode()
 
 		if (count > 0) {
 			int slot             = candidateSlots[choice];
-			emReplayIndex(this) = links[slot * 2 + 1];
+			emReplayIndex(this) = links[node * 6 + slot * 2 + 1];
 			targetNode = &owner()->unk124->getGraph()->getGraphNode(
-			    links[slot * 2]);
+			    links[node * 6 + slot * 2]);
 		}
 	}
 
