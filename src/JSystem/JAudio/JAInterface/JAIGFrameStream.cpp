@@ -847,6 +847,7 @@ namespace StreamLib {
 					for (u8 i = 0; i < 2; ++i) {
 						JASystem::DSPInterface::DSPBuffer* buffer
 						    = JASystem::DSPInterface::getDSPHandle(assign_ch[i]->unk0);
+						u16 pitch = (u16)((header.unk8 << 12) / 32000);
 						u16 loopSize = (u16)LOOP_SAMPLESIZE;
 						Play_DirectPCM(assign_ch[i], loop_buffer[i][0],
 						               loopSize, playback_samples);
@@ -866,7 +867,6 @@ namespace StreamLib {
 						JASystem::DSPInterface::getDSPHandle(assign_ch[i]->unk0)
 						    ->setMixerVolume(1 - i, subVolume, 0);
 
-						u16 pitch = (u16)((header.unk8 << 12) / 32000);
 						JASystem::DSPInterface::getDSPHandle(assign_ch[i]->unk0)
 						    ->setPitch(pitch);
 						if (header.unk10 != 0)
