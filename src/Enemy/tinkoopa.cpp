@@ -596,7 +596,7 @@ void TTinKoopa::perform(u32 flags, JDrama::TGraphics* graphics)
 			}
 		}
 
-		TTinKoopaLaunchOrderTable* orders = unk1F4;
+		TTinKoopaLaunchSchedule* orders = unk1F4;
 		for (int i = 0; i < orders->unk0; ++i)
 			orders->unk8[i]->checkOrder();
 
@@ -1013,6 +1013,15 @@ inline TTinKoopaLaunchOrder::TTinKoopaLaunchOrder(TTinKoopa* owner, s8 phase,
 {
 }
 
+TTinKoopaLaunchSchedule::TTinKoopaLaunchSchedule(u8 count, TTinKoopa* owner)
+    : unk0(count)
+    , unk4(owner)
+{
+	unk8 = new TTinKoopaLaunchOrder*[unk0];
+	for (int i = 0; i < unk0; ++i)
+		unk8[i] = new TTinKoopaLaunchOrder(owner, 0, 0, 0, 0);
+}
+
 void TTinKoopa::init(TLiveManager* manager)
 {
 	mManager = manager;
@@ -1066,15 +1075,7 @@ void TTinKoopa::init(TLiveManager* manager)
 		prev = current;
 	}
 
-	unk1F4 = new TTinKoopaLaunchOrderTable;
-	if (unk1F4) {
-		unk1F4->unk0 = 11;
-		unk1F4->unk4 = this;
-		unk1F4->unk8 = new TTinKoopaLaunchOrder*[unk1F4->unk0];
-
-		for (int i = 0; i < unk1F4->unk0; ++i)
-			unk1F4->unk8[i] = new TTinKoopaLaunchOrder(this, 0, 0, 0, 0);
-	}
+	unk1F4 = new TTinKoopaLaunchSchedule(11, this);
 
 	makeLaunchSchedule();
 	initAnmSound();

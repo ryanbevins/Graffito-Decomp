@@ -32,8 +32,10 @@ public:
 	/* 0xE */ u8 unkE[2];
 };
 
-class TTinKoopaLaunchOrderTable {
+class TTinKoopaLaunchSchedule {
 public:
+	TTinKoopaLaunchSchedule(u8, TTinKoopa*);
+
 	/* 0x0 */ u8 unk0;
 	/* 0x1 */ u8 unk1[3];
 	/* 0x4 */ TTinKoopa* unk4;
@@ -155,7 +157,7 @@ public:
 	/* 0x1E8 */ f32* unk1E8;
 	/* 0x1EC */ TGraphWeb* unk1EC;
 	/* 0x1F0 */ TEnemyManager* unk1F0;
-	/* 0x1F4 */ TTinKoopaLaunchOrderTable* unk1F4;
+	/* 0x1F4 */ TTinKoopaLaunchSchedule* unk1F4;
 	/* 0x1F8 */ void* unk1F8;
 };
 
