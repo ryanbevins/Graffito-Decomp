@@ -240,6 +240,7 @@ public:
 	void startDamageNerve();
 	void damageKoopaJr();
 	void checkSubmarineSwing();
+	void checkNerve();
 	void checkNerveKillerHit();
 	void checkNerveKillerLaunchFast();
 	void checkNerveKillerLaunchNormal();

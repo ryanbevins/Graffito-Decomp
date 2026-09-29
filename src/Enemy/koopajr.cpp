@@ -524,6 +524,27 @@ void TKoopaJr::checkSubmarineSwing()
 	startDamageNerve();
 }
 
+void TKoopaJr::checkNerve()
+{
+	if (unk15C->getUnk29A()) {
+		if (mSpine->getCurrentNerve() != &TNerveKoopaJrDemo::theNerve())
+			mSpine->pushNerve(&TNerveKoopaJrDemo::theNerve());
+	}
+
+	if (mSpine->getCurrentNerve() == &TNerveKoopaJrWait::theNerve()) {
+		checkNerveKillerLaunchNormal();
+		checkNerveKillerLaunchFast();
+		checkNerveKillerHit();
+	}
+
+	JGeometry::TVec3<f32> toMario;
+	toMario.sub(*gpMarioPos, mPosition);
+	toMario.y = 0.0f;
+	TDirectionCalc direction;
+	direction.makeDirection(toMario);
+	mRotation.y = TDirectionCalc::r2d(direction.mDirection);
+}
+
 void TKoopaJr::perform(u32 flags, JDrama::TGraphics* graphics)
 {
 	if (!unk164) {
@@ -551,18 +572,8 @@ void TKoopaJr::perform(u32 flags, JDrama::TGraphics* graphics)
 		if (unk158 > 0)
 			--unk158;
 
-		if (!*((u8*)unk15C + 0x29A)) {
-			if (mSpine->getCurrentNerve() == &TNerveKoopaJrWait::theNerve()) {
-				checkNerveKillerLaunchNormal();
-				checkNerveKillerLaunchFast();
-				checkNerveKillerHit();
-			}
-
-			JGeometry::TVec3<f32> toMario;
-			toMario.sub(*gpMarioPos, mPosition);
-			toMario.y = 0.0f;
-			mRotation.y = 180.0f * atan2f(toMario.x, toMario.z) / 3.1415927f;
-		}
+		if (!unk15C->getUnk29A())
+			checkNerve();
 	}
 
 	TSpineEnemy::perform(flags, graphics);
