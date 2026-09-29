@@ -121,7 +121,6 @@ static const char cBossEelEndCameraName[] = "meoto_end_camera";
 static const char cBossEelShineName[]     = "シャイン（ボス用）";
 static const char cBossEelShineCameraName[]
     = "めおとウナギシャインカメラ";
-static const char cBossEelEnemyGroupJointName[] = "敵グルーブ";
 static const char cBossEelEnemyGroupName[]      = "敵グループ";
 static const char cBossEelHeadName[] = "めおとウナギの頭部";
 static const char cBossEelBodyCollisionName[]    = "体コリジョン";
@@ -2678,7 +2677,7 @@ DEFINE_NERVE(TNerveBossEelDie, TLiveActor)
 			s32 jointIndex = eel->mMActor->getModel()
 			                     ->getModelData()
 			                     ->getJointName()
-			                     ->getIndex(cBossEelEnemyGroupJointName);
+			                     ->getIndex("ha7");
 			MtxPtr mtx = eel->mMActor->getModel()->mNodeMatrices[jointIndex];
 			gpItemManager->makeShineAppearWithDemo(
 			    cBossEelShineName, cBossEelShineCameraName, mtx[0][3],
