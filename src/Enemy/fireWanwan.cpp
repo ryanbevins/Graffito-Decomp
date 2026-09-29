@@ -1,10 +1,8 @@
 #define ARRAYWRAPPER_FIREWANWAN_ACCESSORS_OUT_OF_LINE
-#define JGEOMETRY_FIREWANWAN_TVEC4_CTOR_OUT_OF_LINE
 #define TAKEACTOR_ISTAKEN_OUT_OF_LINE
 #include <StackPadding.h>
 #include <Enemy/FireWanwan.hpp>
 #undef TAKEACTOR_ISTAKEN_OUT_OF_LINE
-#undef JGEOMETRY_FIREWANWAN_TVEC4_CTOR_OUT_OF_LINE
 #undef ARRAYWRAPPER_FIREWANWAN_ACCESSORS_OUT_OF_LINE
 #include <JSystem/JDrama/JDRNameRefGen.hpp>
 #include <System/MarDirector.hpp>
@@ -1990,15 +1988,6 @@ DEFINE_NERVE(TNerveFireWanwanTired, TLiveActor)
 
 	return false;
 }
-
-#pragma dont_inline on
-namespace JGeometry {
-template <>
-TVec4<f32>::TVec4()
-{
-}
-} // namespace JGeometry
-#pragma dont_inline off
 
 DEFINE_NERVE(TNerveFireWanwanRecoverGraph, TLiveActor)
 {
