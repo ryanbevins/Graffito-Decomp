@@ -1580,8 +1580,9 @@ void TEnemyMario::emReplayJumpToNearestNode()
 		targetNode->getPoint(&targetPoint);
 
 	mPosition = currentPoint;
-	mFaceAngle.y
-	    = matan(targetPoint.z - currentPoint.z, targetPoint.x - currentPoint.x);
+	f32 dx = targetPoint.x - currentPoint.x;
+	f32 dz = targetPoint.z - currentPoint.z;
+	mFaceAngle.y = matan(dz, dx);
 	mVel.x = 0.0f;
 	mVel.y = 0.0f;
 	mVel.z = 0.0f;
