@@ -591,15 +591,19 @@ DEFINE_NERVE(TNerveLimitKoopaWait, TLiveActor)
 	return FALSE;
 }
 
+void TLimitKoopa::changeBck(int index, f32 rate)
+{
+	MActor* actor = mMActor;
+	if (!actor->checkCurBckFromIndex(index))
+		actor->setBckFromIndex(index);
+	mMActor->getFrameCtrl(0)->setRate(rate);
+}
+
 DEFINE_NERVE(TNerveLimitKoopaStagger, TLiveActor)
 {
 	TLimitKoopa* self = (TLimitKoopa*)spine->getBody();
 
-	f32 rate  = self->getSaveParam2()->staggerSpeed.get();
-	MActor* m = self->mMActor;
-	if (!m->checkCurBckFromIndex(9))
-		m->setBckFromIndex(9);
-	self->mMActor->getFrameCtrl(0)->setRate(rate);
+	self->changeBck(9, self->getSaveParam2()->staggerSpeed.get());
 
 	if (self->mMActor->curAnmEndsNext(0, nullptr))
 		return TRUE;
