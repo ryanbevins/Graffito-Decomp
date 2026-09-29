@@ -663,10 +663,12 @@ void TLeafBoat::bind()
 	mLinearVelocity = displacement;
 
 	f32 boatY = mPosition.y - mYOffset;
+	f32 marioY = gpMarioPos->y;
 	f32 dx    = gpMarioPos->x - mPosition.x;
 	f32 dz    = gpMarioPos->z - mPosition.z;
-	if (gpMarioPos->y <= boatY && gpMarioPos->y > boatY - 100.0f) {
-		if (dx * dx + dz * dz < mBodyRadius * mBodyRadius)
+	f32 radius = mBodyRadius;
+	if (marioY <= boatY && boatY - 100.0f < marioY) {
+		if (dx * dx + dz * dz < radius * radius)
 			SMS_SendMessageToMario(this, 0xE);
 	}
 }
