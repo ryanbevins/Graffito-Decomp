@@ -506,8 +506,7 @@ void TChuuHana::moveObject()
 	TWalkerEnemy::moveObject();
 
 	if (unk1A0 == 0) {
-		unk19C = mPosition.y;
-		unk198 = mPosition.y;
+		unk198 = unk19C = mPosition.y;
 		unk1A8 = 0.0f;
 	} else {
 		++unk1A0;
@@ -529,8 +528,7 @@ void TChuuHana::moveObject()
 				    == &TNerveChuuHanaKeepBalance::theNerve())
 					setBckAnm(7);
 				unk1A0 = 1;
-				unk19C = mPosition.y;
-				unk198 = mPosition.y;
+				unk198 = unk19C = mPosition.y;
 			}
 		}
 	}
@@ -538,9 +536,15 @@ void TChuuHana::moveObject()
 	if (mSpine->getCurrentNerve() == &TNerveChuuHanaRoll::theNerve()
 	    && !isAirborne()) {
 		f32 power = getChuuHanaParams()->mSLGetGroundPow.get();
-		JGeometry::TVec3<f32> vel(mGroundPlane->mNormal.x * power, 0.0f,
-		                           mGroundPlane->mNormal.z * power);
+		const JGeometry::TVec3<f32>& normal = mGroundPlane->mNormal;
+		JGeometry::TVec3<f32> vel(power * normal.x, 0.0f, power * normal.z);
 		JGeometry::TVec3<f32> nextVel = mVelocity;
+		// Retail computes the horizontal speed here and discards it.
+		JGeometry::TVec3<f32> curVel = mVelocity;
+		JGeometry::TVec3<f32> velZ   = curVel;
+		JGeometry::TVec3<f32> velX   = curVel;
+		f32 speedXZ
+		    = JGeometry::TUtil<f32>::sqrt(velX.x * velX.x + velZ.z * velZ.z);
 		PSVECAdd((Vec*)&nextVel, (Vec*)&vel, (Vec*)&nextVel);
 		nextVel.y = 0.0f;
 		mVelocity = nextVel;
@@ -550,8 +554,9 @@ void TChuuHana::moveObject()
 
 	unk194 = MsClamp(unk194 - 0.1f, 0.0f, 1.0f);
 
+	f32 blendRatio = unk194;
 	if (mMActor->unkC != nullptr)
-		mMActor->unkC->setMotionBlendRatio(unk194);
+		mMActor->unkC->setMotionBlendRatio(blendRatio);
 
 	unk1EC = mLinearVelocity;
 
