@@ -195,17 +195,7 @@ void TLimitKoopaJr::moveRun()
 	JGeometry::TVec3<f32> up(0.0f, 1.0f, 0.0f);
 	cross.cross(up, dirVec);
 
-	f32 csq = cross.x * cross.x + cross.y * cross.y + cross.z * cross.z;
-	if (csq <= 0.0000038146973f) {
-		cross.x = 0.0f;
-		cross.y = 0.0f;
-		cross.z = 0.0f;
-	} else {
-		f32 inv = JGeometry::TUtil<f32>::inv_sqrt(csq);
-		cross.x *= inv;
-		cross.y *= inv;
-		cross.z *= inv;
-	}
+	cross.normalize();
 
 	if (turnVal < 0.0f) {
 		cross.x = -cross.x;
