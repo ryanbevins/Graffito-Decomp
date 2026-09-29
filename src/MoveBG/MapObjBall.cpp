@@ -1673,7 +1673,7 @@ void TBigWatermelon::control()
 		    && !gpActor->isActorType(0x400000CD))
 			break;
 		f32 prev = unk1A0;
-		unk1A0   = SMS_GetSandRiseUpRatio(this);
+		unk1A0   = SMS_GetSandRiseUpRatio(gpActor);
 		if (unk1A0 <= 0.05f)
 			break;
 		if (unk1A0 <= prev)
