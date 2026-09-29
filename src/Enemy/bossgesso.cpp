@@ -1071,9 +1071,8 @@ void TBossGesso::doAttackSingle()
 
 	f32 dist2 = delta.squared();
 
-	if (dist2 < forceUnisonLen2) {
-		if (gpMarioOriginal->isTouchGround4cm())
-			changeAttackMode(ASTATE_UNISON);
+	if (dist2 < forceUnisonLen2 && gpMarioOriginal->isTouchGround4cm()) {
+		changeAttackMode(ASTATE_UNISON);
 		return;
 	}
 
