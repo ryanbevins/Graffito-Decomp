@@ -383,37 +383,10 @@ void TKazekun::calcRootMatrix()
 		return;
 	}
 
-	Mtx m;
+	TPosition3f m;
+	m.setQuat(mQuat);
+	m.setTrans(mPosition);
 	MtxPtr mPtr = m;
-	f32 x  = mQuat.x;
-	f32 y  = mQuat.y;
-	f32 z  = mQuat.z;
-	f32 w  = mQuat.w;
-	f32 x2 = 2.0f * x;
-	f32 y2 = 2.0f * y;
-	f32 z2 = 2.0f * z;
-	f32 w2 = 2.0f * w;
-	f32 yy = y2 * y;
-	f32 zz = z2 * z;
-	f32 xy = x2 * y;
-	f32 wz = w2 * z;
-	f32 xx = x2 * x;
-	f32 xz = x2 * z;
-	f32 wy = w2 * y;
-	f32 yz = y2 * z;
-	f32 wx = w2 * x;
-	mPtr[0][0] = 1.0f - yy - zz;
-	mPtr[0][1] = xy - wz;
-	mPtr[0][2] = xz + wy;
-	mPtr[1][0] = xy + wz;
-	mPtr[1][1] = 1.0f - xx - zz;
-	mPtr[1][2] = yz - wx;
-	mPtr[2][0] = xz - wy;
-	mPtr[2][1] = yz + wx;
-	mPtr[2][2] = 1.0f - xx - yy;
-	mPtr[0][3] = mPosition.x;
-	mPtr[1][3] = mPosition.y;
-	mPtr[2][3] = mPosition.z;
 	PSMTXCopy(mPtr, getModel()->getBaseTRMtx());
 
 	TSpineBase<TLiveActor>* spine = mSpine;
