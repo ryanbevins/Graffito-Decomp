@@ -637,12 +637,12 @@ void TCannon::init(TLiveManager* manager)
 		     i < chorobeiActor->getModel()->getModelData()->getJointNum(); ++i) {
 			// The retail build retains this loop with an empty body.
 		}
-		unk1A8->initHitActor(
-		    0x1000001d, 3, 0x90000000,
-		    unk28C->mSLChorobeiAttackRadius.get(),
-		    unk28C->mSLChorobeiAttackHeight.get(),
-		    unk28C->mSLChorobeiDamageRadius.get(),
-		    unk28C->mSLChorobeiDamageHeight.get());
+		f32 attackHeight = unk28C->mSLChorobeiAttackHeight.get();
+		f32 attackRadius = unk28C->mSLChorobeiAttackRadius.get();
+		f32 damageRadius = unk28C->mSLChorobeiDamageRadius.get();
+		f32 damageHeight = unk28C->mSLChorobeiDamageHeight.get();
+		unk1A8->initHitActor(0x1000001d, 3, 0x90000000, attackRadius,
+		                    attackHeight, damageRadius, damageHeight);
 		TIdxGroupObj* group
 		    = JDrama::TNameRefGen::search<TIdxGroupObj>("敵グループ");
 		group->getChildren().push_back(unk1A8);
