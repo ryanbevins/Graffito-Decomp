@@ -917,17 +917,25 @@ void TYoshi::movement()
 		if (groundY > mTranslation.y) {
 			if (ground->isIllegalData() || ground->isWaterSurface()
 			    || ground->isDeathPlane()) {
-				if ((u8)mState != 0) {
-					if ((u8)mState == 8)
-						mMario->getOffYoshi(true);
-					if (mMario->mState & 0x30000) {
-						mState = (State)3;
-						changeAnimation(25);
-					} else {
-						mState = (State)4;
+				{
+					u8 state = (u8)mState;
+					if (isHatched()) {
+						if (state == MOUNTED)
+							mMario->getOffYoshi(true);
+						u8 inWater;
+						if (mMario->mState & 0x30000)
+							inWater = 1;
+						else
+							inWater = 0;
+						if (inWater) {
+							mState = DROWNING;
+							changeAnimation(25);
+						} else {
+							mState = DYING;
+						}
+						mType = 0;
+						*(s16*)((u8*)&mSubState) = 30;
 					}
-					mType = 0;
-					*(s16*)((u8*)&mSubState) = 30;
 				}
 				break;
 			}
@@ -937,17 +945,25 @@ void TYoshi::movement()
 
 		doSearch();
 
-		if (mCurJuice <= 0 && (u8)mState != 0) {
-			if ((u8)mState == 8)
-				mMario->getOffYoshi(true);
-			if (mMario->mState & 0x30000) {
-				mState = (State)3;
-				changeAnimation(25);
-			} else {
-				mState = (State)4;
+		if (mCurJuice <= 0) {
+			u8 state = (u8)mState;
+			if (isHatched()) {
+				if (state == MOUNTED)
+					mMario->getOffYoshi(true);
+				u8 inWater;
+				if (mMario->mState & 0x30000)
+					inWater = 1;
+				else
+					inWater = 0;
+				if (inWater) {
+					mState = DROWNING;
+					changeAnimation(25);
+				} else {
+					mState = DYING;
+				}
+				mType = 0;
+				*(s16*)((u8*)&mSubState) = 30;
 			}
-			mType = 0;
-			*(s16*)((u8*)&mSubState) = 30;
 		}
 		break;
 	}
@@ -966,17 +982,25 @@ void TYoshi::movement()
 			emitTongue();
 		}
 
-		if (mCurJuice <= 0 && (u8)mState != 0) {
-			if ((u8)mState == 8)
-				mMario->getOffYoshi(true);
-			if (mMario->mState & 0x30000) {
-				mState = (State)3;
-				changeAnimation(25);
-			} else {
-				mState = (State)4;
+		if (mCurJuice <= 0) {
+			u8 state = (u8)mState;
+			if (isHatched()) {
+				if (state == MOUNTED)
+					mMario->getOffYoshi(true);
+				u8 inWater;
+				if (mMario->mState & 0x30000)
+					inWater = 1;
+				else
+					inWater = 0;
+				if (inWater) {
+					mState = DROWNING;
+					changeAnimation(25);
+				} else {
+					mState = DYING;
+				}
+				mType = 0;
+				*(s16*)((u8*)&mSubState) = 30;
 			}
-			mType = 0;
-			*(s16*)((u8*)&mSubState) = 30;
 		}
 		break;
 	case 1:
@@ -1029,17 +1053,25 @@ void TYoshi::movement()
 
 		if ((u8)mState == 6 && groundY > mTranslation.y) {
 			if (ground->isWaterSurface()) {
-				if ((u8)mState != 0) {
-					if ((u8)mState == 8)
-						mMario->getOffYoshi(true);
-					if (mMario->mState & 0x30000) {
-						mState = (State)3;
-						changeAnimation(25);
-					} else {
-						mState = (State)4;
+				{
+					u8 state = (u8)mState;
+					if (isHatched()) {
+						if (state == MOUNTED)
+							mMario->getOffYoshi(true);
+						u8 inWater;
+						if (mMario->mState & 0x30000)
+							inWater = 1;
+						else
+							inWater = 0;
+						if (inWater) {
+							mState = DROWNING;
+							changeAnimation(25);
+						} else {
+							mState = DYING;
+						}
+						mType = 0;
+						*(s16*)((u8*)&mSubState) = 30;
 					}
-					mType = 0;
-					*(s16*)((u8*)&mSubState) = 30;
 				}
 			} else {
 				mTranslation.y                 = groundY;
