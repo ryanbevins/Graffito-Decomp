@@ -1314,7 +1314,18 @@ void TBossWanwan::perform(u32 flags, JDrama::TGraphics* graphics)
 					unk184 = 0;
 				}
 			}
+		} else {
+			unk184 = 0;
+		}
 
+		if (mHitPoints == 0
+		    && mSpine->getLatestNerve() != &TNerveBWBark::theNerve()) {
+			++unk180;
+			if (unk180 > 2400
+			    && mSpine->getLatestNerve() != &TNerveBWBark::theNerve()) {
+				mSpine->setNext(&TNerveBWBark::theNerve());
+			}
+		} else {
 			if (gpMarDirector->unk58 % 20 == 0) {
 				u8 maxHP
 				    = ((TBWParams*)getSaveParam())->mSLBWHitPointMax.get();
@@ -1322,24 +1333,6 @@ void TBossWanwan::perform(u32 flags, JDrama::TGraphics* graphics)
 					++mHitPoints;
 			}
 			unk180 = 0;
-		} else {
-			unk184 = 0;
-
-			if (mSpine->getLatestNerve() != &TNerveBWBark::theNerve()) {
-				++unk180;
-				if (unk180 > 2400
-				    && mSpine->getLatestNerve() != &TNerveBWBark::theNerve()) {
-					mSpine->setNext(&TNerveBWBark::theNerve());
-				}
-			} else {
-				if (gpMarDirector->unk58 % 20 == 0) {
-					u8 maxHP = ((TBWParams*)getSaveParam())
-					               ->mSLBWHitPointMax.get();
-					if (mHitPoints < maxHP)
-						++mHitPoints;
-				}
-				unk180 = 0;
-			}
 		}
 	}
 
