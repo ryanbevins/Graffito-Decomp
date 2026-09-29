@@ -945,8 +945,6 @@ void TBossEel::init(TLiveManager* manager)
 	}
 	mMActor->resetDL();
 
-	TIdxGroupObj* enemyGroup
-	    = JDrama::TNameRefGen::search<TIdxGroupObj>(cBossEelEnemyGroupName);
 	JUTNameTab* jointName = mMActor->getModel()->getModelData()->getJointName();
 
 	unk1A8 = new THitActor(cBossEelHeadName);
@@ -956,6 +954,8 @@ void TBossEel::init(TLiveManager* manager)
 	                   unk1E8->mSLHeadAttackHeight.value,
 	                   unk1E8->mSLHeadDamageRadius.value,
 	                   unk1E8->mSLHeadDamageHeight.value);
+	TIdxGroupObj* enemyGroup
+	    = JDrama::TNameRefGen::search<TIdxGroupObj>(cBossEelEnemyGroupName);
 	enemyGroup->getChildren().push_back((THitActor*)unk1A8);
 	((THitActor*)unk1A8)->offHitFlag(HIT_FLAG_NO_COLLISION);
 
