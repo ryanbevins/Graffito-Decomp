@@ -201,9 +201,9 @@ BOOL TBossHanachanPartsBody::setAnm_(
 			getMActor()->setBckFromIndex(idx);
 			ret = TRUE;
 			if (stopMotionBlend == 1) {
-				mPalFrame->unk24 = mPalFrame->mFrame;
+				mPalFrame->mMotionBlendTimer = mPalFrame->mMotionBlendFrame;
 			} else {
-				mPalFrame->unk24 = 0;
+				mPalFrame->mMotionBlendTimer = 0;
 			}
 			setCurAnmSound();
 		}
@@ -239,9 +239,9 @@ BOOL TBossHanachanPartsHead::setAnm_(
 			getMActor()->setBckFromIndex(sHeadBckIndex[anmKind]);
 			ret = TRUE;
 			if (stopMotionBlend == 1) {
-				mPalFrame->unk24 = mPalFrame->mFrame;
+				mPalFrame->mMotionBlendTimer = mPalFrame->mMotionBlendFrame;
 			} else {
-				mPalFrame->unk24 = 0;
+				mPalFrame->mMotionBlendTimer = 0;
 			}
 			setCurAnmSound();
 		}
@@ -312,8 +312,8 @@ void TBossHanachanPartsBase::considerSetAnm_(
 			return;
 
 		bool fastAnm = true;
-		if (!(mPalFrame->unk24 > 0 ? true : false)) {
-			if (!(mPalFrame->unk28 > 0.0f ? true : false))
+		if (!(mPalFrame->mMotionBlendTimer > 0 ? true : false)) {
+			if (!(mPalFrame->mForcedBlendRatio > 0.0f ? true : false))
 				fastAnm = false;
 		}
 		if (fastAnm)
@@ -629,22 +629,8 @@ TBossHanachanPartsBase::TBossHanachanPartsBase(TBossHanachan* owner,
 	initAnmSound();
 	mMActor->setLightType(1);
 
-	TBHPalFrame* pal = new TBHPalFrame;
-	if (pal != nullptr) {
-		pal->unk0   = 1;
-		pal->mFrame = (int)(s16)CLBPalFrame(
-		    (s16)mOwner->mParams->mSLMotionBlendFrames.value);
-		pal->unk8   = 0;
-		pal->unkC   = 0.0f;
-		pal->unk10  = 0.0f;
-		pal->unk14  = 0.0f;
-		pal->unk18  = 0.0f;
-		pal->unk1C  = 0.0f;
-		pal->unk20  = 0.0f;
-		pal->unk24  = 0;
-		pal->unk28  = 0.0f;
-	}
-	mPalFrame = pal;
+	mPalFrame = new TNpcInbetween(
+	    1, CLBPalFrame(mOwner->mParams->mSLMotionBlendFrames.get()));
 }
 
 TBossHanachanPartsHead::TBossHanachanPartsHead(TBossHanachan* owner,

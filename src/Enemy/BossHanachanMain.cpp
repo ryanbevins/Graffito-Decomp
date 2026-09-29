@@ -810,9 +810,9 @@ void TBossHanachan::perform(u32 flags, JDrama::TGraphics* graphics)
 		if (!isBossHanachanDirectorBlocked())
 			changeAnmRateAndFrameUpdate_();
 
-		((TNpcInbetween*)mHead->mPalFrame)->execMotionBlend(mHead->mMActor);
+		mHead->mPalFrame->execMotionBlend(mHead->mMActor);
 		for (int i = 0; i < 8; ++i)
-			((TNpcInbetween*)mBody[i]->mPalFrame)
+			mBody[i]->mPalFrame
 			    ->execMotionBlend(mBody[i]->mMActor);
 
 		execHeadCalcAnim_();

@@ -13,9 +13,9 @@ void TBossHanachan::changeAnmRateAndFrameUpdate_()
 	f32 rate           = SMSGetAnmFrameRate();
 
 	if (mSpine->getLatestNerve() == &TNerveBossHanachanTumble::theNerve()) {
-		mHead->mPalFrame->unk28 = 0.0f;
+		mHead->mPalFrame->mForcedBlendRatio = 0.0f;
 		for (int i = 0; i < 8; i++)
-			mBody[i]->mPalFrame->unk28 = 0.0f;
+			mBody[i]->mPalFrame->mForcedBlendRatio = 0.0f;
 		mHead->changeTumbleAnmRate_();
 		for (int i = 0; i < 8; i++)
 			mBody[i]->changeTumbleAnmRate_();
@@ -25,9 +25,9 @@ void TBossHanachan::changeAnmRateAndFrameUpdate_()
 		case BHANM_KIND_00:
 		case BHANM_KIND_01: {
 			if (mMarchSpeed <= mChangeParams->mSLWalkAnmMarchSpeed.value) {
-				mHead->mPalFrame->unk28 = 0.0f;
+				mHead->mPalFrame->mForcedBlendRatio = 0.0f;
 				for (int i = 0; i < 8; i++)
-					mBody[i]->mPalFrame->unk28 = 0.0f;
+					mBody[i]->mPalFrame->mForcedBlendRatio = 0.0f;
 				switch (mHead->mCurAnm) {
 				case BHANM_KIND_00:
 					break;
@@ -42,9 +42,9 @@ void TBossHanachan::changeAnmRateAndFrameUpdate_()
 					break;
 				}
 			} else if (mMarchSpeed >= mChangeParams->mSLRunAnmMarchSpeed.value) {
-				mHead->mPalFrame->unk28 = 0.0f;
+				mHead->mPalFrame->mForcedBlendRatio = 0.0f;
 				for (int i = 0; i < 8; i++)
-					mBody[i]->mPalFrame->unk28 = 0.0f;
+					mBody[i]->mPalFrame->mForcedBlendRatio = 0.0f;
 				switch (mHead->mCurAnm) {
 				case BHANM_KIND_00:
 					setHeadAndBodyAnm(BHANM_KIND_01, BHANM_STOP_OFF);
@@ -71,9 +71,9 @@ void TBossHanachan::changeAnmRateAndFrameUpdate_()
 							mBody[i]->copyFrameFromOldAnmToNewAnm_();
 						ratio = 1.0f - ratio;
 					}
-					mHead->mPalFrame->unk28 = ratio;
+					mHead->mPalFrame->mForcedBlendRatio = ratio;
 					for (int i = 0; i < 8; i++)
-						mBody[i]->mPalFrame->unk28 = ratio;
+						mBody[i]->mPalFrame->mForcedBlendRatio = ratio;
 					break;
 				case BHANM_KIND_01:
 					if (mHead->mPrevAnm == 0) {
@@ -84,14 +84,14 @@ void TBossHanachan::changeAnmRateAndFrameUpdate_()
 						for (int i = 0; i < 8; i++)
 							mBody[i]->copyFrameFromOldAnmToNewAnm_();
 					}
-					mHead->mPalFrame->unk28 = ratio;
+					mHead->mPalFrame->mForcedBlendRatio = ratio;
 					for (int i = 0; i < 8; i++)
-						mBody[i]->mPalFrame->unk28 = ratio;
+						mBody[i]->mPalFrame->mForcedBlendRatio = ratio;
 					break;
 				default:
-					mHead->mPalFrame->unk28 = 0.0f;
+					mHead->mPalFrame->mForcedBlendRatio = 0.0f;
 					for (int i = 0; i < 8; i++)
-						mBody[i]->mPalFrame->unk28 = 0.0f;
+						mBody[i]->mPalFrame->mForcedBlendRatio = 0.0f;
 					setHeadAndBodyAnm(BHANM_KIND_00, BHANM_STOP_ON);
 					break;
 				}
@@ -103,9 +103,9 @@ void TBossHanachan::changeAnmRateAndFrameUpdate_()
 			break;
 		}
 		default:
-			mHead->mPalFrame->unk28 = 0.0f;
+			mHead->mPalFrame->mForcedBlendRatio = 0.0f;
 			for (int i = 0; i < 8; i++)
-				mBody[i]->mPalFrame->unk28 = 0.0f;
+				mBody[i]->mPalFrame->mForcedBlendRatio = 0.0f;
 			rate = SMSGetAnmFrameRate();
 			break;
 		}

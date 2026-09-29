@@ -2,6 +2,7 @@
 #define ENEMY_BOSS_HANACHAN_PARTS_BASE_HPP
 
 #include <Strategic/LiveActor.hpp>
+#include <NPC/NpcInbetween.hpp>
 #include <JSystem/JDrama/JDRGraphics.hpp>
 #include <Player/ModelWaterManager.hpp>
 
@@ -44,20 +45,6 @@ enum EnumBossHanachanNerveAnm {
 	BHANM_NERVE_5,
 };
 
-struct TBHPalFrame {
-	/* 0x00 */ int unk0;
-	/* 0x04 */ int mFrame;
-	/* 0x08 */ int unk8;
-	/* 0x0C */ f32 unkC;
-	/* 0x10 */ f32 unk10;
-	/* 0x14 */ f32 unk14;
-	/* 0x18 */ f32 unk18;
-	/* 0x1C */ f32 unk1C;
-	/* 0x20 */ f32 unk20;
-	/* 0x24 */ int unk24;
-	/* 0x28 */ f32 unk28;
-};
-
 class TBossHanachanPartsBase : public TLiveActor {
 public:
 	TBossHanachanPartsBase(TBossHanachan*, u32, int, const char*);
@@ -86,7 +73,7 @@ public:
 	/* 0x104 */ TMapCollisionMove* mMapCollision;
 	/* 0x108 */ MtxPtr mCenterJointMtx;
 	/* 0x10C */ int mAnmCounter;
-	/* 0x110 */ TBHPalFrame* mPalFrame;
+	/* 0x110 */ TNpcInbetween* mPalFrame;
 };
 
 class TBossHanachanPartsHead : public TBossHanachanPartsBase {
