@@ -1239,7 +1239,7 @@ BOOL TNerveKoopaFlame::execute(TSpineBase<TLiveActor>* spine) const
 			predicted.y = speed.y * scale;
 			predicted.z = speed.z * scale;
 
-			BOOL hasGrip = bathtub->getNextGrip(
+			u8 hasGrip = bathtub->getNextGrip(
 			    *gpMarioPos, predicted,
 			    ((TKoopaParams*)((TEnemyManager*)self->mManager)->unk38)
 			        ->waitRange.get(),
@@ -1315,7 +1315,7 @@ BOOL TNerveKoopaFlame::execute(TSpineBase<TLiveActor>* spine) const
 			predicted.y = speed.y * scale;
 			predicted.z = speed.z * scale;
 
-			BOOL hasGrip = bathtub->getNextGrip(
+			u8 hasGrip = bathtub->getNextGrip(
 			    *gpMarioPos, predicted,
 			    ((TKoopaParams*)((TEnemyManager*)self->mManager)->unk38)
 			        ->waitRange.get(),
