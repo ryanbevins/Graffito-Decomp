@@ -1238,7 +1238,9 @@ void TBossGesso::doAttackShoot()
 
 	if (inSightAngle(getSaveParam2()->mSLSightAngle.get())) {
 		JGeometry::TVec3<f32> delta = SMS_GetMarioPos();
-		delta -= mPosition;
+		delta.x -= mPosition.x;
+		delta.y -= mPosition.y;
+		delta.z -= mPosition.z;
 
 		f32 singleAttackLen = getSaveParam2()->mSLSingleAttackLen.get();
 		if (delta.squared() < singleAttackLen * singleAttackLen) {
