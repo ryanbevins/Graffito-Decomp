@@ -1628,7 +1628,8 @@ BOOL TBossEelTooth::receiveMessage(THitActor* sender, u32 message)
 
 			if (unk70 == 1) {
 				unkB8.a = 0;
-				PSMTXCopy(unk68->getConnectedMtx(), unk88);
+				Mtx& connectedMtx = unk88;
+				PSMTXCopy(unk68->getConnectedMtx(), connectedMtx);
 
 				if (unk74 == 1) {
 					playBossEelSound(0x8928, &mPosition);
