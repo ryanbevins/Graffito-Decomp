@@ -1671,9 +1671,9 @@ TBossEelTooth::TBossEelTooth(u8 tooth_id, TBossEel* boss,
     , unkBC(TRUE)
 {
 	int jointIndex
-	    = boss->mMActor->getModel()->getModelData()->getJointName()->getIndex(
+	    = unk6C->mMActor->getModel()->getModelData()->getJointName()->getIndex(
 	        joint_name);
-	unk68 = new TSharedParts(boss, jointIndex, model_data, 0, "<TSharedParts>");
+	unk68 = new TSharedParts(unk6C, jointIndex, model_data, 0, "<TSharedParts>");
 
 	MActor* actor = unk68->getMActor();
 	actor->setLightType(1);
@@ -1687,7 +1687,7 @@ TBossEelTooth::TBossEelTooth(u8 tooth_id, TBossEel* boss,
 	}
 	unkB8.a = 0xFF;
 
-	TBossEelSaveParams* params = boss->unk1E8;
+	TBossEelSaveParams* params = unk6C->unk1E8;
 	unk70                       = params->mSLToothMaxHitPoint.value;
 	initHitActor(0x08000022, 5, 0x81000000,
 	             params->mSLToothAttackRadius.value,
