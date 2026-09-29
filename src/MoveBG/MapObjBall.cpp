@@ -604,13 +604,13 @@ void TResetFruit::control()
 	case 0xB: {
 		unk64 &= ~0x1;
 		if (gpMarDirector->mMap == 4) {
-			if (mLiveFlag & 0x10) {
-				mLiveFlag &= ~0x10;
+			if (checkLiveFlag(LIVE_FLAG_UNK10)) {
+				offLiveFlag(LIVE_FLAG_UNK10);
 			}
 		}
 		if (mGroundPlane->mActor != nullptr) {
-			if (mLiveFlag & 0x10) {
-				mLiveFlag &= ~0x10;
+			if (checkLiveFlag(LIVE_FLAG_UNK10)) {
+				offLiveFlag(LIVE_FLAG_UNK10);
 			}
 			f32 thresh = 200.0f + mGroundHeight;
 			TLiveActor* act = (TLiveActor*)mGroundPlane->mActor;
