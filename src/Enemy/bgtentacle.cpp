@@ -471,7 +471,7 @@ void TBGTentacle::TNode::calcVelocity(TBGTentacle* param_1,
 			mPosition += local_8C;
 		}
 	} else {
-		if (nodeLen < fVar5) {
+		if (fVar5 < nodeLen) {
 			f32 m = nodeLen - fVar5;
 			if (m > speedMax)
 				m = speedMax;
