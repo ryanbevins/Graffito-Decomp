@@ -1008,22 +1008,20 @@ void TKoopaJrSubmarine::makeKillerVelocity(TBathtubKiller* killer,
 		Mtx* rootMtx                = unk1A0->unk15C->getRootJointMtx();
 		target.y                    = (*rootMtx)[1][3];
 
-		f32 dx       = target.x - killer->mPosition.x;
-		f32 dz       = target.z - killer->mPosition.z;
-		f32 distSq   = dx * dx + dz * dz;
-		f32 distance = JGeometry::TUtil<f32>::sqrt(distSq)
+		JGeometry::TVec3<f32> toTarget(target.x - killer->mPosition.x,
+		                                  0.0f, target.z - killer->mPosition.z);
+		f32 distance = toTarget.length()
 		               - getSaveParam2()->killerTargetDistance.get();
 		f32 offset = getSaveParam2()->killerTargetDistanceMin.get();
 		if (distance >= offset)
 			offset = distance;
 
-		JGeometry::TVec3<f32> toTarget(dx, 0.0f, dz);
 		toTarget.normalize();
+		toTarget.scale(offset);
 
 		JGeometry::TVec3<f32> jumpTarget;
-		jumpTarget.x = killer->mPosition.x + toTarget.x * offset;
+		jumpTarget.add(killer->mPosition, toTarget);
 		jumpTarget.y = target.y;
-		jumpTarget.z = killer->mPosition.z + toTarget.z * offset;
 
 		direction = calcVelocityToJumpToY(
 		    jumpTarget, direction.y,
