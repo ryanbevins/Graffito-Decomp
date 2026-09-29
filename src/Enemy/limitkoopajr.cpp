@@ -174,10 +174,10 @@ void TLimitKoopaJr::moveRun()
 	diff.y = 0.0f;
 	tdc.makeDirection(diff);
 
-	f32 direction
-	    = mDirection1.calcTurnDirection(tdc.mDirection, rotSpeedRad);
-	f32 turnVal = TDirectionCalc(direction).sub(mDirection1.mDirection);
-	mDirection1.mDirection = direction;
+	TDirectionCalc direction(
+	    mDirection1.calcTurnDirection(tdc.mDirection, rotSpeedRad));
+	f32 turnVal = direction.sub(mDirection1.mDirection);
+	mDirection1.mDirection = direction.mDirection;
 
 	mRoundRadius = getSaveParam2()->mSLRoundRadius.get();
 	JGeometry::TVec3<f32> dirVec = mDirection1.calcDirectionVector();
