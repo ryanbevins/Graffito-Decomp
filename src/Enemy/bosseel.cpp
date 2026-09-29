@@ -2587,20 +2587,7 @@ DEFINE_NERVE(TNerveBossEelEat, TLiveActor)
 
 	if (eel->checkCurAnmEnd(0)) {
 		if (eel->mMActor->checkCurBckFromIndex(17)) {
-			u8 canEat = *(u8*)((u8*)eel + 0x1C8);
-			if (!canEat) {
-				JGeometry::TVec3<f32> pos = *gpMarioPos;
-				MtxPtr mtx = eel->mMActor->getModel()
-				                 ->mNodeMatrices[*(u16*)((u8*)eel + 0x1A0)];
-				pos.x -= mtx[0][3];
-				pos.y -= mtx[1][3];
-				pos.z -= mtx[2][3];
-
-				if (MsVECMag2(&pos) < eel->unk1D4 * eel->unk1D8)
-					canEat = TRUE;
-			}
-
-			if (canEat) {
+			if (eel->canEatMario()) {
 				eel->setBckAnm(12);
 				if (SMS_SendMessageToMario(eel, HIT_MESSAGE_TAKE))
 					eel->mHeldObject = (TTakeActor*)SMS_GetMarioHitActor();
