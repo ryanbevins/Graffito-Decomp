@@ -1524,11 +1524,10 @@ void TBossEelTooth::perform(u32 flags, JDrama::TGraphics* graphics)
 	if (flags & 1) {
 		TBossEelSaveParams* params = unk6C->unk1E8;
 		f32 scale                  = unk6C->mScaling.x;
-		mAttackRadius              = params->mSLToothAttackRadius.value * scale;
-		mAttackHeight              = params->mSLToothAttackHeight.value * scale;
-		mDamageRadius              = params->mSLToothDamageRadius.value * scale;
-		mDamageHeight              = params->mSLToothDamageHeight.value * scale;
-		calcEntryRadius();
+		setHitParams(params->mSLToothAttackRadius.get() * scale,
+		             params->mSLToothAttackHeight.get() * scale,
+		             params->mSLToothDamageRadius.get() * scale,
+		             params->mSLToothDamageHeight.get() * scale);
 
 		for (int i = 0; i < mColCount; ++i) {
 			THitActor* hit = mCollisions[i];
