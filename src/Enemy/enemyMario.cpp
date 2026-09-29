@@ -1446,9 +1446,9 @@ void TEnemyMario::emDownAnimation()
 
 void TEnemyMario::emReplayJumpToNearestNode()
 {
-	TGraphWeb* graph = emOwner(this)->unk124->getGraph();
-	int node         = graph->findNearestNodeIndex(mPosition, 0xffffffff);
-	if (graph->getGraphNode(node).checkFlag(2)) {
+	int node = owner()->unk124->getGraph()->findNearestNodeIndex(
+	    mPosition, 0xffffffff);
+	if (owner()->unk124->getGraph()->getGraphNode(node).checkFlag(2)) {
 		emControllerFlags2(this) |= 0x100;
 		emControllerFlags(this) |= 0x100;
 		if (mVel.y > emJumpSpeedCap(this))
@@ -1457,9 +1457,9 @@ void TEnemyMario::emReplayJumpToNearestNode()
 
 	emTimer(this)++;
 
-	graph = emOwner(this)->unk124->getGraph();
-	node  = graph->findNearestNodeIndex(mPosition, 0xffffffff);
-	TGraphNode* currentNode = &graph->getGraphNode(node);
+	node = owner()->unk124->getGraph()->findNearestNodeIndex(mPosition,
+	                                                       0xffffffff);
+	TGraphNode* currentNode = &owner()->unk124->getGraph()->getGraphNode(node);
 
 	JGeometry::TVec3<f32> currentPoint;
 	currentNode->getPoint(&currentPoint);
@@ -1469,8 +1469,9 @@ void TEnemyMario::emReplayJumpToNearestNode()
 	mPosition.y += (currentPoint.y - mPosition.y) * 0.05f;
 
 	if (mAction != 0x0C400201) {
-		int nearest = graph->findNearestNodeIndex(mPosition, 0xffffffff);
-		if (graph->getGraphNode(nearest).checkFlag(2))
+		int nearest = owner()->unk124->getGraph()->findNearestNodeIndex(
+		    mPosition, 0xffffffff);
+		if (owner()->unk124->getGraph()->getGraphNode(nearest).checkFlag(2))
 			return;
 	}
 
@@ -1495,7 +1496,8 @@ void TEnemyMario::emReplayJumpToNearestNode()
 			if (nextNode == 0xFF)
 				continue;
 
-			TGraphNode* candidateNode = &graph->getGraphNode(nextNode);
+			TGraphNode* candidateNode
+			    = &owner()->unk124->getGraph()->getGraphNode(nextNode);
 			JGeometry::TVec3<f32> candidatePoint;
 			candidateNode->getPoint(&candidatePoint);
 
@@ -1524,7 +1526,8 @@ void TEnemyMario::emReplayJumpToNearestNode()
 				continue;
 
 			JGeometry::TVec3<f32> candidatePoint;
-			graph->getGraphNode(nextNode).getPoint(&candidatePoint);
+			owner()->unk124->getGraph()->getGraphNode(nextNode).getPoint(
+			    &candidatePoint);
 
 			JGeometry::TVec3<f32> candidateDir = candidatePoint;
 			candidateDir.sub(currentPoint);
@@ -1561,7 +1564,8 @@ void TEnemyMario::emReplayJumpToNearestNode()
 		if (count > 0) {
 			int slot             = candidateSlots[choice];
 			emReplayIndex(this) = links[slot * 2 + 1];
-			targetNode          = &graph->getGraphNode(links[slot * 2]);
+			targetNode = &owner()->unk124->getGraph()->getGraphNode(
+			    links[slot * 2]);
 		}
 	}
 
