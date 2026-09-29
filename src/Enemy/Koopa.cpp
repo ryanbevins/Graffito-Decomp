@@ -412,7 +412,7 @@ void TKoopa::init(TLiveManager* manager)
 
 	unk150 = getTargetDir(*gpMarioPos);
 	initAnmSound();
-	loadAfter();
+	reset();
 
 	J3DModelData* modelData = getModel()->getModelData();
 	JUTNameTab* nameTab     = modelData->getJointName();
