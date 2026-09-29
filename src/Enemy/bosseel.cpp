@@ -1640,7 +1640,10 @@ BOOL TBossEelTooth::receiveMessage(THitActor* sender, u32 message)
 					unk6C->unk1FD = TRUE;
 					JPABaseEmitter* emitter
 					    = gpMarioParticleManager->emit(0xD3, &mPosition, 0, nullptr);
-					setBossEelParticleScale(emitter, unk6C);
+					if (emitter) {
+						emitter->unk154.set(unk6C->mScaling);
+						emitter->unk174.set(unk6C->mScaling);
+					}
 				} else {
 					playBossEelSound(0x8929, &mPosition);
 					if (unkBC)
