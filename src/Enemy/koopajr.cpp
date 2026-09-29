@@ -613,20 +613,12 @@ void TKoopaJr::init(TLiveManager* manager)
 
 	mSpine->initWith(&TNerveKoopaJrWait::theNerve());
 
-	const char* killerManagerName = "バスタブキラーマネージャー";
-	JDrama::TNameRef* root
-	    = JDrama::TNameRefGen::getInstance()->getRootNameRef();
-	unk16C = (TEnemyManager*)root->searchF(
-	    JDrama::TNameRef::calcKeyCode(killerManagerName), killerManagerName);
+	unk16C = JDrama::TNameRefGen::search<TEnemyManager>(
+	    "バスタブキラーマネージャー");
 
-	if (!unk168) {
-		const char* submarineManagerName
-		    = "クッパジュニアサブマリンマネージャー";
-		root = JDrama::TNameRefGen::getInstance()->getRootNameRef();
-		unk168 = (TEnemyManager*)root->searchF(
-		    JDrama::TNameRef::calcKeyCode(submarineManagerName),
-		    submarineManagerName);
-	}
+	if (!unk168)
+		unk168 = JDrama::TNameRefGen::search<TEnemyManager>(
+		    "クッパジュニアサブマリンマネージャー");
 
 	f32 scale = getSaveParam2()->mSLKoopaJrScale.get();
 	mScaling.x = scale;
