@@ -132,9 +132,8 @@ void TCannon::killerShoot()
 		localMtx.mMtx[1][3] = -60.0f;
 		localMtx.mMtx[2][3] = 150.0f;
 		PSMTXConcat(unk1E0, localMtx.mMtx, localMtx.mMtx);
-		killer->mPosition.x = localMtx.mMtx[0][3];
-		killer->mPosition.y = localMtx.mMtx[1][3];
-		killer->mPosition.z = localMtx.mMtx[2][3];
+		killer->mPosition.set(localMtx.mMtx[0][3], localMtx.mMtx[1][3],
+		                      localMtx.mMtx[2][3]);
 
 		JGeometry::TVec3<f32> target = *gpMarioPos;
 		f32 marioSpeedX = *gpMarioSpeedX;
@@ -228,9 +227,8 @@ void TCannon::killerShoot()
 		localMtx.mMtx[1][3] = -60.0f;
 		localMtx.mMtx[2][3] = 150.0f;
 		PSMTXConcat(unk1E0, localMtx.mMtx, localMtx.mMtx);
-		igaiga->mPosition.x = localMtx.mMtx[0][3];
-		igaiga->mPosition.y = localMtx.mMtx[1][3];
-		igaiga->mPosition.z = localMtx.mMtx[2][3];
+		igaiga->mPosition.set(localMtx.mMtx[0][3], localMtx.mMtx[1][3],
+		                      localMtx.mMtx[2][3]);
 
 		JPABaseEmitter* emitter = gpMarioParticleManager->emitWithRotate(
 		    0xCB, &igaiga->mPosition, 0,
