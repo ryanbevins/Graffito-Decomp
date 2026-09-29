@@ -1486,8 +1486,10 @@ void TBossEelVortex::perform(u32 flags, JDrama::TGraphics* graphics)
 			    || unk68->mMActor->checkCurBckFromIndex(17)) {
 				for (int i = 0; i < mColCount; ++i) {
 					if (mCollisions[i]->isActorTypeOf(ACTOR_TYPE_PLAYER)) {
-						JGeometry::TVec3<f32> velocity;
-						velocity.sub(unk68->mPosition, *gpMarioPos);
+						JGeometry::TVec3<f32> velocity(
+						    unk68->mPosition.x - gpMarioPos->x,
+						    unk68->mPosition.y - gpMarioPos->y,
+						    unk68->mPosition.z - gpMarioPos->z);
 						MsVECNormalize(&velocity, &velocity);
 
 						f32 power
