@@ -78,8 +78,10 @@ int KoopaNeckCallBack(J3DNode* node, int timing)
 	toMario.z -= mtx[2][3];
 
 	if (koopa->isFlaming()) {
-		TKoopaParams* prm = koopa->getSaveParam2();
-		f32 angle = koopa->getFlameDirRate() * 6.2831855f
+		f32 rate = koopa->getFlameDirRate();
+		TKoopaParams* prm
+		    = (TKoopaParams*)((TEnemyManager*)koopa->mManager)->unk38;
+		f32 angle = rate * 6.2831855f
 		            * prm->flameNeckRange.get() / 360.0f;
 		f32 pitch = angle * prm->flameNeckDownRate.get();
 		if (pitch > 0.0f)
