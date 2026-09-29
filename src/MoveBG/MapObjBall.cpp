@@ -1665,20 +1665,14 @@ void TBigWatermelon::control()
 			offLiveFlag(LIVE_FLAG_UNK10);
 		f32 thresh           = mGroundHeight + 200.0f;
 		TLiveActor* gpActor  = (TLiveActor*)mGroundPlane->mActor;
-		if (mPosition.y >= thresh)
-			break;
-		if (gpActor == nullptr)
-			break;
-		if (!gpActor->isActorType(0x400000CD)
-		    && !gpActor->isActorType(0x400000CD))
-			break;
-		f32 prev = unk1A0;
-		unk1A0   = SMS_GetSandRiseUpRatio(gpActor);
-		if (unk1A0 <= 0.05f)
-			break;
-		if (unk1A0 <= prev)
-			break;
-		mVelocity.y = mVelocity.y + 20.0f;
+		if (mPosition.y < thresh && gpActor != nullptr
+		    && (gpActor->isActorType(0x400000CD)
+		        || gpActor->isActorType(0x400000CD))) {
+			f32 prev = unk1A0;
+			unk1A0 = SMS_GetSandRiseUpRatio(gpActor);
+			if (unk1A0 > 0.05f && unk1A0 > prev)
+				mVelocity.y = mVelocity.y + 20.0f;
+		}
 	} break;
 	case 2:
 		break;
