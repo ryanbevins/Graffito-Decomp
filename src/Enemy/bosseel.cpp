@@ -1677,8 +1677,8 @@ TBossEelTooth::TBossEelTooth(u8 tooth_id, TBossEel* boss,
 
 	MActor* actor = unk68->getMActor();
 	actor->setLightType(1);
-	actor->setBckFromIndex(0x16);
-	actor->setFrameRate(0.0f, 0);
+	unk68->getMActor()->setBckFromIndex(0x16);
+	unk68->getMActor()->setFrameRate(0.0f, 0);
 
 	for (u16 i = 0; i < actor->getModel()->getModelData()->getMaterialNum();
 	     ++i) {
