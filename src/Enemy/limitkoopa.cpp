@@ -174,27 +174,24 @@ BOOL TLimitKoopaBody::receiveMessage(THitActor* sender, u32 message) { return TR
 
 void TLimitKoopaHead::attack_(THitActor* actor) { actor->receiveMessage(this, 0xE); }
 
+void TLimitKoopa::getShowered()
+{
+	if (&TNerveLimitKoopaTumble::theNerve() == mSpine->getCurrentNerve())
+		return;
+	if (&TNerveLimitKoopaGetDown::theNerve() == mSpine->getCurrentNerve())
+		return;
+	if (&TNerveLimitKoopaStagger::theNerve() == mSpine->getCurrentNerve())
+		mSpine->setNext(&TNerveLimitKoopaGetShowered::theNerve());
+
+	mSpine->pushNerve(&TNerveLimitKoopaGetShowered::theNerve());
+}
+
 BOOL TLimitKoopaHead::receiveMessage(THitActor* sender, u32 message)
 {
 	switch ((s32)message) {
-	case 0xF: {
-		TLimitKoopa* owner = (TLimitKoopa*)mOwner;
-		if (owner->mSpine->getCurrentNerve()
-		    == &TNerveLimitKoopaTumble::theNerve())
-			break;
-
-		if (owner->mSpine->getCurrentNerve()
-		    == &TNerveLimitKoopaGetDown::theNerve())
-			break;
-
-		if (owner->mSpine->getCurrentNerve()
-		    == &TNerveLimitKoopaStagger::theNerve())
-			owner->mSpine->setNext(&TNerveLimitKoopaGetShowered::theNerve());
-
-		owner->mSpine->pushNerve(&TNerveLimitKoopaGetShowered::theNerve());
+	case 0xF:
+		mOwner->getShowered();
 	}
-	}
-
 	return TRUE;
 }
 

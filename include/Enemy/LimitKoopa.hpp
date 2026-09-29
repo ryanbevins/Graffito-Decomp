@@ -99,6 +99,7 @@ public:
 	virtual f32 getGravityY() const;
 	virtual void reset();
 
+	void getShowered();
 	void setUpHitActors();
 	void startHipDrop();
 	void registerToGroup(THitActor*);
