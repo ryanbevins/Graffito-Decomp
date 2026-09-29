@@ -1211,7 +1211,7 @@ void TMapObjBall::boundByActor(THitActor* actor)
 		vc = mVelocity;
 		JGeometry::TVec3<f32> vc2 = vc;
 		if (vc2.y < 0.0f) {
-			if (mPosition.y + mBodyRadius > 130.0f + gpMarioPos->y) {
+			if (130.0f + gpMarioPos->y < mPosition.y + mBodyRadius) {
 				mVelocity.y = unk160 * (-vc.y);
 				mVelocity.x
 				    = mVelocity.x + unk158 * (*gpMarioSpeedX);
