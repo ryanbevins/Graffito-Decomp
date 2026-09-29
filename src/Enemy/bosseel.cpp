@@ -1010,7 +1010,9 @@ void TBossEel::init(TLiveManager* manager)
 		                              sToothPartsJointTable[i],
 		                              toothModelData[toothType],
 		                              cBossEelToothName);
-		unk16C[i]->unkBC = (i <= 2 || i == 7) ? TRUE : FALSE;
+		unk16C[i]->unkBC = false;
+		if (i <= 2 || i == 7)
+			unk16C[i]->unkBC = true;
 	}
 
 	modelResource = JKRFileLoader::getGlbResource(cBossEelHeartCoinModelPath);
