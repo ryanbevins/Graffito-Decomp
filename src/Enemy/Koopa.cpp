@@ -304,16 +304,11 @@ void TKoopaFlame::control()
 	} else {
 		unk8C += unk84;
 
-		f32 time   = unk8C;
-		f32 x      = unk6C + unk78 * time;
+		JGeometry::TVec3<f32> position;
+		position.scaleAdd(unk8C, unk6C, unk78);
 		f32 radius = unk90;
-		f32 y      = unk70 + unk7C * time;
-		f32 z      = unk74 + unk80 * time;
 		f32 height = unk94 <= 0.0f ? 2.0f * radius : unk94;
-
-		mPosition.x = x;
-		mPosition.y = y;
-		mPosition.z = z;
+		mPosition.set(position);
 		offHitFlag(0x2);
 		offHitFlag(0x4);
 		offHitFlag(0x1);
@@ -942,12 +937,12 @@ void TKoopa::setUpHitActors()
 			flame->mPosition.x = positionX;
 			flame->mPosition.y = positionY;
 			flame->mPosition.z = positionZ;
-			flame->unk78       = direction.x;
-			flame->unk7C       = direction.y;
-			flame->unk80       = direction.z;
-			flame->unk6C       = positionX;
-			flame->unk70       = positionY;
-			flame->unk74       = positionZ;
+			flame->unk78.x       = direction.x;
+			flame->unk78.y       = direction.y;
+			flame->unk78.z       = direction.z;
+			flame->unk6C.x       = positionX;
+			flame->unk6C.y       = positionY;
+			flame->unk6C.z       = positionZ;
 			flame->unk84       = flameVelocity;
 			flame->unk88       = 4000.0f;
 			flame->unk8C       = 0.0f;

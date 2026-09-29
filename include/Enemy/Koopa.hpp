@@ -106,12 +106,8 @@ public:
 
 	f32 getCurrentTime() const { return unk8C; }
 
-	/* 0x6C */ f32 unk6C;
-	/* 0x70 */ f32 unk70;
-	/* 0x74 */ f32 unk74;
-	/* 0x78 */ f32 unk78;
-	/* 0x7C */ f32 unk7C;
-	/* 0x80 */ f32 unk80;
+	/* 0x6C */ JGeometry::TVec3<f32> unk6C;
+	/* 0x78 */ JGeometry::TVec3<f32> unk78;
 	/* 0x84 */ f32 unk84;
 	/* 0x88 */ f32 unk88;
 	/* 0x8C */ f32 unk8C;
