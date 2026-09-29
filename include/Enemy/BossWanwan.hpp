@@ -137,8 +137,7 @@ public:
 	/* 0x15C */ JGeometry::TVec3<f32> unk15C;
 	/* 0x168 */ f32 unk168;
 	/* 0x16C */ s32 unk16C;
-	/* 0x170 */ TBWHit* mHeadHit;
-	/* 0x174 */ TBWHit* mBodyHit;
+	/* 0x170 */ TBWHit* mHitActors[2];
 	/* 0x178 */ f32 unk178;
 	/* 0x17C */ s32 unk17C;
 	/* 0x180 */ s32 unk180;

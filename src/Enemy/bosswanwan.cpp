@@ -876,19 +876,19 @@ void TBossWanwan::init(TLiveManager* manager)
 	goToRandomNextGraphNode();
 	initHitActor(0x0800000B, 1, 0x80000000, 0.0f, 0.0f, 0.0f, 0.0f);
 
-	mHeadHit = new TBWHit(this, 3, "ボスワンワンヒット");
-	mHeadHit->initHitActor(0x0800000B, 3, 0xA0000000, 500.0f, 500.0f,
+	mHitActors[0] = new TBWHit(this, 3, "ボスワンワンヒット");
+	mHitActors[0]->initHitActor(0x0800000B, 3, 0xA0000000, 500.0f, 500.0f,
 	                       450.0f, 500.0f);
-	mBodyHit = new TBWHit(this, -1, "ボスワンワンヒット");
-	mBodyHit->initHitActor(0x0800000B, 3, 0xA0000000, 300.0f, 500.0f,
+	mHitActors[1] = new TBWHit(this, -1, "ボスワンワンヒット");
+	mHitActors[1]->initHitActor(0x0800000B, 3, 0xA0000000, 300.0f, 500.0f,
 	                       270.0f, 500.0f);
 
 	TIdxGroupObj* shadowGroup
 	    = JDrama::TNameRefGen::search<TIdxGroupObj>("敵グループ");
-	shadowGroup->add(mHeadHit);
-	mHeadHit->offHitFlag(HIT_FLAG_NO_COLLISION);
-	shadowGroup->add(mBodyHit);
-	mBodyHit->offHitFlag(HIT_FLAG_NO_COLLISION);
+	for (int i = 0; i < 2; ++i) {
+		shadowGroup->getChildren().push_back(mHitActors[i]);
+		mHitActors[i]->offHitFlag(HIT_FLAG_NO_COLLISION);
+	}
 
 	initAnmSound();
 	mScaledBodyRadius = 500.0f;
@@ -1236,7 +1236,7 @@ void TBossWanwan::emitEffects()
 void TBossWanwan::perform(u32 flags, JDrama::TGraphics* graphics)
 {
 	if ((s8)unk18C != 0) {
-		mHeadHit->perform(flags, graphics);
+		mHitActors[0]->perform(flags, graphics);
 		TSpineEnemy::perform(flags, graphics);
 
 		if (flags & 1) {
@@ -1274,14 +1274,14 @@ void TBossWanwan::perform(u32 flags, JDrama::TGraphics* graphics)
 		emitEffects();
 	}
 
-	mHeadHit->perform(flags, graphics);
+	mHitActors[0]->perform(flags, graphics);
 
 	BOOL moveStep = flags & 1;
 	if (moveStep) {
-		mBodyHit->mPosition = mHeadHit->mPosition;
-		mBodyHit->mPosition.y -= 500.0f;
+		mHitActors[1]->mPosition = mHitActors[0]->mPosition;
+		mHitActors[1]->mPosition.y -= 500.0f;
 	}
-	mBodyHit->perform(flags, graphics);
+	mHitActors[1]->perform(flags, graphics);
 
 	if (moveStep && (s8)unk194 == 0) {
 		++unk19C;
@@ -1814,8 +1814,8 @@ DEFINE_NERVE(TNerveBWDie, TLiveActor)
 		collision->setMtx(mtx);
 		collision->setUp();
 
-		self->mHeadHit->onHitFlag(HIT_FLAG_NO_COLLISION);
-		self->mBodyHit->onHitFlag(HIT_FLAG_NO_COLLISION);
+		self->mHitActors[0]->onHitFlag(HIT_FLAG_NO_COLLISION);
+		self->mHitActors[1]->onHitFlag(HIT_FLAG_NO_COLLISION);
 		for (int i = 0; i < self->mLeash->mRope->mNumPoints; ++i)
 			self->mLeash->mNodes[i]->onHitFlag(HIT_FLAG_NO_COLLISION);
 		self->mPicket->onHitFlag(HIT_FLAG_NO_COLLISION);
