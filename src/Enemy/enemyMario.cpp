@@ -1490,6 +1490,7 @@ void TEnemyMario::emReplayJumpToNearestNode()
 	marioDir.sub(currentPoint);
 	marioDir.normalize();
 
+	JGeometry::TVec3<f32> targetPoint;
 	TGraphNode* targetNode = nullptr;
 	u8* settings          = emSettings(this);
 
@@ -1502,10 +1503,9 @@ void TEnemyMario::emReplayJumpToNearestNode()
 
 			TGraphNode* candidateNode
 			    = &owner()->unk124->getGraph()->getGraphNode(nextNode);
-			JGeometry::TVec3<f32> candidatePoint;
-			candidateNode->getPoint(&candidatePoint);
+			candidateNode->getPoint(&targetPoint);
 
-			JGeometry::TVec3<f32> candidateDir = candidatePoint;
+			JGeometry::TVec3<f32> candidateDir = targetPoint;
 			candidateDir.sub(currentPoint);
 			candidateDir.normalize();
 
@@ -1530,11 +1530,10 @@ void TEnemyMario::emReplayJumpToNearestNode()
 			if (nextNode == 0xFF)
 				continue;
 
-			JGeometry::TVec3<f32> candidatePoint;
 			owner()->unk124->getGraph()->getGraphNode(nextNode).getPoint(
-			    &candidatePoint);
+			    &targetPoint);
 
-			JGeometry::TVec3<f32> candidateDir = candidatePoint;
+			JGeometry::TVec3<f32> candidateDir = targetPoint;
 			candidateDir.sub(currentPoint);
 			candidateDir.normalize();
 
@@ -1573,7 +1572,6 @@ void TEnemyMario::emReplayJumpToNearestNode()
 		}
 	}
 
-	Vec targetPoint = currentPoint;
 	if (targetNode != nullptr)
 		targetNode->getPoint(&targetPoint);
 
