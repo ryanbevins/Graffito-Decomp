@@ -1481,6 +1481,7 @@ void TEnemyMario::emReplayJumpToNearestNode()
 	changePlayerStatus(0x0C400201, 0, true);
 
 	u8* links = emReplayLinkTable(this) + node * 6;
+	currentNode->getPoint(&mPosition);
 
 	JGeometry::TVec3<f32> marioDir = *gpMarioPos;
 	marioDir.sub(currentPoint);
