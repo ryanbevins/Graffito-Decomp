@@ -163,8 +163,8 @@ void TCannon::killerShoot()
 		    = __fabsf(MsVECMag2((Vec*)&diff) / (velocity.x * mVelocityRate));
 
 		killer->mIsChaseMode = 0;
-		velocityRate = mVelocityRate;
 		TMsRange<s32> rollRange(0, 100);
+		velocityRate = mVelocityRate;
 		int roll = rollRange.rand();
 		if (roll % 5 == 0) {
 			killer->mIsChaseMode = 1;
