@@ -417,18 +417,18 @@ void SMS_CalcToDirMatrix(TPosition3f& mtx,
 	if (z.isZero())
 		z.set(0.0f, 0.0f, 1.0f);
 	else
-		z.setLength(z, 1.0f);
+		z.normalize();
 
 	JGeometry::TVec3<f32> x;
 	x.cross(up, z);
 	if (x.isZero())
 		x.set(1.0f, 0.0f, 0.0f);
 	else
-		x.setLength(x, 1.0f);
+		x.normalize();
 
 	JGeometry::TVec3<f32> y;
 	y.cross(z, x);
-	y.setLength(y, 1.0f);
+	y.normalize();
 
 	mtx.setXDir(x);
 	mtx.setYDir(y);
