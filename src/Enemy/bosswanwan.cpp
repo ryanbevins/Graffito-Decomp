@@ -840,8 +840,6 @@ void TBossWanwan::init(TLiveManager* manager)
 	web->initGoalIndex(BW_BATH_POS);
 	unk124->setGraph(web);
 
-	mLeash   = new TBWLeash(this, 15, "ボスワンワン鎖");
-	mPicket  = new TBWPicket(this, "ボスワンワンつかみ");
 	mSpine->initWith(&TNerveBWGraphWander::theNerve());
 
 	TBWParams* params = (TBWParams*)getSaveParam();
@@ -849,6 +847,9 @@ void TBossWanwan::init(TLiveManager* manager)
 	mTurnSpeed        = params->mSLTurnSpeed.get();
 	mPosition         = BW_HEAD_START;
 	reset();
+
+	mLeash   = new TBWLeash(this, 15, "ボスワンワン鎖");
+	mPicket  = new TBWPicket(this, "ボスワンワンつかみ");
 
 	mPicket->initHitActor(0x0800000D, 1, 0x80000000,
 	                      params->mSLPicketRadius.get(),
