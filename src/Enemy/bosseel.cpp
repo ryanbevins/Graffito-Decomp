@@ -1601,14 +1601,12 @@ void TBossEelTooth::perform(u32 flags, JDrama::TGraphics* graphics)
 		if ((unk74 == 0 || unk74 == 2) && unk70 == 1)
 			emitToothParticle(this, 0x19B);
 
-		Mtx offset;
-		PSMTXIdentity(offset);
-		offset[2][3] = unk78;
+		TPosition3f offset;
+		offset.translation(0.0f, 0.0f, unk78);
 		PSMTXConcat(local, offset, local);
 
-		Mtx rot;
-		MsMtxSetRotRPH(rot, unk80, unk80, 0.0f);
-		PSMTXConcat(local, rot, local);
+		MsMtxSetRotRPH(offset, unk80, unk80, 0.0f);
+		PSMTXConcat(local, offset, local);
 
 		local[1][3] += unk7C;
 		mPosition.x = local[0][3];
