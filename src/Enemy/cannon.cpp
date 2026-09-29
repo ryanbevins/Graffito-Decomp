@@ -1314,7 +1314,7 @@ DEFINE_NERVE(TNerveCannonDamage, TLiveActor)
 				emitter->setScale(chorobei->mScaling);
 		}
 
-		self->mVelocity.set(0.0f, 4.0f, 0.0f);
+		self->mVelocity = JGeometry::TVec3<f32>(0.0f, 4.0f, 0.0f);
 		self->onLiveFlag(LIVE_FLAG_AIRBORNE);
 		self->mPosition.y += 10.0f;
 	}
