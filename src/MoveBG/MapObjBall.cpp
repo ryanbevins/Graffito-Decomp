@@ -1186,7 +1186,7 @@ void TMapObjBall::boundByActor(THitActor* actor)
 	} else {
 		JGeometry::TVec3<f32> v  = mVelocity;
 		JGeometry::TVec3<f32> v2 = v;
-		f32 dot                  = v2.x * diff.x + v2.z * diff.z;
+		f32 dot                  = v2.dot(diff);
 		bool bigBounce           = false;
 		if (dot >= 0.0f) {
 			JGeometry::TVec3<f32> v3 = v;
