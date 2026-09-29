@@ -783,13 +783,11 @@ BOOL TMario::pulling()
 
 	// Compute movement from trig tables
 	s16 pullAngleU = (u16)pullAngle;
-	nextPos.x = nextPos.x + (outAccel * (cosDirection * JMASSin(pullAngleU)) - outSpeed * (sinDirection * JMASCos(pullAngleU)));
-	nextPos.z = nextPos.z + (outAccel * (cosDirection * JMASCos(pullAngleU)) + outSpeed * (sinDirection * JMASSin(pullAngleU)));
+	nextPos.x += (outSpeed * (cosDirection * JMASSin(pullAngleU)) - outAccel * (sinDirection * JMASCos(pullAngleU)));
+	nextPos.z += (outSpeed * (cosDirection * JMASCos(pullAngleU)) + outAccel * (sinDirection * JMASSin(pullAngleU)));
 
 	// Check if held object accepts the position
-	u32 moveResult = mHeldObject->receiveMessage(this, 0);
-	// vtable call at offset 0xAC
-	if (moveResult == 1) {
+	if (mHeldObject->moveRequest(nextPos) == 1) {
 		mPosition = nextPos;
 	}
 
