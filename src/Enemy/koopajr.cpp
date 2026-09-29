@@ -978,16 +978,9 @@ void TKoopaJrSubmarine::makeKillerVelocity(TBathtubKiller* killer,
 		axis.cross(direction, toMario);
 		axis.normalize();
 
-		f32 angle = 0.31415927f;
-		f32 s     = sinf(angle);
-		f32 c     = cosf(angle);
-		f32 dot   = axis.dot(direction);
-		f32 invC  = 1.0f - c;
-		JGeometry::TVec3<f32> cross;
-		cross.cross(axis, direction);
-		direction.set(direction.x * c + cross.x * s + axis.x * dot * invC,
-		              direction.y * c + cross.y * s + axis.y * dot * invC,
-		              direction.z * c + cross.z * s + axis.z * dot * invC);
+		JGeometry::TQuat4<f32> rotation;
+		rotation.setRotate(axis, 0.62831855f);
+		rotation.rotate(direction, direction);
 
 		int slot     = unk180 % 4;
 		f32 fanAngle = 0.62831855f;
@@ -1001,15 +994,9 @@ void TKoopaJrSubmarine::makeKillerVelocity(TBathtubKiller* killer,
 			fanAngle = 0.31415927f;
 		}
 
-		angle = 0.5f * fanAngle;
-		s     = sinf(angle);
-		c     = cosf(angle);
-		dot   = toMario.dot(direction);
-		invC  = 1.0f - c;
-		cross.cross(toMario, direction);
-		direction.set(direction.x * c + cross.x * s + toMario.x * dot * invC,
-		              direction.y * c + cross.y * s + toMario.y * dot * invC,
-		              direction.z * c + cross.z * s + toMario.z * dot * invC);
+		axis = toMario;
+		rotation.setRotate(axis, fanAngle);
+		rotation.rotate(direction, direction);
 
 		direction.normalize();
 		direction.scale(killer->unk1A4);
