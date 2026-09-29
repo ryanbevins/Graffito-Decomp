@@ -1476,7 +1476,10 @@ void TEnemyMario::emReplayJumpToNearestNode()
 	}
 
 	mPosition = currentPoint;
-	mVel.x = mVel.y = mVel.z = mForwardVel = 0.0f;
+	mVel.x = 0.0f;
+	mVel.y = 0.0f;
+	mVel.z = 0.0f;
+	mForwardVel = 0.0f;
 	resetHistory();
 	changePlayerStatus(0x0C400201, 0, true);
 
@@ -1577,7 +1580,10 @@ void TEnemyMario::emReplayJumpToNearestNode()
 	mPosition = currentPoint;
 	mFaceAngle.y
 	    = matan(targetPoint.z - currentPoint.z, targetPoint.x - currentPoint.x);
-	mVel.x = mVel.y = mVel.z = mForwardVel = 0.0f;
+	mVel.x = 0.0f;
+	mVel.y = 0.0f;
+	mVel.z = 0.0f;
+	mForwardVel = 0.0f;
 	resetHistory();
 	changePlayerStatus(0x0C400201, 0, true);
 
