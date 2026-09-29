@@ -48,20 +48,11 @@ static void setBoidLeaderWaitParams(TBeeHive* hive)
 	hive->mBoidLeader->mParam34 = 0.001f;
 }
 
-static BOOL isMarioWaterIn()
+static bool isMarioWaterIn()
 {
-	u32 flag = *gpMarioFlag;
-
-	if ((flag & 2) || (flag & 0x10000))
-		return TRUE;
-
-	if ((*gpMarioGroundPlane)->isWaterSurface())
-		return TRUE;
-
-	if (flag & 0x20000)
-		return TRUE;
-
-	return FALSE;
+	return SMS_CheckMarioFlag(2) || SMS_CheckMarioFlag(0x10000)
+	       || (*gpMarioGroundPlane)->isWaterSurface()
+	       || SMS_CheckMarioFlag(0x20000);
 }
 
 static void setBoidLeaderMarioGoal(TBeeHive* hive, f32 offset_y)
