@@ -1641,8 +1641,9 @@ BOOL TBossEelTooth::receiveMessage(THitActor* sender, u32 message)
 					JPABaseEmitter* emitter
 					    = gpMarioParticleManager->emit(0xD3, &mPosition, 0, nullptr);
 					if (emitter) {
-						emitter->unk154.set(unk6C->mScaling);
-						emitter->unk174.set(unk6C->mScaling);
+						const JGeometry::TVec3<f32>& scale = unk6C->mScaling;
+						emitter->unk154.set(scale);
+						emitter->unk174.set(scale);
 					}
 				} else {
 					playBossEelSound(0x8929, &mPosition);
