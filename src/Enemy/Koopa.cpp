@@ -72,7 +72,7 @@ int KoopaNeckCallBack(J3DNode* node, int timing)
 	MtxPtr mtx = j3dSys.getModel()->mNodeMatrices[joint->getJntNo()];
 
 	JGeometry::TVec3<f32> toMario(*gpMarioPos);
-	toMario.y += 180.0f;
+	toMario.y += 85.0f;
 	toMario.x -= mtx[0][3];
 	toMario.y -= mtx[1][3];
 	toMario.z -= mtx[2][3];
