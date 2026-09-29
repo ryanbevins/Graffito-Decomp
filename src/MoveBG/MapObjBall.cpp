@@ -1290,19 +1290,7 @@ void TMapObjBall::touchGround(JGeometry::TVec3<f32>* pos)
 			}
 		}
 	}
-	u16 type = mGroundPlane->mBGType;
-	bool isWater;
-	if (type == 0x100)
-		isWater = true;
-	else if (type == 0x101)
-		isWater = true;
-	else if ((u16)(type - 0x102) <= 3)
-		isWater = true;
-	else if (type == 0x4104)
-		isWater = true;
-	else
-		isWater = false;
-	if (isWater) {
+	if (mGroundPlane->isWaterSurface()) {
 		touchWaterSurface();
 		pos->x = mPosition.x;
 		pos->y = mPosition.y;
