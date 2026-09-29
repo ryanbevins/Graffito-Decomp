@@ -439,14 +439,7 @@ void TFruitsBoat::moveObject()
 					up.set(0.0f, 1.0f, 0.0f);
 					upInitialized = true;
 				}
-				if (lenSq < 0.0000038146973f) {
-					mp.set(0.0f, 0.0f, 0.0f);
-				} else {
-					f32 inv = JGeometry::TUtil<f32>::inv_sqrt(lenSq);
-					mp.x *= inv;
-					mp.y *= inv;
-					mp.z *= inv;
-				}
+				mp.normalize();
 				// Cross product up x mp
 				JGeometry::TVec3<f32> nv;
 				nv.x = up.y * mp.z - up.z * mp.y;
