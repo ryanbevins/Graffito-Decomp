@@ -842,6 +842,26 @@ void TMapObjBall::initMapObj()
 	mInitialScaling.y = mScaling.y;
 	mInitialScaling.z = mScaling.z;
 	switch (mActorType) {
+	case 0x400000D0:
+		unk14C      = 4.0f;
+		unk150      = 0.0f;
+		unk154      = 0.0f;
+		unk158      = 0.15f;
+		unk15C      = 0.0f;
+		unk160      = 0.9f;
+		unk164      = 0.06f;
+		unk168      = 1.5f;
+		unk16C      = 0.5f;
+		unk170      = 0.5f;
+		unk174      = 0.2f;
+		unk178      = 2.5f;
+		unk17C      = 0.001f;
+		unk180      = 0.3f;
+		unk184      = 0.0f;
+		unk188      = 0.0f;
+		mBodyRadius = 50.0f * mScaling.y;
+		unk18C      = mBodyRadius / 3.0f;
+		break;
 	case 0x40000064:
 		unk148      = 0.6f;
 		unk14C      = 2.0f;
@@ -863,50 +883,6 @@ void TMapObjBall::initMapObj()
 		mBodyRadius = 50.0f * mScaling.y;
 		unk18C      = mBodyRadius / 3.0f;
 		break;
-	case 0x400000D0:
-		unk14C      = 4.0f;
-		unk150      = 0.0f;
-		unk154      = 0.0f;
-		unk158      = 0.15f;
-		unk15C      = 0.0f;
-		unk160      = 0.9f;
-		unk164      = 0.06f;
-		unk168      = 1.5f;
-		unk16C      = 0.5f;
-		unk170      = 0.5f;
-		unk174      = 0.2f;
-		unk178      = 2.5f;
-		unk17C      = 0.001f;
-		unk180      = 0.3f;
-		unk184      = 0.0f;
-		unk188      = 0.0f;
-		mBodyRadius = 50.0f * mScaling.y;
-		unk18C      = mBodyRadius / 3.0f;
-		break;
-	case 0x40000390:
-	case 0x40000391:
-	case 0x40000392:
-	case 0x40000395:
-		unk148      = 0.4f;
-		unk14C      = 0.2f;
-		unk150      = 1.3f;
-		unk154      = 0.0f;
-		unk158      = 1.2f;
-		unk15C      = 0.8f;
-		unk160      = 0.5f;
-		unk170      = 0.9f;
-		unk174      = 0.13f;
-		unk178      = 20.0f;
-		unk164      = 2.0f;
-		unk168      = 0.02f;
-		unk16C      = 0.3f;
-		unk17C      = 0.05f;
-		unk180      = 0.5f;
-		unk184      = 1.0f;
-		unk188      = 1.5f;
-		mBodyRadius = 50.0f * mScaling.y;
-		unk18C      = 50.0f;
-		break;
 	case 0x40000393:
 		unk148      = 0.6f;
 		unk14C      = 0.2f;
@@ -919,6 +895,29 @@ void TMapObjBall::initMapObj()
 		unk174      = 0.13f;
 		unk178      = 20.0f;
 		unk164      = 0.2f;
+		unk168      = 0.02f;
+		unk16C      = 0.3f;
+		unk17C      = 0.05f;
+		unk180      = 0.5f;
+		unk184      = 1.0f;
+		unk188      = 1.5f;
+		mBodyRadius = 50.0f * mScaling.y;
+		unk18C      = 50.0f;
+		break;
+	case 0x40000390:
+	case 0x40000391:
+	case 0x40000392:
+		unk148      = 0.4f;
+		unk14C      = 0.2f;
+		unk150      = 1.3f;
+		unk154      = 0.0f;
+		unk158      = 1.2f;
+		unk15C      = 0.8f;
+		unk160      = 0.5f;
+		unk170      = 0.9f;
+		unk174      = 0.13f;
+		unk178      = 20.0f;
+		unk164      = 2.0f;
 		unk168      = 0.02f;
 		unk16C      = 0.3f;
 		unk17C      = 0.05f;
@@ -942,6 +941,27 @@ void TMapObjBall::initMapObj()
 		unk164      = 0.0f;
 		unk168      = 0.0f;
 		unk16C      = 0.0f;
+		unk17C      = 0.05f;
+		unk180      = 0.5f;
+		unk184      = 1.0f;
+		unk188      = 1.5f;
+		mBodyRadius = 50.0f * mScaling.y;
+		unk18C      = 50.0f;
+		break;
+	case 0x40000395:
+		unk148      = 0.4f;
+		unk14C      = 0.2f;
+		unk150      = 1.3f;
+		unk154      = 0.0f;
+		unk158      = 1.2f;
+		unk15C      = 0.8f;
+		unk160      = 0.5f;
+		unk170      = 0.9f;
+		unk174      = 0.13f;
+		unk178      = 20.0f;
+		unk164      = 2.0f;
+		unk168      = 0.02f;
+		unk16C      = 0.3f;
 		unk17C      = 0.05f;
 		unk180      = 0.5f;
 		unk184      = 1.0f;
