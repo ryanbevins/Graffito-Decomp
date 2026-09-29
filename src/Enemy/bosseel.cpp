@@ -1158,8 +1158,9 @@ void TBossEelEye::perform(u32 flags, JDrama::TGraphics* graphics)
 			blend = 0.0f;
 		unk64 = blend;
 
+		f32 blendRatio = unk64;
 		if (unk18->unkC)
-			unk18->unkC->setMotionBlendRatio(unk64);
+			unk18->unkC->setMotionBlendRatio(blendRatio);
 
 		if (unk5C == 1 && unk18->curAnmEndsNext(0, nullptr)) {
 			++unk6C;
