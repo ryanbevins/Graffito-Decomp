@@ -612,8 +612,9 @@ void TResetFruit::control()
 			if (mLiveFlag & 0x10) {
 				mLiveFlag &= ~0x10;
 			}
-			if (mPosition.y < 200.0f + mGroundHeight) {
-				TLiveActor* act = (TLiveActor*)mGroundPlane->mActor;
+			f32 thresh = 200.0f + mGroundHeight;
+			TLiveActor* act = (TLiveActor*)mGroundPlane->mActor;
+			if (mPosition.y < thresh) {
 				if (act->isActorType(0x400000CD)
 				    || act->isActorType(0x400000CD)) {
 					f32 prev = unk198;
