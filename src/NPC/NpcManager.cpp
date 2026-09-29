@@ -18,6 +18,9 @@
 #include <NPC/NpcSave.hpp>
 #include <NPC/NpcInitData.hpp>
 #include <System/MarDirector.hpp>
+#include <M3DUtil/InfectiousStrings.hpp>
+
+static const char* dummyRootJoint = "__ROOT_JOINT__";
 
 class J3DMaterialTable;
 
