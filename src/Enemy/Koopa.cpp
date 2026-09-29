@@ -92,8 +92,9 @@ int KoopaNeckCallBack(J3DNode* node, int timing)
 		flameRot.setEularY(angle);
 		flameRot.zeroTrans();
 		((TMtx34f*)mtx)->concat(flameRot, *(TMtx34f*)mtx);
-		MTXRotRad(flameRot, 'x', pitch);
-		PSMTXConcat(mtx, flameRot, mtx);
+		flameRot.setEularZ(pitch);
+		flameRot.zeroTrans();
+		((TMtx34f*)mtx)->concat(*(TMtx34f*)mtx, flameRot);
 	}
 
 	f32 focus = koopa->getNeckFocus();
