@@ -1201,7 +1201,7 @@ void TMapObjBall::boundByActor(THitActor* actor)
 			mVelocity.y = mVelocity.y + unk168;
 			mVelocity.z = mVelocity.z - add * (diff.z * dot);
 			actor->receiveMessage(this, 0x10);
-			if (isActorType(0x400000D0)) {
+			if (!isActorType(0x400000D0)) {
 				if (gpMSound->gateCheck(0x3862)) {
 					MSoundSESystem::MSoundSE::startSoundActor(
 					    0x3862, (Vec*)&mPosition, 0, nullptr, 0, 4);
