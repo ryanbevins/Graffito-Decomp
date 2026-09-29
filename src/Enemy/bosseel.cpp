@@ -923,7 +923,7 @@ void TBossEel::init(TLiveManager* manager)
 
 	mGroundHeight
 	    = gpMap->checkGround(mPosition.x, mPosition.y + mBodyScale * mHeadHeight,
-	                         mPosition.z, nullptr);
+	                         mPosition.z, &mGroundPlane);
 
 	if (mMActor->unkC)
 		mMActor->unkC->initNormalMotionBlend();
