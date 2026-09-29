@@ -274,16 +274,6 @@ void TBathtubGrip::kill()
 TBathtubGrip::TBathtubGrip(TBathtub* bathtub, f32 angle, MActorAnmData* data,
                            const char* name)
     : TMapObjBase(name)
-    , unk244(bathtub)
-    , unk248(0)
-    , unk249(1)
-    , unk24A(0)
-    , unk24B(0)
-    , unk24C(angle)
-    , unk250(1.0f)
-    , unk254(0)
-    , unk258(100)
-    , unk260(0)
 {
 	unk25C = new MActor(data);
 
@@ -292,6 +282,10 @@ TBathtubGrip::TBathtubGrip(TBathtub* bathtub, f32 angle, MActorAnmData* data,
 	J3DModelData* modelData = J3DModelLoaderDataBase::load(res, 0x50050000);
 	J3DModel* model         = new J3DModel(modelData, 0, 1);
 	unk25C->setModel(model, 0x50050000);
+
+	unk254 = 0;
+	unk244 = bathtub;
+	unk24C = angle;
 
 	initAndRegister("stand_break");
 	calcRootMatrix();
