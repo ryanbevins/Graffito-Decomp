@@ -764,11 +764,12 @@ void TBossEel::perform(u32 flags, JDrama::TGraphics* graphics)
 		head->mDamageHeight = unk1E8->mSLHeadDamageHeight.value * mScaling.x;
 		head->calcEntryRadius();
 
-		mAttackRadius = unk1E8->mSLBodyAttackRadius.value * mScaling.x;
-		mAttackHeight = unk1E8->mSLBodyAttackHeight.value * mScaling.x;
-		mDamageRadius = unk1E8->mSLBodyDamageRadius.value * mScaling.x;
-		mDamageHeight = unk1E8->mSLBodyDamageHeight.value * mScaling.x;
-		calcEntryRadius();
+		TBossEelSaveParams* params = unk1E8;
+		f32 bodyScale = mScaling.x;
+		setHitParams(params->mSLBodyAttackRadius.get() * bodyScale,
+		             params->mSLBodyAttackHeight.get() * bodyScale,
+		             params->mSLBodyDamageRadius.get() * bodyScale,
+		             params->mSLBodyDamageHeight.get() * bodyScale);
 
 		calcAndSetCollisionCubeBite_();
 
