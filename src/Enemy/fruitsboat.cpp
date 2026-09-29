@@ -426,12 +426,7 @@ void TFruitsBoat::moveObject()
 			mp.z -= mPosition.z;
 			mp.y      = 0.0f;
 			f32 lenSq = mp.x * mp.x + mp.y * mp.y + mp.z * mp.z;
-			f32 len;
-			if (lenSq <= 0.0f) {
-				len = lenSq;
-			} else {
-				len = lenSq * JGeometry::TUtil<f32>::inv_sqrt(lenSq);
-			}
+			f32 len = JGeometry::TUtil<f32>::sqrt(lenSq);
 			if (len != 0.0f) {
 				if (!upInitialized) {
 					up.set(0.0f, 1.0f, 0.0f);
