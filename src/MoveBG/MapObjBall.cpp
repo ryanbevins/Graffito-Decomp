@@ -608,9 +608,7 @@ void TResetFruit::control()
 				mLiveFlag &= ~0x10;
 			}
 		}
-		if (mGroundPlane->mActor == nullptr) {
-			unk198 = 0.0f;
-		} else {
+		if (mGroundPlane->mActor != nullptr) {
 			if (mLiveFlag & 0x10) {
 				mLiveFlag &= ~0x10;
 			}
@@ -627,6 +625,8 @@ void TResetFruit::control()
 					}
 				}
 			}
+		} else {
+			unk198 = 0.0f;
 		}
 		TMapObjBall::control();
 		if (unkF8 & 0x04000000)
