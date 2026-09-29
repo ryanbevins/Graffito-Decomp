@@ -105,10 +105,8 @@ int KoopaNeckCallBack(J3DNode* node, int timing)
 	    toMario.x - localY.x * yDot, toMario.y - localY.y * yDot,
 	    toMario.z - localY.z * yDot);
 
-	if (!projected.isZero())
-		projected.normalize();
-	if (!toMario.isZero())
-		toMario.normalize();
+	projected.normalize();
+	toMario.normalize();
 
 	f32 frontDot = localX.dot(projected);
 	if (frontDot < 0.5f)
