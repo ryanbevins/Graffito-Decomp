@@ -1022,6 +1022,23 @@ TTinKoopaLaunchSchedule::TTinKoopaLaunchSchedule(u8 count, TTinKoopa* owner)
 		unk8[i] = new TTinKoopaLaunchOrder(owner, 0, 0, 0, 0);
 }
 
+void TTinKoopa::makeCoasterDistanceTable()
+{
+	unk1EC = gpConductor->getGraphByName("killer");
+	unk1E8 = new f32[unk1EC->unk8 - 1];
+
+	JGeometry::TVec3<f32> current = unk1EC->indexToPoint(0);
+	f32 total                  = 0.0f;
+	for (int i = 0; i < unk1EC->unk8 - 1; ++i) {
+		JGeometry::TVec3<f32> prev = current;
+		current = unk1EC->indexToPoint(i + 1);
+		JGeometry::TVec3<f32> diff;
+		diff.sub(prev, current);
+		unk1E8[i] = diff.length();
+		total += unk1E8[i];
+	}
+}
+
 void TTinKoopa::init(TLiveManager* manager)
 {
 	mManager = manager;
@@ -1061,19 +1078,7 @@ void TTinKoopa::init(TLiveManager* manager)
 	calcRootMatrix();
 	mMActor->calc();
 
-	unk1EC = gpConductor->getGraphByName("killer");
-	unk1E8 = new f32[unk1EC->unk8 - 1];
-
-	JGeometry::TVec3<f32> current = unk1EC->indexToPoint(0);
-	f32 total                  = 0.0f;
-	for (int i = 0; i < unk1EC->unk8 - 1; ++i) {
-		JGeometry::TVec3<f32> prev = current;
-		current = unk1EC->indexToPoint(i + 1);
-		JGeometry::TVec3<f32> diff;
-		diff.sub(prev, current);
-		unk1E8[i] = diff.length();
-		total += unk1E8[i];
-	}
+	makeCoasterDistanceTable();
 
 	unk1F4 = new TTinKoopaLaunchSchedule(11, this);
 

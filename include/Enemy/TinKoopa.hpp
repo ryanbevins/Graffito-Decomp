@@ -129,6 +129,7 @@ public:
 	void hitParts();
 	void resetTinKoopa();
 	f32 calcCoasterDistance(int, int);
+	void makeCoasterDistanceTable();
 	void makeLaunchSchedule();
 
 	/* 0x150 */ s32 unk150;
