@@ -1413,12 +1413,12 @@ BOOL TNerveKoopaGetDown::execute(TSpineBase<TLiveActor>* spine) const
 		    = ((TKoopaParams*)((TEnemyManager*)self->mManager)->unk38)
 		          ->downStep.get();
 		s32 step = spine->getTime() * (bathtub->getNumGripsDead() + 2);
-		if ((f32)step >= downStep) {
-			if (self->mMActor->curAnmEndsNext(0, nullptr))
-				self->changeAnm(
+		if ((f32)step < downStep)
+			break;
+		if (self->mMActor->curAnmEndsNext(0, nullptr))
+			self->changeAnm(
 			    7, 0, ((TKoopaParams*)((TEnemyManager*)self->mManager)->unk38)
 			              ->downSpeed.get());
-		}
 		break;
 	}
 
