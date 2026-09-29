@@ -1472,12 +1472,12 @@ void TEnemyMario::emReplayJumpToNearestNode()
 		int nearest = graph->findNearestNodeIndex(mPosition, 0xffffffff);
 		if (graph->getGraphNode(nearest).checkFlag(2))
 			return;
-
-		mPosition = currentPoint;
-		mVel.x = mVel.y = mVel.z = mForwardVel = 0.0f;
-		resetHistory();
-		changePlayerStatus(0x0C400201, 0, true);
 	}
+
+	mPosition = currentPoint;
+	mVel.x = mVel.y = mVel.z = mForwardVel = 0.0f;
+	resetHistory();
+	changePlayerStatus(0x0C400201, 0, true);
 
 	u8* links = emReplayLinkTable(this) + node * 6;
 
