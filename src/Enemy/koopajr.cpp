@@ -1177,6 +1177,16 @@ void TKoopaJrSubmarine::perform(u32 flags, JDrama::TGraphics* graphics)
 	unk1A8->perform(flags, graphics);
 }
 
+TCallbackHitActor::TCallbackHitActor(const char* name, u32 id, f32 radius,
+                                       f32 height, THitActor* owner)
+    : THitActor(name)
+    , unk68(owner)
+{
+	initHitActor(id, 0, 0, 0.0f, 0.0f, radius, height);
+	offHitFlag(1);
+	JDrama::TNameRefGen::search<TIdxGroupObj>("敵グループ")->add(this);
+}
+
 void TKoopaJrSubmarine::init(TLiveManager* manager)
 {
 	mManager = manager;
@@ -1189,17 +1199,14 @@ void TKoopaJrSubmarine::init(TLiveManager* manager)
 	             damageHeight);
 	onHitFlag(1);
 
-	unk1A4 = new TCallbackHitActor("サブマリンリアボディ", this);
-	unk1A4->initHitActor(0x800002D, 0, 0, 0.0f, 0.0f, damageRadius,
-	                      damageHeight);
-	unk1A4->offHitFlag(1);
-	JDrama::TNameRefGen::search<TIdxGroupObj>("敵グループ")->add(unk1A4);
-
-	unk1A8 = new TCallbackHitActor("サブマリンフロントボディ", this);
-	unk1A8->initHitActor(0x800002D, 0, 0, 0.0f, 0.0f, damageRadius,
-	                      damageHeight);
-	unk1A8->offHitFlag(1);
-	JDrama::TNameRefGen::search<TIdxGroupObj>("敵グループ")->add(unk1A8);
+	unk1A4 = new TCallbackHitActor(
+	    "サブマリンリアボディ", 0x800002D,
+	    getSaveParam2()->mSLDamageRadius.get(),
+	    getSaveParam2()->mSLDamageHeight.get(), this);
+	unk1A8 = new TCallbackHitActor(
+	    "サブマリンフロントボディ", 0x800002D,
+	    getSaveParam2()->mSLDamageRadius.get(),
+	    getSaveParam2()->mSLDamageHeight.get(), this);
 
 	mMActorKeeper = new TMActorKeeper(mManager, 1);
 	mMActor       = mMActorKeeper->createMActor("LastKoopaJrSubmarine.bmd", 0);

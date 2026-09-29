@@ -331,15 +331,12 @@ public:
 
 class TCallbackHitActor : public THitActor {
 public:
-	TCallbackHitActor(const char* name, TKoopaJrSubmarine* owner)
-	    : THitActor(name)
-	    , unk68(owner)
-	{
-	}
+	TCallbackHitActor(const char* name, u32 id, f32 radius, f32 height,
+	                  THitActor* owner);
 
 	virtual BOOL receiveMessage(THitActor*, u32);
 
-	/* 0x68 */ TKoopaJrSubmarine* unk68;
+	/* 0x68 */ THitActor* unk68;
 };
 
 DECLARE_NERVE(TNerveKoopaJrWait, TLiveActor);
