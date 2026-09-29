@@ -20,6 +20,9 @@
 #include <MSound/MSSetSound.hpp>
 #include <MSound/MSoundBGM.hpp>
 
+static const char* dummyMactorStringValue1 = "\0\0\0\0\0\0\0\0\0\0\0";
+static const char* SMS_NO_MEMORY_MESSAGE   = "メモリが足りません\n";
+
 void TNintendo2D::perform(u32 param_1, JDrama::TGraphics*)
 {
 
