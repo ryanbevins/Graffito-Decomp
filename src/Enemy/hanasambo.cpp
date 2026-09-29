@@ -1491,7 +1491,7 @@ bool THanaSambo::isCollidMove(THitActor*) { return false; }
 
 void THanaSambo::createPollen()
 {
-	MtxPtr jointMtx = mMActor->getModel()->mNodeMatrices[mPollenJntIndex];
+	MtxPtr jointMtx = mMActor->getModel()->getAnmMtx(mPollenJntIndex);
 	JGeometry::TVec3<f32> pos;
 	pos.x = jointMtx[0][3];
 	MtxPtr pollenMtx = jointMtx;
