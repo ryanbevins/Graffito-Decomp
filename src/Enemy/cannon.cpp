@@ -168,9 +168,9 @@ void TCannon::killerShoot()
 		if (roll % 5 == 0) {
 			killer->mIsChaseMode = 1;
 		} else {
-			if (marioSpeedX > 2.0f)
+			if (*gpMarioSpeedX > 2.0f)
 				velocityRate = 0.55f;
-			if (marioSpeedX < -2.0f)
+			if (*gpMarioSpeedX < -2.0f)
 				velocityRate = 0.68f;
 		}
 
