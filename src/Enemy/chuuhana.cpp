@@ -613,7 +613,7 @@ void TChuuHana::calcRootMatrix()
 
 	if (mSpine->getCurrentNerve() == &TNerveChuuHanaJumpPrepare::theNerve()
 	    || mSpine->getCurrentNerve() == &TNerveChuuHanaFall2::theNerve()) {
-		J3DModel* model = mMActor->getModel();
+		J3DModel* model = getMActor()->getModel();
 		MsMtxSetXYZRPH(model->getBaseTRMtx(), mPosition.x,
 		               mPosition.y + unk220, mPosition.z, mRotation.x,
 		               mRotation.y, mRotation.z);
