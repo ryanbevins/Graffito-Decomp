@@ -610,7 +610,7 @@ TBossHanachanPartsBase::TBossHanachanPartsBase(TBossHanachan* owner,
 	mAnmCounter     = 0;
 	mPalFrame       = nullptr;
 
-	mMActorKeeper = owner->mMActorKeeper;
+	mMActorKeeper = mOwner->mMActorKeeper;
 	mMActor       = mMActorKeeper->createMActorFromNthData(paramType, 0);
 	if (mMActor->unkC != nullptr) {
 		mMActor->unkC->initNormalMotionBlend();
@@ -620,10 +620,10 @@ TBossHanachanPartsBase::TBossHanachanPartsBase(TBossHanachan* owner,
 	unk64 |= 1;
 	switch (actorType) {
 	case 0x08000015:
-		mScaledBodyRadius = owner->mParams->mSLBodyShadowSize.value;
+		mScaledBodyRadius = mOwner->mParams->mSLBodyShadowSize.value;
 		break;
 	case 0x08000014:
-		mScaledBodyRadius = owner->mParams->mSLHeadShadowSize.value;
+		mScaledBodyRadius = mOwner->mParams->mSLHeadShadowSize.value;
 		break;
 	}
 	mLiveFlag |= 8;
@@ -634,7 +634,7 @@ TBossHanachanPartsBase::TBossHanachanPartsBase(TBossHanachan* owner,
 	if (pal != nullptr) {
 		pal->unk0   = 1;
 		pal->mFrame = (int)(s16)CLBPalFrame(
-		    (s16)owner->mParams->mSLMotionBlendFrames.value);
+		    (s16)mOwner->mParams->mSLMotionBlendFrames.value);
 		pal->unk8   = 0;
 		pal->unkC   = 0.0f;
 		pal->unk10  = 0.0f;
