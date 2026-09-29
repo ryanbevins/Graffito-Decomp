@@ -463,7 +463,7 @@ void TBGTentacle::TNode::calcVelocity(TBGTentacle* param_1,
 		if (unk24) {
 			if (!param_2->unk24) {
 				local_8C.scale(nodeLenLimit);
-				mPosition += local_8C;
+				param_2->mPosition += local_8C;
 			}
 		} else {
 			local_8C.scale(nodeLenLimit);
