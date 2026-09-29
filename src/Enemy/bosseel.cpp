@@ -546,28 +546,27 @@ void TBossEel::collideToMario()
 			closeEye->unk18->unkC->setMotionBlendRatio(closeRatio);            \
 	} while (0)
 
-#define START_BOSS_EEL_BCK(eel, bck_index)                                    \
-	do {                                                                       \
-		TBossEel* bckEel            = (eel);                                   \
-		bckEel->unk1B8             = bckEel->mMActor->getCurAnmIdx(0);        \
-		bckEel->unk1B4             = (bck_index);                             \
-		bckEel->unk1BC             = 1.0f;                                    \
-		J3DAnmTransform* bckOldAnm = nullptr;                                 \
-		if (bckEel->mMActor->unkC)                                            \
-			bckOldAnm = bckEel->mMActor->unkC->unk24;                         \
-		if (bckEel->mMActor->unkC)                                            \
-			bckEel->mMActor->unkC->setOldMotionBlendAnmPtr(bckOldAnm);        \
-		bckEel->mMActor->setBckFromIndex(bck_index);                          \
-		if (bckEel->mMActor->unkC)                                            \
-			bckEel->mMActor->unkC->setMotionBlendRatio(bckEel->unk1BC);       \
-		f32 bckRate = 0.25f * SMSGetAnmFrameRate();                           \
-		bckEel->mMActor->getFrameCtrl(0)->setRate(bckRate);                   \
-		const char* bckBas       = nullptr;                                   \
-		const char** bckBasTable = bckEel->getBasNameTable();                 \
-		if (bckBasTable)                                                      \
-			bckBas = bckBasTable[bck_index];                                  \
-		bckEel->setAnmSound(bckBas);                                          \
-	} while (0)
+inline void TBossEel::setBckAnm(int bck_index)
+{
+	unk1B8 = mMActor->getCurAnmIdx(0);
+	unk1B4 = bck_index;
+	unk1BC = 1.0f;
+	J3DAnmTransform* oldAnm = nullptr;
+	if (mMActor->unkC)
+		oldAnm = mMActor->unkC->unk24;
+	if (mMActor->unkC)
+		mMActor->unkC->setOldMotionBlendAnmPtr(oldAnm);
+	mMActor->setBckFromIndex(bck_index);
+	if (mMActor->unkC)
+		mMActor->unkC->setMotionBlendRatio(unk1BC);
+	f32 rate = 0.25f * SMSGetAnmFrameRate();
+	mMActor->getFrameCtrl(0)->setRate(rate);
+	const char* bas = nullptr;
+	const char** basTable = getBasNameTable();
+	if (basTable)
+		bas = basTable[bck_index];
+	setAnmSound(bas);
+}
 
 void TBossEel::forceShedTears(bool use_back_eye)
 {
@@ -2246,7 +2245,7 @@ DEFINE_NERVE(TNerveBossEelWaitAppear, TLiveActor)
 	TBossEel* eel = (TBossEel*)spine->getBody();
 
 	if (spine->getTime() == 0)
-		START_BOSS_EEL_BCK(eel, 10);
+		eel->setBckAnm(10);
 
 	if (spine->getTime() == 2500)
 		gpMarDirector->mConsole->startAppearBalloon(0xE0012, true);
@@ -2273,7 +2272,7 @@ DEFINE_NERVE(TNerveBossEelFirstSpin, TLiveActor)
 			    4);
 		}
 
-		START_BOSS_EEL_BCK(eel, 10);
+		eel->setBckAnm(10);
 
 		if (rand() * 0.000030517578f < 0.5f)
 			eel->onLiveFlag(LIVE_FLAG_UNK10000);
@@ -2323,7 +2322,7 @@ DEFINE_NERVE(TNerveBossEelSecondSpin, TLiveActor)
 	TBossEel* eel = (TBossEel*)spine->getBody();
 
 	if (spine->getTime() == 0) {
-		START_BOSS_EEL_BCK(eel, 10);
+		eel->setBckAnm(10);
 
 		TBossEelUnk1EC* spinState = eel->unk1EC;
 		spinState->unk0           = 0;
@@ -2396,7 +2395,7 @@ DEFINE_NERVE(TNerveBossEelAppear, TLiveActor)
 		playBossEelSound(0x8922, &eel->mPosition);
 
 		*(u32*)((u8*)eel->unk210 + 0x64) &= ~1U;
-		START_BOSS_EEL_BCK(eel, 15);
+		eel->setBckAnm(15);
 		eel->unk1F0 = TRUE;
 		gpCameraShake->startShake((EnumCamShakeMode)0x19, 1.0f);
 
@@ -2440,7 +2439,7 @@ DEFINE_NERVE(TNerveBossEelOutWait, TLiveActor)
 
 	if (spine->getTime() == 0) {
 		eel->unk1FC = FALSE;
-		START_BOSS_EEL_BCK(eel, 16);
+		eel->setBckAnm(16);
 	}
 
 	if (eel->checkCurAnmEnd(0)) {
@@ -2458,12 +2457,12 @@ DEFINE_NERVE(TNerveBossEelOutWait, TLiveActor)
 			spine->pushAfterCurrent(&TNerveBossEelMouthOpenWait::theNerve());
 			return TRUE;
 		} else if (eel->unk1FD) {
-			START_BOSS_EEL_BCK(eel, 19);
+			eel->setBckAnm(19);
 		} else if (eel->unk1FC) {
 			eel->unk1FC = FALSE;
-			START_BOSS_EEL_BCK(eel, 18);
+			eel->setBckAnm(18);
 		} else {
-			START_BOSS_EEL_BCK(eel, 16);
+			eel->setBckAnm(16);
 		}
 	}
 
@@ -2479,10 +2478,10 @@ static BOOL ExecBackNerve_Sub(TSpineBase<TLiveActor>* spine, f32)
 
 		if (eel->unk1FD) {
 			eel->unk1FD = FALSE;
-			START_BOSS_EEL_BCK(eel, 6);
+			eel->setBckAnm(6);
 			gpCameraShake->startShake((EnumCamShakeMode)0x1a, 1.0f);
 		} else {
-			START_BOSS_EEL_BCK(eel, 9);
+			eel->setBckAnm(9);
 		}
 	}
 
@@ -2536,7 +2535,7 @@ DEFINE_NERVE(TNerveBossEelEat, TLiveActor)
 	TBossEel* eel = (TBossEel*)spine->getBody();
 
 	if (spine->getTime() == 0)
-		START_BOSS_EEL_BCK(eel, 17);
+		eel->setBckAnm(17);
 
 	if (eel->checkCurAnmEnd(0)) {
 		if (eel->mMActor->checkCurBckFromIndex(17)) {
@@ -2554,7 +2553,7 @@ DEFINE_NERVE(TNerveBossEelEat, TLiveActor)
 			}
 
 			if (canEat) {
-				START_BOSS_EEL_BCK(eel, 12);
+				eel->setBckAnm(12);
 				if (SMS_SendMessageToMario(eel, HIT_MESSAGE_TAKE))
 					eel->mHeldObject = (TTakeActor*)SMS_GetMarioHitActor();
 
@@ -2568,7 +2567,7 @@ DEFINE_NERVE(TNerveBossEelEat, TLiveActor)
 					eel->unk21C = TRUE;
 				}
 			} else {
-				START_BOSS_EEL_BCK(eel, 5);
+				eel->setBckAnm(5);
 
 				MtxPtr mtx = eel->mMActor->getModel()->mNodeMatrices[5];
 				eel->unk204.x = mtx[0][3];
@@ -2633,7 +2632,7 @@ DEFINE_NERVE(TNerveBossEelDie, TLiveActor)
 		gpMarDirector->mConsole->startAppearBalloon(0xE0014, true);
 		MSBgm::stopTrackBGMs(7, 10);
 		gpCameraShake->startShake((EnumCamShakeMode)0x1e, 1.0f);
-		START_BOSS_EEL_BCK(eel, 3);
+		eel->setBckAnm(3);
 
 		((THitActor*)eel->unk1B0)->onHitFlag(HIT_FLAG_NO_COLLISION);
 		((THitActor*)eel->unk210)->onHitFlag(HIT_FLAG_NO_COLLISION);
@@ -2690,7 +2689,7 @@ DEFINE_NERVE(TNerveBossEelDie, TLiveActor)
 			void* part = *(void**)((u8*)eel + 0x184);
 			*(s32*)((u8*)part + 0x70) = 0;
 			((THitActor*)part)->onHitFlag(HIT_FLAG_NO_COLLISION);
-			START_BOSS_EEL_BCK(eel, 4);
+			eel->setBckAnm(4);
 		}
 	}
 
@@ -2705,11 +2704,11 @@ DEFINE_NERVE(TNerveBossEelMouthOpenWait, TLiveActor)
 		if (eel->unk1FD)
 			eel->unk1FD = FALSE;
 
-		START_BOSS_EEL_BCK(eel, 13);
+		eel->setBckAnm(13);
 		gpCameraShake->startShake((EnumCamShakeMode)0x1b, 1.0f);
 	} else if (eel->checkCurAnmEnd(0)) {
 		if (eel->mMActor->checkCurBckFromIndex(13)) {
-			START_BOSS_EEL_BCK(eel, 14);
+			eel->setBckAnm(14);
 			gpCameraShake->startShake((EnumCamShakeMode)0x1c, 1.0f);
 
 			TBossEelVortex* vortex
@@ -2755,7 +2754,7 @@ DEFINE_NERVE(TNerveBossEelMouthOpenWait, TLiveActor)
 					return TRUE;
 
 				gpCameraShake->startShake((EnumCamShakeMode)0x1d, 1.0f);
-				START_BOSS_EEL_BCK(eel, 2);
+				eel->setBckAnm(2);
 			}
 		}
 	}
@@ -2772,7 +2771,7 @@ DEFINE_NERVE(TNerveBossEelSleepOnBottom, TLiveActor)
 
 	if (spine->getTime() == 0) {
 		eel->unk200 = 0;
-		START_BOSS_EEL_BCK(eel, 10);
+		eel->setBckAnm(10);
 	}
 
 	if (spine->getTime() % 100 == 1)

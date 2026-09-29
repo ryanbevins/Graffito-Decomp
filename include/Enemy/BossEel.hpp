@@ -41,6 +41,7 @@ public:
 	void forceShedTears(bool);
 	void shedTears(MtxPtr);
 	void updateTearsCnt();
+	void setBckAnm(int);
 
 	static f32 mOpenRollSpeed;
 	static u8 mUseObjCollision;
