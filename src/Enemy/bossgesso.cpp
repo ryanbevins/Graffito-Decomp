@@ -1007,7 +1007,7 @@ void TBossGesso::doAttackSingle()
 		if (SMS_GetMarioPos().y + 20.0f < mPosition.y)
 			return;
 
-		delta -= mPosition;
+		delta.sub(delta, mPosition);
 
 		if (delta.squared() > 3610000.0f)
 			return;
@@ -1020,7 +1020,7 @@ void TBossGesso::doAttackSingle()
 		if (inSightAngle(getSaveParam2()->mSLSightAngle.get())
 		    && tentacle->mState == 0) {
 			JGeometry::TVec3<f32> delta = SMS_GetMarioPos();
-			delta -= tentacle->getFirstNode()->getPosition();
+			delta.sub(delta, tentacle->getFirstNode()->getPosition());
 
 			f32 singleAttackLen = getSaveParam2()->mSLSingleAttackLen.get();
 			if (delta.squared() < singleAttackLen * singleAttackLen) {
@@ -1053,7 +1053,7 @@ void TBossGesso::doAttackSingle()
 	f32 forceUnisonLen2 = getSaveParam2()->mSLForceUnisonLen.get();
 	forceUnisonLen2 *= forceUnisonLen2;
 
-	delta -= mPosition;
+	delta.sub(delta, mPosition);
 
 	if (mBeak->getHolder() != nullptr
 	    && !(mTentacles[3]->isThing2() && mTentacles[1]->isThing2())) {
@@ -1100,7 +1100,7 @@ void TBossGesso::doAttackSingle()
 		if (mTimeInCurrentAttackMode > getSaveParam2()->mSLUnisonInter.get()) {
 			if (dist2 < shootRadius2) {
 				JGeometry::TVec3<f32> shootDelta = SMS_GetMarioPos();
-				shootDelta -= mPosition;
+				shootDelta.sub(shootDelta, mPosition);
 				f32 dVar9  = MsGetRotFromZaxisY(shootDelta);
 				f32 dVar10 = MsWrap(mRotation.y, dVar9 - 180.0f,
 				                    dVar9 + 180.0f);
