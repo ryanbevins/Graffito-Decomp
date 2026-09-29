@@ -345,8 +345,8 @@ void TLimitKoopa::init(TLiveManager* manager)
 	mNeckJointIndex         = nameTab->getIndex("head");
 	mJointIndex2            = nameTab->getIndex("neck");
 
-	J3DNode* node = (J3DNode*)getModel()->getModelData()->getJointNodePointer(
-	    mNeckJointIndex);
+	modelData = getModel()->getModelData();
+	J3DNode* node = (J3DNode*)modelData->getJointNodePointer(mNeckJointIndex);
 	node->setCallBack(&KoopaNeckCallBack);
 	node->setCallBackUserData(this);
 }
