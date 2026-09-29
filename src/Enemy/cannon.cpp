@@ -442,9 +442,8 @@ void TCannon::perform(u32 flags, JDrama::TGraphics* graphics)
 
 		if ((flags & 2) && unk230 == 1) {
 			J3DFrameCtrl* ctrl = marioActor->getFrameCtrl(0);
-			MtxPtr mtx
-			    = unk1B8->getMActor()->getModel()->getBaseTRMtx();
 			if (ctrl->checkPass(174.0f)) {
+				MtxPtr mtx = unk1B8->getMActor()->getModel()->getAnmMtx(0);
 				gpMarioParticleManager->emitAndBindToMtxPtr(
 				    0xE8, mtx, 0, nullptr);
 				gpMarioParticleManager->emitAndBindToMtxPtr(
@@ -459,7 +458,8 @@ void TCannon::perform(u32 flags, JDrama::TGraphics* graphics)
 
 			if (ctrl->getFrame() > 175.0f)
 				gpMarioParticleManager->emitAndBindToMtxPtr(
-				    0x166, mtx, 1, this);
+				    0x166, unk1BC->getMActor()->getModel()->getAnmMtx(0),
+				    1, this);
 		}
 	}
 
