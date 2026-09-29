@@ -984,7 +984,7 @@ TTinKoopaFlame::TTinKoopaFlame(const char* name, TTinKoopa* owner)
 	             params->mSLFlameDamageRadius0.get(), height);
 	offHitFlag(HIT_FLAG_NO_COLLISION);
 
-	JDrama::TNameRefGen::search<TIdxGroupObj>("敵グループ")->add(this);
+	JDrama::TNameRefGen::search<TIdxGroupObj>("敵グループ")->getChildren().push_back(this);
 
 	params = (TTinKoopaParams*)unk68->getSaveParam();
 	unk70 = (s16)params->mSLFlameHP.get();
