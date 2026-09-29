@@ -905,9 +905,10 @@ void TBossWanwan::init(TLiveManager* manager)
 	mMActor->setBrkFromIndex(0);
 	mMActor->setLightType(1);
 
-	if (mMActor->getModel()->getSkinDeform() == nullptr)
-		mMActor->getModel()->setSkinDeform(new J3DSkinDeform,
-		                                    J3D_DEFORM_ATTACH_FLAG_UNK_1);
+	J3DModel* model = mMActor->getModel();
+	if (model->getSkinDeform() == nullptr)
+		model->setSkinDeform(new J3DSkinDeform,
+		                     J3D_DEFORM_ATTACH_FLAG_UNK_1);
 
 	mHitPoints = ((TBWParams*)getSaveParam())->mSLBWHitPointMax.get();
 	unk15C.zero();
