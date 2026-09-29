@@ -490,9 +490,12 @@ void TFruitsBoat::moveObject()
 
 			nv.normalize();
 
-			mWaveNormal.x += (nv.x - mWaveNormal.x) * 0.1f;
-			mWaveNormal.y += (nv.y - mWaveNormal.y) * 0.1f;
-			mWaveNormal.z += (nv.z - mWaveNormal.z) * 0.1f;
+			f32 stepX = (nv.x - mWaveNormal.x) * 0.1f;
+			mWaveNormal.x += stepX;
+			f32 stepY = (nv.y - mWaveNormal.y) * 0.1f;
+			mWaveNormal.y += stepY;
+			f32 stepZ = (nv.z - mWaveNormal.z) * 0.1f;
+			mWaveNormal.z += stepZ;
 		}
 	}
 
