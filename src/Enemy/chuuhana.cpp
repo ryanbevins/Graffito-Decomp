@@ -627,15 +627,15 @@ void TChuuHana::calcRootMatrix()
 		    0x130, &mPosition, 1, &mAseCallback, this);
 	}
 
-	if (mCurrentBckAnm == 6
+	if (isBckAnm(6)
 	    && mMActor->getFrameCtrl(0)->checkPass(2.0f)) {
 		JPABaseEmitter* emitter
 		    = gpMarioParticleManager->emitAndBindToMtxPtr(
 		        0x54, mMActor->getModel()->getAnmMtx(mBodyJntIndex), 0,
 		        nullptr);
 		if (emitter != nullptr) {
-			emitter->unk154 = mScaling;
-			emitter->unk174 = mScaling;
+			emitter->unk154.set(mScaling);
+			emitter->unk174.set(mScaling);
 		}
 	}
 }
