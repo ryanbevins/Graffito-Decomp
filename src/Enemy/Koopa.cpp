@@ -1080,10 +1080,11 @@ static inline bool passesKoopaWaitFrame(TKoopa* koopa, f32 frame)
 BOOL TNerveKoopaWait::execute(TSpineBase<TLiveActor>* spine) const
 {
 	TKoopa* self = (TKoopa*)spine->getBody();
-	TKoopaParams* prm = self->getSaveParam2();
 
 	if (self->unk19C > 0) {
-		self->changeAnm(12, 1, prm->waitSpeed.get());
+		self->changeAnm(
+		    12, 1, ((TKoopaParams*)((TEnemyManager*)self->mManager)->unk38)
+		               ->waitSpeed.get());
 		return FALSE;
 	}
 
@@ -1091,13 +1092,15 @@ BOOL TNerveKoopaWait::execute(TSpineBase<TLiveActor>* spine) const
 	JGeometry::TVec3<f32> marioSpeed(*gpMarioSpeedX, *gpMarioSpeedY,
 	                                 *gpMarioSpeedZ);
 	JGeometry::TVec3<f32> predicted = marioSpeed;
-	predicted.scale(prm->marioEstimationWait.get());
+	predicted.scale(self->getSaveParam2()->marioEstimationWait.get());
 
-	BOOL hasGrip = bathtub->getNextGrip(*gpMarioPos, predicted,
-	                                    prm->waitRange.get(), &self->unk150);
+	BOOL hasGrip = bathtub->getNextGrip(
+	    *gpMarioPos, predicted,
+	    ((TKoopaParams*)((TEnemyManager*)self->mManager)->unk38)->waitRange.get(),
+	    &self->unk150);
 	if (!hasGrip) {
 		predicted = marioSpeed;
-		predicted.scale(prm->marioEstimationFire.get());
+		predicted.scale(self->getSaveParam2()->marioEstimationFire.get());
 		self->unk150 = bathtub->getNextJuncture(*gpMarioPos, predicted);
 	}
 
@@ -1106,9 +1109,11 @@ BOOL TNerveKoopaWait::execute(TSpineBase<TLiveActor>* spine) const
 	turnDiff += -180.0f;
 
 	s32 turn = 0;
-	if (turnDiff < -prm->focusRange.get())
+	if (turnDiff < -((TKoopaParams*)((TEnemyManager*)self->mManager)->unk38)
+	                    ->focusRange.get())
 		turn = -1;
-	else if (turnDiff > prm->focusRange.get())
+	else if (turnDiff > ((TKoopaParams*)((TEnemyManager*)self->mManager)->unk38)
+	                       ->focusRange.get())
 		turn = 1;
 
 	if (hasGrip) {
@@ -1120,7 +1125,9 @@ BOOL TNerveKoopaWait::execute(TSpineBase<TLiveActor>* spine) const
 			spine->pushNerve(&TNerveKoopaTurnR::theNerve());
 			break;
 		default: {
-			self->changeAnm(12, 1, prm->waitSpeed.get());
+			self->changeAnm(
+			    12, 1, ((TKoopaParams*)((TEnemyManager*)self->mManager)->unk38)
+			               ->waitSpeed.get());
 			bool shouldTumble = false;
 			if (self->mMActor->getCurAnmIdx(0) == 12) {
 				if (self->mMActor->curAnmEndsNext(0, nullptr)) {
