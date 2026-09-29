@@ -105,6 +105,8 @@ public:
 	virtual void control();
 	virtual void attack_(THitActor*);
 
+	void fire(const JGeometry::TVec3<f32>&, const JGeometry::TVec3<f32>&,
+	          f32, f32, f32, f32);
 	f32 getCurrentTime() const { return unk8C; }
 
 	/* 0x6C */ JGeometry::TVec3<f32> unk6C;

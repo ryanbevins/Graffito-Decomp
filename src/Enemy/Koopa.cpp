@@ -311,6 +311,20 @@ BOOL TKoopaFlame::receiveMessage(THitActor* sender, u32 message)
 	return TRUE;
 }
 
+void TKoopaFlame::fire(const JGeometry::TVec3<f32>& position,
+                      const JGeometry::TVec3<f32>& direction, f32 velocity,
+                      f32 lifetime, f32 radius, f32 height)
+{
+	mPosition.set(position);
+	unk78.set(direction);
+	unk6C.set(position);
+	unk84 = velocity;
+	unk88 = lifetime;
+	unk8C = 0.0f;
+	unk90 = radius;
+	unk94 = height;
+}
+
 void TKoopaFlame::control()
 {
 	if (!(getCurrentTime() < unk88)) {
@@ -928,32 +942,17 @@ void TKoopa::setUpHitActors()
 
 		if (!waiting && available >= 0) {
 			MtxPtr mtx = mMActor->getModel()->getAnmMtx(mNeckJointIndex);
-			f32 positionX = mtx[0][3];
-			f32 positionY = mtx[1][3] - 500.0f;
-			f32 positionZ = mtx[2][3];
+			JGeometry::TVec3<f32> position(mtx[0][3], mtx[1][3] - 500.0f,
+			                                mtx[2][3]);
 			JGeometry::TVec3<f32> direction(mtx[0][0], 0.0f, mtx[2][0]);
 			direction.normalize();
 
 			TKoopaParams* prm
 			    = (TKoopaParams*)((TEnemyManager*)mManager)->unk38;
-			TKoopaFlame* flame = mFlameHitActors[available];
-			f32 flameHeight     = prm->flameHeight.get();
-			f32 flameRadius     = prm->flameRadius.get();
-			f32 flameVelocity   = prm->flameVelocity.get();
-			flame->mPosition.x = positionX;
-			flame->mPosition.y = positionY;
-			flame->mPosition.z = positionZ;
-			flame->unk78.x       = direction.x;
-			flame->unk78.y       = direction.y;
-			flame->unk78.z       = direction.z;
-			flame->unk6C.x       = positionX;
-			flame->unk6C.y       = positionY;
-			flame->unk6C.z       = positionZ;
-			flame->unk84       = flameVelocity;
-			flame->unk88       = 4000.0f;
-			flame->unk8C       = 0.0f;
-			flame->unk90       = flameRadius;
-			flame->unk94       = flameHeight;
+			mFlameHitActors[available]->fire(position, direction,
+			                                prm->flameVelocity.get(), 4000.0f,
+			                                prm->flameRadius.get(),
+			                                prm->flameHeight.get());
 		}
 	} else {
 		for (int i = 0; i < 10; ++i) {
