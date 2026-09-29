@@ -1030,7 +1030,7 @@ void TGorogoro::generateByGateKeeper(const JGeometry::TVec3<f32>& position,
 	target.sub(position);
 	mPosition = position;
 
-	if (target.squared() > 0.0000038146973f) {
+	if (!target.isZero()) {
 		PSVECNormalize((Vec*)&target, (Vec*)&target);
 
 		f32 randFactor = rand() * 0.000030517578f;
