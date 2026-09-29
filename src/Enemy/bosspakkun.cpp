@@ -637,12 +637,12 @@ void TBossPakkun::launchPolDrop()
 	drop             = mPolDrop;
 	drop->mVelocity  = velocity;
 	drop->mPosition  = launchPos;
-	drop->mScaling.x  = 0.0f;
-	drop->mScaling.y  = 0.0f;
-	drop->mScaling.z  = 0.0f;
-	drop->mRotation.z = 1.0f;
-	drop->mRotation.y = 1.0f;
-	drop->mRotation.x = 1.0f;
+	drop->mScaling.x  = 1.0f;
+	drop->mScaling.y  = 1.0f;
+	drop->mScaling.z  = 1.0f;
+	drop->mRotation.z = 0.0f;
+	drop->mRotation.y = 0.0f;
+	drop->mRotation.x = 0.0f;
 	drop->unk80      = 1;
 	drop->unk84      = 0;
 	drop->unk78->setBck("pollut_ball");
