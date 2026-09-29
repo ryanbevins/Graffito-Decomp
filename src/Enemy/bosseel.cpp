@@ -1588,7 +1588,11 @@ void TBossEelTooth::perform(u32 flags, JDrama::TGraphics* graphics)
 					    && unk68->getMActor()->curAnmEndsNext(0, nullptr))
 						unk68->getMActor()->setBckFromIndex(0x15);
 
-					unk7C += unk6C->unk1E8->mSLToothUpSpeed.value;
+				}
+
+				f32 upSpeed = unk6C->unk1E8->mSLToothUpSpeed.get();
+				if (unk74 == 1) {
+					unk7C += upSpeed;
 					if (unk7C > unk6C->unk1E8->mSLToothLiveHeight.value
 					    || mPosition.y > gpMarioPos->y + 2000.0f) {
 						unk70 = 0;
