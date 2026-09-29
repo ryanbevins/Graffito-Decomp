@@ -21,6 +21,7 @@
 #include <MarioUtil/MathUtil.hpp>
 #include <MarioUtil/MtxUtil.hpp>
 #include <MarioUtil/PacketUtil.hpp>
+#include <MarioUtil/RandomUtil.hpp>
 #include <MarioUtil/ShadowUtil.hpp>
 #include <MarioUtil/TexUtil.hpp>
 #include <MoveBG/MapObjWave.hpp>
@@ -1555,7 +1556,7 @@ void TEnemyMario::emReplayJumpToNearestNode()
 			weights[i] /= total;
 
 		int choice = 0;
-		f32 roll  = rand() * 0.000030517578f;
+		f32 roll  = MsRandF();
 		for (int i = 0; i < count; ++i) {
 			roll -= weights[i];
 			if (roll <= 0.0f) {
