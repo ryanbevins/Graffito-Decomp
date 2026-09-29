@@ -78,8 +78,8 @@ void TConsoleStr::load(JSUMemoryInputStream& stream)
 		unk2A0[i]->setFont(gpSystemFont);
 	}
 
-	unk298 = new TExPane(unk14, 'wp_l');
-	unk29C = new TExPane(unk14, 'wp_r');
+	unk298[0] = new TExPane(unk14, 'wp_l');
+	unk298[1] = new TExPane(unk14, 'wp_r');
 
 	u32 uVar1     = SMS_getShineStage(gpMarDirector->mMap);
 	u32 uVar9     = TFlagManager::getInstance()->getFlag(0x40003);
@@ -182,12 +182,12 @@ void TConsoleStr::perform(u32 param_1, JDrama::TGraphics* param_2)
 			} else if (unk2BC == 5) {
 				bool uVar13 = true;
 				for (int i = 0; i < 2; ++i)
-					uVar13 &= unk290[i]->update();
+					uVar13 &= unk298[i]->update();
 				if (uVar13) {
 					unk2BC = 6;
 					bVar6  = true;
-					unk298->getPane()->hide();
-					unk29C->getPane()->hide();
+					unk298[0]->getPane()->hide();
+					unk298[1]->getPane()->hide();
 				}
 			} else if (unk2BC == 3) {
 				unk18 += 1.0f;
@@ -724,17 +724,17 @@ void TConsoleStr::startOpenWipe()
 	unk2A8 = 0;
 	unk2BC = 5;
 	unk290[0]->getPane()->hide();
-	unk298->getPane()->show();
+	unk298[0]->getPane()->show();
 	unk290[1]->getPane()->hide();
-	unk29C->getPane()->show();
+	unk298[1]->getPane()->show();
 
 	// TODO: TExPane::setPaneAlpha is wrong
 
-	JUTRect local_3c = unk298->getPane()->getBounds();
-	unk298->setPaneOffset(0x1E, -local_3c.getWidth(), 0, 0, 0);
-	unk298->setPaneAlpha(30, 100, 255);
+	JUTRect local_3c = unk298[0]->getPane()->getBounds();
+	unk298[0]->setPaneOffset(0x1E, -local_3c.getWidth(), 0, 0, 0);
+	unk298[0]->setPaneAlpha(30, 100, 255);
 
-	local_3c = unk29C->getPane()->getBounds();
-	unk29C->setPaneOffset(0x1E, local_3c.getWidth(), 0, 0, 0);
-	unk29C->setPaneAlpha(30, 100, 255);
+	local_3c = unk298[1]->getPane()->getBounds();
+	unk298[1]->setPaneOffset(0x1E, local_3c.getWidth(), 0, 0, 0);
+	unk298[1]->setPaneAlpha(30, 100, 255);
 }
