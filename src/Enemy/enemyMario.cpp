@@ -1589,9 +1589,8 @@ void TEnemyMario::emReplayJumpToNearestNode()
 	resetHistory();
 	changePlayerStatus(0x0C400201, 0, true);
 
-	TMarioInputReplay* replay = emInputReplayArray(this)[emReplayIndex(this)];
-	replay->reset();
-	emInputReplayCanPlay(replay) = 1;
+	emInputReplayArray(this)[emReplayIndex(this)]->reset();
+	emInputReplayCanPlay(emInputReplayArray(this)[emReplayIndex(this)]) = 1;
 
 	emTimer(this) = 0;
 	emDoing(this) = 0xB;
