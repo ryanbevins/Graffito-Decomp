@@ -188,18 +188,7 @@ void TLimitKoopaJr::moveRun()
 	mPosition.z = tp.z + dirVec.z;
 	mPosition.y = getSaveParam2()->mSLRoundHeight.get();
 
-	// Normalize the direction vector (with degenerate-case fallback)
-	f32 sq = dirVec.x * dirVec.x + dirVec.y * dirVec.y + dirVec.z * dirVec.z;
-	if (sq <= 0.0000038146973f) {
-		dirVec.x = 0.0f;
-		dirVec.y = 0.0f;
-		dirVec.z = 0.0f;
-	} else {
-		f32 inv = JGeometry::TUtil<f32>::inv_sqrt(sq);
-		dirVec.x *= inv;
-		dirVec.y *= inv;
-		dirVec.z *= inv;
-	}
+	dirVec.normalize();
 
 	// Cross with up vector to get perpendicular
 	JGeometry::TVec3<f32> cross;
