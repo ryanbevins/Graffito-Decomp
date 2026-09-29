@@ -322,11 +322,11 @@ void TBGTakeHit::perform(u32 param_1, JDrama::TGraphics* param_2)
 			JGeometry::TVec3<f32> vec1(mtx[0][0], mtx[1][0], mtx[2][0]);
 
 			JGeometry::TVec3<f32> vec2;
-			vec2.cross(vec1, JGeometry::TVec3<f32>(0.0f, 1.0f, 0.0f));
+			vec2.cross(JGeometry::TVec3<f32>(0.0f, 1.0f, 0.0f), vec1);
 			vec2.normalize();
 
 			JGeometry::TVec3<f32> vec3;
-			vec3.cross(vec2, JGeometry::TVec3<f32>(0.0f, 0.0f, 1.0f));
+			vec3.cross(vec2, JGeometry::TVec3<f32>(0.0f, 1.0f, 0.0f));
 			vec3.normalize();
 
 			unk80.mMtx[0][0] = vec2.x;
