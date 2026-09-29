@@ -2634,7 +2634,7 @@ DEFINE_NERVE(TNerveBossEelEat, TLiveActor)
 	}
 
 	if (eel->mMActor->checkCurBckFromIndex(12)) {
-		if (eel->mMActor->getFrameCtrl(0)->getFrame() < 75.0f)
+		if (eel->mMActor->getFrameCtrl(0)->getFrame() < 250.0f)
 			SMSRumbleMgr->start(8, &eel->mPosition);
 		else
 			SMSRumbleMgr->start(0x14, 10, (f32*)nullptr);
