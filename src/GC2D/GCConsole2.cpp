@@ -1029,21 +1029,32 @@ static inline void updateCounterState(TGCConsole2* console)
 		console->unk20 = coins;
 	}
 
-	bool waitForStarHud = gpMarioOriginal->mAction == 0xC400201
-	                      && gpMarDirector->mState != TMarDirector::STATE_UNK5
-	                      && !console->unk50
-	                      && !console->unk140->isInterpolatorAtZero();
-	if (waitForStarHud) {
-		++console->unk30;
-		if (console->unk30 > 0xc8) {
-			console->startAppearStar();
-			console->startAppearMario(false);
-			console->unk70 = 0xffff;
-			console->unk59 = 0;
-			console->unk30 = 0;
+	if (gpMarioOriginal->mAction == 0xC400201
+	    && gpMarDirector->mState != TMarDirector::STATE_UNK5
+	    && !console->unk50) {
+		if (!console->unk140->isInterpolatorAtZero()) {
+			++console->unk30;
+			if (console->unk30 > 0xc8) {
+				console->startAppearStar();
+				console->startAppearMario(false);
+				console->unk70 = 0xffff;
+				console->unk59 = 0;
+				console->unk30 = 0;
+			}
 		}
 	} else {
 		console->unk30 = 0;
+		if (!console->unk34 && console->unk140->isInterpolatorAtZero()
+		    && !console->unk60
+		    && gpMarDirector->mState != TMarDirector::STATE_UNK5
+		    && gpMarDirector->mState != TMarDirector::STATE_UNK11
+		    && !console->unk50 && console->unk16C == 0 && console->unk8A == 0
+		    && gpMarDirector->unk124 != 2) {
+			console->startDisappearStar();
+			if (console->unk3A8->getPane()->isVisible() && !console->unk3B)
+				console->startDisappearMario();
+			console->unk5A = 0;
+		}
 	}
 
 	int blueTotal = flags->getFlag(0x40001);
@@ -1138,28 +1149,6 @@ static inline void updateCounterState(TGCConsole2* console)
 
 		++console->unk8A;
 	}
-}
-
-static inline void updateStarHudAutoHide(TGCConsole2* console)
-{
-	if (console->unk34)
-		return;
-	if (!console->unk140->isInterpolatorAtZero())
-		return;
-	if (console->unk60)
-		return;
-	if (gpMarDirector->mState == TMarDirector::STATE_UNK5
-	    || gpMarDirector->mState == TMarDirector::STATE_UNK11)
-		return;
-	if (console->unk50 || console->unk16C != 0 || console->unk8A != 0)
-		return;
-	if (gpMarDirector->unk124 == 2)
-		return;
-
-	console->startDisappearStar();
-	if (console->unk3A8->getPane()->isVisible() && !console->unk3B)
-		console->startDisappearMario();
-	console->unk5A = 0;
 }
 
 static inline void updateLifeMeterBlink(TGCConsole2* console)
@@ -4250,7 +4239,6 @@ void TGCConsole2::perform(u32 flags, JDrama::TGraphics* graphics)
 
 		updateLifeMeterState(this);
 		updateCounterState(this);
-		updateStarHudAutoHide(this);
 
 		if (unk34) {
 			bool done = processAppearStar(unk5C);
