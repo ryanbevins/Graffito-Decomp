@@ -614,9 +614,7 @@ void TCannon::init(TLiveManager* manager)
 		if (unk230 == 9) {
 			unk239 = false;
 			JGeometry::TVec3<f32> target(-565.0f, 8500.0f, 7675.0f);
-			unkF4  = TPathNode(target);
-			unk104 = TPathNode(target);
-			unk114.clear();
+			setGoalPath(TPathNode(target));
 		} else {
 			setGoalPath(TPathNode((THitActor*)gpMarioAddress));
 		}
