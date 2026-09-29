@@ -183,14 +183,14 @@ void TWireTrap::calcRootMatrix()
 	JPABaseEmitter* e1 = gpMarioParticleManager->emitAndBindToPosPtr(
 	    0x190, &mPosition, 1, this);
 	if (e1) {
-		e1->unk154.set(mScaling.x, mScaling.y, mScaling.z);
-		e1->unk174.set(mScaling.x, mScaling.y, mScaling.z);
+		e1->unk154.set(mScaling);
+		e1->unk174.set(mScaling);
 	}
 	JPABaseEmitter* e2 = gpMarioParticleManager->emitAndBindToPosPtr(
 	    0x191, &mPosition, 1, this);
 	if (e2) {
-		e2->unk154.set(mScaling.x, mScaling.y, mScaling.z);
-		e2->unk174.set(mScaling.x, mScaling.y, mScaling.z);
+		e2->unk154.set(mScaling);
+		e2->unk174.set(mScaling);
 	}
 
 	TPosition3f mtx;
