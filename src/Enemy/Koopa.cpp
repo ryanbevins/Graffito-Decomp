@@ -1095,7 +1095,7 @@ BOOL TNerveKoopaWait::execute(TSpineBase<TLiveActor>* spine) const
 	JGeometry::TVec3<f32> predicted = marioSpeed;
 	predicted.scale(self->getSaveParam2()->marioEstimationWait.get());
 
-	BOOL hasGrip = bathtub->getNextGrip(
+	u8 hasGrip = bathtub->getNextGrip(
 	    *gpMarioPos, predicted,
 	    ((TKoopaParams*)((TEnemyManager*)self->mManager)->unk38)->waitRange.get(),
 	    &self->unk150);
