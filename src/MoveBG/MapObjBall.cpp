@@ -619,7 +619,7 @@ void TResetFruit::control()
 				if (act->isActorType(0x400000CD)
 				    || act->isActorType(0x400000CD)) {
 					f32 prev = unk198;
-					unk198   = SMS_GetSandRiseUpRatio(this);
+					unk198   = SMS_GetSandRiseUpRatio(act);
 					if (unk198 > 0.05f) {
 						if (unk198 > prev) {
 							mVelocity.y = mVelocity.y + 20.0f;
