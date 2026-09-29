@@ -703,6 +703,19 @@ void TBossEel::calcAndSetCollisionCubeBite_()
 	                7000.0f * mScaling.z);
 }
 
+void TBossEel::deadCheck()
+{
+	for (int i = 0; i < 8; ++i) {
+		if (unk16C[i]->unk70 > 1)
+			return;
+	}
+
+	if (mSpine->getCurrentNerve() != &TNerveBossEelDie::theNerve()) {
+		mSpine->setNext(&TNerveBossEelDie::theNerve());
+		unk1A8->onHitFlag(HIT_FLAG_NO_COLLISION);
+	}
+}
+
 void TBossEel::perform(u32 flags, JDrama::TGraphics* graphics)
 {
 	u32 calcFlag = flags & 2;
@@ -804,19 +817,7 @@ void TBossEel::perform(u32 flags, JDrama::TGraphics* graphics)
 				mMActor->unkC->setMotionBlendRatio(unk1BC);
 		}
 
-		bool allTeethBroken = true;
-		for (int i = 0; i < 8; ++i) {
-			if (unk16C[i]->unk70 > 1) {
-				allTeethBroken = false;
-				break;
-			}
-		}
-
-		if (allTeethBroken
-		    && mSpine->getCurrentNerve() != &TNerveBossEelDie::theNerve()) {
-			mSpine->setNext(&TNerveBossEelDie::theNerve());
-			unk1A8->onHitFlag(HIT_FLAG_NO_COLLISION);
-		}
+		deadCheck();
 	}
 
 	if (calcFlag) {
