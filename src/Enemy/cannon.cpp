@@ -833,6 +833,19 @@ void TChorobei::perform(u32 flags, JDrama::TGraphics* graphics)
 	unk6C->getMActor()->perform(flags, graphics);
 }
 
+void TChorobei::setBckAnm(int index)
+{
+	unk6C->getMActor()->setBckFromIndex(index);
+	const char** bas = unk68->getBasNameTable();
+	unk78 = bas == nullptr ? nullptr : bas[index];
+	if (unk78 != nullptr) {
+		unk74->initAnmSound(
+		    JKRFileLoader::getGlbResource(unk78), 1, 0.0f);
+	} else {
+		unk74->initAnmSound(nullptr, 1, 0.0f);
+	}
+}
+
 TChorobei::TChorobei(TCannon* cannon, int jointIndex, const char* name)
     : THitActor(name)
     , unk68(cannon)
@@ -1242,20 +1255,11 @@ DEFINE_NERVE(TNerveCannonDamage, TLiveActor)
 		if (self->mHitPoints != 0)
 			self->mHitPoints--;
 
-		TChorobei* chorobei = self->unk1A8;
 		if (self->mHitPoints == 0) {
 			if (self->unk1A4 != nullptr)
 				self->unk1A4->kill();
 
-			chorobei->unk6C->getMActor()->setBckFromIndex(13);
-			const char** bas = chorobei->unk68->getBasNameTable();
-			chorobei->unk78 = bas == nullptr ? nullptr : bas[13];
-			if (chorobei->unk78 != nullptr) {
-				chorobei->unk74->initAnmSound(
-				    JKRFileLoader::getGlbResource(chorobei->unk78), 1, 0.0f);
-			} else {
-				chorobei->unk74->initAnmSound(nullptr, 1, 0.0f);
-			}
+			self->unk1A8->setBckAnm(13);
 
 			if (gpApplication.mCurrArea.unk0 == 5)
 				SMSRumbleMgr->start(0x18, (f32*)nullptr);
@@ -1265,15 +1269,15 @@ DEFINE_NERVE(TNerveCannonDamage, TLiveActor)
 			JPABaseEmitter* emitter
 			    = gpMarioParticleManager->emitAndBindToMtxPtr(
 			        0xC8,
-			        chorobei->unk6C->getMActor()->getModel()->getAnmMtx(12),
+			        self->unk1A8->unk6C->getMActor()->getModel()->getAnmMtx(12),
 			        0, nullptr);
 			if (emitter != nullptr)
-				emitter->setScale(chorobei->mScaling);
+				emitter->setScale(self->unk1A8->mScaling);
 
 			emitter = gpMarioParticleManager->emitAndBindToPosPtr(
 			    0xC7, &self->unk294, 0, nullptr);
 			if (emitter != nullptr)
-				emitter->setScale(chorobei->mScaling);
+				emitter->setScale(self->unk1A8->mScaling);
 
 			if (gpApplication.mCurrArea.unk0 == 5) {
 				self->unk2A0 = self->mPosition;
@@ -1290,28 +1294,20 @@ DEFINE_NERVE(TNerveCannonDamage, TLiveActor)
 			}
 
 			self->onHitFlag(HIT_FLAG_NO_COLLISION);
-			chorobei->onHitFlag(HIT_FLAG_NO_COLLISION);
+			self->unk1A8->onHitFlag(HIT_FLAG_NO_COLLISION);
 		} else {
 			self->setFreezeAnm();
 
-			chorobei->unk6C->getMActor()->setBckFromIndex(13);
-			const char** bas = chorobei->unk68->getBasNameTable();
-			chorobei->unk78 = bas == nullptr ? nullptr : bas[13];
-			if (chorobei->unk78 != nullptr) {
-				chorobei->unk74->initAnmSound(
-				    JKRFileLoader::getGlbResource(chorobei->unk78), 1, 0.0f);
-			} else {
-				chorobei->unk74->initAnmSound(nullptr, 1, 0.0f);
-			}
+			self->unk1A8->setBckAnm(13);
 
-			MtxPtr mtx = chorobei->unk6C->getMActor()->getModel()->getAnmMtx(0);
+			MtxPtr mtx = self->unk1A8->unk6C->getMActor()->getModel()->getAnmMtx(0);
 			self->unk294.set(mtx[0][3], mtx[1][3], mtx[2][3]);
 
 			JPABaseEmitter* emitter
 			    = gpMarioParticleManager->emitAndBindToPosPtr(
 			        0xC7, &self->unk294, 0, nullptr);
 			if (emitter != nullptr)
-				emitter->setScale(chorobei->mScaling);
+				emitter->setScale(self->unk1A8->mScaling);
 		}
 
 		self->mVelocity = JGeometry::TVec3<f32>(0.0f, 4.0f, 0.0f);

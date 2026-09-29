@@ -56,6 +56,7 @@ public:
 	virtual BOOL receiveMessage(THitActor*, u32);
 
 	void checkHit();
+	void setBckAnm(int);
 
 public:
 	/* 0x68 */ TCannon* unk68;
