@@ -1277,7 +1277,7 @@ void TEnemyMario::decideDoingAfterCarry()
 
 void TEnemyMario::emRunAwayToNearestNode()
 {
-	Vec target;
+	JGeometry::TVec3<f32> target;
 	getOwnerGraphPoint(this, emRunAwayNode(this), &target);
 
 	gpMarioParticleManager->emitAndBindToPosPtr(0x1AA, &emDisappearPos(this),
