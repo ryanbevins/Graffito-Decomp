@@ -1496,14 +1496,12 @@ void TEnemyMario::emReplayJumpToNearestNode()
 				continue;
 
 			TGraphNode* candidateNode = &graph->getGraphNode(nextNode);
-			Vec candidatePoint;
+			JGeometry::TVec3<f32> candidatePoint;
 			candidateNode->getPoint(&candidatePoint);
 
-			Vec candidateDir;
-			candidateDir.x = candidatePoint.x - currentPoint.x;
-			candidateDir.y = candidatePoint.y - currentPoint.y;
-			candidateDir.z = candidatePoint.z - currentPoint.z;
-			normalizeDir(&candidateDir);
+			JGeometry::TVec3<f32> candidateDir = candidatePoint;
+			candidateDir.sub(currentPoint);
+			candidateDir.normalize();
 
 			f32 dot = marioDir.x * candidateDir.x
 			          + marioDir.y * candidateDir.y
@@ -1525,14 +1523,12 @@ void TEnemyMario::emReplayJumpToNearestNode()
 			if (nextNode == 0xFF)
 				continue;
 
-			Vec candidatePoint;
+			JGeometry::TVec3<f32> candidatePoint;
 			graph->getGraphNode(nextNode).getPoint(&candidatePoint);
 
-			Vec candidateDir;
-			candidateDir.x = candidatePoint.x - currentPoint.x;
-			candidateDir.y = candidatePoint.y - currentPoint.y;
-			candidateDir.z = candidatePoint.z - currentPoint.z;
-			normalizeDir(&candidateDir);
+			JGeometry::TVec3<f32> candidateDir = candidatePoint;
+			candidateDir.sub(currentPoint);
+			candidateDir.normalize();
 
 			weights[count] = marioDir.x * candidateDir.x
 			                 + marioDir.y * candidateDir.y
