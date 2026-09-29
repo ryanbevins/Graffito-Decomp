@@ -1520,11 +1520,12 @@ void TEnemyMario::emReplayJumpToNearestNode()
 		}
 	} else {
 		int candidateSlots[3];
+		f32 scores[3];
 		f32 weights[3];
 		int count = 0;
 
 		for (int i = 0; i < 3; ++i) {
-			weights[i] = 0.0f;
+			scores[i] = 0.0f;
 			u8 nextNode = links[i * 2];
 			if (nextNode == 0xFF)
 				continue;
@@ -1537,7 +1538,7 @@ void TEnemyMario::emReplayJumpToNearestNode()
 			candidateDir.sub(currentPoint);
 			candidateDir.normalize();
 
-			weights[count] = marioDir.x * candidateDir.x
+			scores[count] = marioDir.x * candidateDir.x
 			                 + marioDir.y * candidateDir.y
 			                 + marioDir.z * candidateDir.z;
 			candidateSlots[count] = i;
@@ -1546,7 +1547,8 @@ void TEnemyMario::emReplayJumpToNearestNode()
 
 		f32 total = 0.0f;
 		for (int i = 0; i < count; ++i) {
-			weights[i] = powf(1.0f - weights[i], emSettingF32(this, 0xB8));
+			weights[i] = 1.0f - scores[i];
+			weights[i] = powf(weights[i], emSettingF32(this, 0xB8));
 			total += weights[i];
 		}
 
