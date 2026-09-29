@@ -644,7 +644,7 @@ void TCannon::init(TLiveManager* manager)
 		JUTNameTab* joints
 		    = getMActor()->getModel()->getModelData()->getJointName();
 		for (int i = 0; i < 3; ++i) {
-			u16 index = joints->getIndex(sCannonDomPartsJointTable[i]);
+			int index = joints->getIndex(sCannonDomPartsJointTable[i]);
 			unk1AC[i] = new TCannonDom(this, index, domData, 3, "砲身");
 			unk1C0[i] = new TMapCollisionMove();
 			unk1C0[i]->init("/cannon/CannonDom", 2, this);
@@ -658,7 +658,7 @@ void TCannon::init(TLiveManager* manager)
 		mSpine->initWith(&TNerveCannonObject::theNerve());
 		JUTNameTab* joints
 		    = getMActor()->getModel()->getModelData()->getJointName();
-		u16 index = joints->getIndex("nullA");
+		int index = joints->getIndex("nullA");
 		unk1B8    = new TCannonDom(this, index, domData, 3, "砲身");
 		unk1B8->unk24 = true;
 	}
