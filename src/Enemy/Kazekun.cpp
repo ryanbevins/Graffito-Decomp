@@ -470,6 +470,21 @@ void TKazekun::behaveToWater(THitActor*)
 	}
 }
 
+void TKazekun::getAroundQuat(JGeometry::TQuat4<f32>& quat,
+                            const JGeometry::TVec3<f32>& direction, f32 angle)
+{
+	TPosition3f mtx;
+	JGeometry::TVec3<f32> up(0.0f, 1.0f, 0.0f);
+	SMS_CalcToDirMatrix(mtx, direction, up);
+	mtx.getQuat(quat);
+
+	JGeometry::TVec3<f32> axis;
+	mtx.getYDir(axis);
+	JGeometry::TQuat4<f32> rot;
+	rot.setRotate(axis, angle);
+	quat.mul(quat, rot);
+}
+
 // Aim the kazekun's facing quaternion toward Mario (horizontal only) and spin
 // it by mPoseOmegaRate, then re-point the velocity along the new forward axis.
 // When `decide` is true the orientation is recomputed from Mario's position
@@ -486,19 +501,8 @@ void TKazekun::doAttackPose(bool decide)
 	dir.y = 0.0f;
 
 	if (decide) {
-		TPosition3f mtx;
-		JGeometry::TVec3<f32> up(0.0f, 1.0f, 0.0f);
-		SMS_CalcToDirMatrix(mtx, dir, up);
-
 		JGeometry::TQuat4<f32> quat;
-		mtx.getQuat(quat);
-
-		JGeometry::TVec3<f32> axis;
-		mtx.getYDir(axis);
-		JGeometry::TQuat4<f32> rot;
-		rot.setRotate(axis, 1.5707964f);
-
-		quat.mul(quat, rot);
+		getAroundQuat(quat, dir, 1.5707964f);
 		mQuat = quat;
 
 		TKazekunParams* params = getKazekunParam();
@@ -542,19 +546,8 @@ void TKazekun::flyAroundMario()
 	f32 ratio = JGeometry::TUtil<f32>::clamp(
 	    dist / params->mAroundDist.get(), 0.0f, 2.0f);
 
-	TPosition3f mtx;
-	JGeometry::TVec3<f32> up(0.0f, 1.0f, 0.0f);
-	SMS_CalcToDirMatrix(mtx, dir, up);
-
 	JGeometry::TQuat4<f32> quat;
-	mtx.getQuat(quat);
-
-	JGeometry::TVec3<f32> axis;
-	mtx.getYDir(axis);
-	JGeometry::TQuat4<f32> rot;
-	rot.setRotate(axis, (2.0f - ratio) * 1.5707964f);
-
-	quat.mul(quat, rot);
+	getAroundQuat(quat, dir, (2.0f - ratio) * 1.5707964f);
 	mQuat = quat;
 
 	JGeometry::TVec3<f32> vel(0.0f, 0.0f, 1.0f);

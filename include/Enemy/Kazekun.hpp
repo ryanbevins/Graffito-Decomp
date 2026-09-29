@@ -52,6 +52,8 @@ public:
 	virtual void attackToMario();
 	virtual bool isCollidMove(THitActor*);
 
+	void getAroundQuat(JGeometry::TQuat4<f32>&,
+	                   const JGeometry::TVec3<f32>&, f32);
 	void doAttackPose(bool);
 	void flyAroundMario();
 
