@@ -1593,9 +1593,8 @@ void TBossEelTooth::perform(u32 flags, JDrama::TGraphics* graphics)
 		if (unk70 > 1)
 			emitToothParticle(this, 0x19C);
 
-		MActor* actor = unk68->getMActor();
-		if (actor->checkCurBckFromIndex(0x16)
-		    && actor->getFrameCtrl(0)->getRate() > 0.0f)
+		if (unk68->getMActor()->checkCurBckFromIndex(0x16)
+		    && unk68->getMActor()->getFrameCtrl(0)->getRate() > 0.0f)
 			emitToothParticle(this, 0x19A);
 
 		if ((unk74 == 0 || unk74 == 2) && unk70 == 1)
@@ -1613,7 +1612,7 @@ void TBossEelTooth::perform(u32 flags, JDrama::TGraphics* graphics)
 		mPosition.y = local[1][3];
 		mPosition.z = local[2][3];
 
-		PSMTXCopy(local, actor->getModel()->getBaseTRMtx());
+		PSMTXCopy(local, unk68->getMActor()->getModel()->getBaseTRMtx());
 	}
 
 	THitActor::perform(flags, graphics);
