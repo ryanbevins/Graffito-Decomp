@@ -541,7 +541,7 @@ void TBossHanachanPartsBody::initFootHitActor_(TIdxGroupObj* group)
 		jointIndices[i] = tab->getIndex(sFootJointName[i]);
 		TFootHitActor* foot = new TFootHitActor("ボスハナチャンの足");
 		mFeet[i]            = foot;
-		mFeet[i]->initHitActor(mActorType, 1, 0x80000000,
+		mFeet[i]->initHitActor(getActorType(), 1, 0x80000000,
 		                   params->mSLFootAttackRadius.get(),
 		                   params->mSLFootAttackHeight.get(),
 		                   params->mSLFootDamageRadius.get(),
