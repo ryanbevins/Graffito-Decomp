@@ -945,7 +945,6 @@ void TBossEel::init(TLiveManager* manager)
 	}
 	mMActor->resetDL();
 
-	JUTNameTab* jointName = mMActor->getModel()->getModelData()->getJointName();
 
 	unk1A8 = new THitActor(cBossEelHeadName);
 	((THitActor*)unk1A8)
@@ -973,6 +972,7 @@ void TBossEel::init(TLiveManager* manager)
 	enemyGroup->getChildren().push_back((THitActor*)unk210);
 	((THitActor*)unk210)->offHitFlag(HIT_FLAG_NO_COLLISION);
 
+	JUTNameTab* jointName = mMActor->getModel()->getModelData()->getJointName();
 	void* modelResource = JKRFileLoader::getGlbResource(cBossEelEyeModelPath);
 	SDLModelData* eyeModelData = new SDLModelData(J3DModelLoaderDataBase::load(
 	    modelResource, 0x10240000));
