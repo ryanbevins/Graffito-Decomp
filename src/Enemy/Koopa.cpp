@@ -497,6 +497,16 @@ bool TKoopa::isBreathing() const
 	return false;
 }
 
+bool TKoopa::isProvoking() const
+{
+	if (mMActor->getCurAnmIdx(0) == 6) {
+		f32 frame = mMActor->getFrameCtrl(0)->getFrame();
+		if (68.0f <= frame && frame <= 164.0f)
+			return true;
+	}
+	return false;
+}
+
 void TKoopa::perform(u32 flags, JDrama::TGraphics* graphics)
 {
 	if (flags & 1) {
@@ -538,15 +548,7 @@ void TKoopa::perform(u32 flags, JDrama::TGraphics* graphics)
 	}
 
 	if (flags & 2) {
-		bool emitFlame = isBreathing();
-		if (!emitFlame) {
-			if (mMActor->getCurAnmIdx(0) == 6) {
-				f32 frame = mMActor->getFrameCtrl(0)->getFrame();
-				emitFlame = 68.0f <= frame && frame <= 164.0f;
-			}
-		}
-
-		if (emitFlame) {
+		if (isBreathing() || isProvoking()) {
 			mMActor->calc();
 
 			f32 flameScale = getSaveParam2()->flameScale.get();
