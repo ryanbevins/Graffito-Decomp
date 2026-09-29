@@ -937,14 +937,17 @@ void TBossEel::init(TLiveManager* manager)
 	             unk1E8->mSLBodyDamageHeight.value);
 	offHitFlag(HIT_FLAG_NO_COLLISION);
 
-	J3DModel* model = mMActor->getModel();
-	if (!model->getSkinDeform())
-		model->setSkinDeform(new J3DSkinDeform, J3D_DEFORM_ATTACH_FLAG_UNK_1);
+	{
+		J3DModel* model = mMActor->getModel();
+		if (!model->getSkinDeform())
+			model->setSkinDeform(new J3DSkinDeform,
+			                     J3D_DEFORM_ATTACH_FLAG_UNK_1);
+	}
 	mMActor->resetDL();
 
 	TIdxGroupObj* enemyGroup
 	    = JDrama::TNameRefGen::search<TIdxGroupObj>(cBossEelEnemyGroupName);
-	JUTNameTab* jointName = model->getModelData()->getJointName();
+	JUTNameTab* jointName = mMActor->getModel()->getModelData()->getJointName();
 
 	unk1A8 = new THitActor(cBossEelHeadName);
 	((THitActor*)unk1A8)
@@ -957,14 +960,14 @@ void TBossEel::init(TLiveManager* manager)
 	((THitActor*)unk1A8)->offHitFlag(HIT_FLAG_NO_COLLISION);
 
 	unk1B0
-	    = new TBossEelBodyCollision(model->getBaseTRMtx(),
+	    = new TBossEelBodyCollision(mMActor->getModel()->getBaseTRMtx(),
 	                                cBossEelBodyCollisionName);
 	((TBossEelBodyCollision*)unk1B0)->initCollision();
 	((TBossEelBodyCollision*)unk1B0)->unk7C = this;
 	enemyGroup->getChildren().push_back((THitActor*)unk1B0);
 	((THitActor*)unk1B0)->offHitFlag(HIT_FLAG_NO_COLLISION);
 
-	unk210 = new TBossEelBarrierCollision(model->mNodeMatrices[7],
+	unk210 = new TBossEelBarrierCollision(mMActor->getModel()->mNodeMatrices[7],
 	                                      cBossEelBarrierCollisionName);
 	((TBossEelBarrierCollision*)unk210)->initCollision();
 	enemyGroup->getChildren().push_back((THitActor*)unk210);
@@ -1021,7 +1024,7 @@ void TBossEel::init(TLiveManager* manager)
 		unk190[i]->setUpTrans(mPosition);
 	}
 
-	unk214 = new TBossEelAwaCollision(model->mNodeMatrices[unk1A0[2]],
+	unk214 = new TBossEelAwaCollision(mMActor->getModel()->mNodeMatrices[unk1A0[2]],
 	                                  cBossEelAwaCollisionName);
 	((TBossEelAwaCollision*)unk214)->initCollision();
 	enemyGroup->getChildren().push_back((THitActor*)unk214);
@@ -1039,7 +1042,7 @@ void TBossEel::init(TLiveManager* manager)
 	cubeInfo->unk24.z = 7000.0f;
 
 	initAnmSound();
-	model->calc();
+	mMActor->getModel()->calc();
 }
 
 TBossEelHeartCoin::TBossEelHeartCoin(TBossEel* boss, int index,
