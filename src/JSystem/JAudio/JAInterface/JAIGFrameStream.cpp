@@ -923,11 +923,12 @@ namespace StreamLib {
 			    ->setMixerVolume(1, (s16)(outvolume * (f32)baseVolume * rightPan),
 			                     0);
 
-			u16 pitch = (u16)(outpitch * ((header.unk8 << 12) / 32000));
+			u16 pitch1 = (u16)(outpitch * ((header.unk8 << 12) / 32000));
 			JASystem::DSPInterface::getDSPHandle(assign_ch[0]->unk0)
-			    ->setPitch(pitch);
+			    ->setPitch(pitch1);
+			u16 pitch2 = (u16)(outpitch * ((header.unk8 << 12) / 32000));
 			JASystem::DSPInterface::getDSPHandle(assign_ch[1]->unk0)
-			    ->setPitch(pitch);
+			    ->setPitch(pitch2);
 			JASystem::DSPInterface::getDSPHandle(assign_ch[0]->unk0)
 			    ->flushChannel();
 			JASystem::DSPInterface::getDSPHandle(assign_ch[1]->unk0)
