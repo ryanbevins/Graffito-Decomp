@@ -1271,22 +1271,29 @@ BOOL TNerveKoopaFlame::execute(TSpineBase<TLiveActor>* spine) const
 
 			if (hasGrip) {
 				spine->setNext(&TNerveKoopaWait::theNerve());
-			} else if (turnDir < 0) {
-				spine->pushNerve(&TNerveKoopaTurnL::theNerve());
-			} else if (turnDir > 0) {
-				spine->pushNerve(&TNerveKoopaTurnR::theNerve());
 			} else {
-				f32 flameDiff = std::fmodf(
-				    360.0f
-				        + ((self->getTargetDir(*gpMarioPos) - self->unk150)
-				           - -180.0f),
-				    360.0f);
-				flameDiff += -180.0f;
-				self->unk154 = flameDiff < 0.0f;
-				self->changeAnm(
-				    5, 0, ((TKoopaParams*)((TEnemyManager*)self->mManager)->unk38)
-		                   ->fireSpeed.get());
-				spine->setNext(&TNerveKoopaFlame::theNerve());
+				switch (turnDir) {
+				case -1:
+					spine->pushNerve(&TNerveKoopaTurnL::theNerve());
+					break;
+				case 1:
+					spine->pushNerve(&TNerveKoopaTurnR::theNerve());
+					break;
+				case 0: {
+					f32 flameDiff = std::fmodf(
+					    360.0f
+					        + ((self->getTargetDir(*gpMarioPos) - self->unk150)
+					           - -180.0f),
+					    360.0f);
+					flameDiff += -180.0f;
+					self->unk154 = flameDiff < 0.0f;
+					self->changeAnm(
+					    5, 0, ((TKoopaParams*)((TEnemyManager*)self->mManager)->unk38)
+			                   ->fireSpeed.get());
+					spine->setNext(&TNerveKoopaFlame::theNerve());
+					break;
+				}
+				}
 			}
 		}
 		break;
