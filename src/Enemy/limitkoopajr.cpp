@@ -205,15 +205,7 @@ void TLimitKoopaJr::moveRun()
 
 	// dot-and-scale via setLength
 	JGeometry::TVec3<f32> tmp = cross;
-	f32 dotProd = tmp.dot(tmp);
-	if (dotProd <= 0.0000038146973f) {
-		tmp.x = 0.0f;
-		tmp.y = 0.0f;
-		tmp.z = 0.0f;
-	} else {
-		f32 inv = JGeometry::TUtil<f32>::inv_sqrt(dotProd);
-		tmp.scale(1.0f * inv, tmp);
-	}
+	tmp.normalize();
 
 	TDirectionCalc tdc2(tmp);
 	f32 turnRot = TDirectionCalc::d2r(getSaveParam2()->mSLRotationSpeed.get());
