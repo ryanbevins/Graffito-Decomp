@@ -1024,8 +1024,8 @@ void TMapObjBall::kicked()
 		mVelocity.z = unk170 * (*gpMarioSpeedZ) + mVelocity.z;
 		f32 thresh = mMapObjData->mPhysical->unk4->unkC;
 		if (fabsf(mVelocity.x) < thresh && fabsf(mVelocity.z) < thresh) {
-			mVelocity.x = 0.02f * MsRandF() - 0.2f;
-			mVelocity.z = 0.02f * MsRandF() - 0.2f;
+			mVelocity.x = 2.0f * MsRandF() - 1.0f;
+			mVelocity.z = 2.0f * MsRandF() - 1.0f;
 		}
 		unk194 = 10;
 		mLiveFlag &= ~0x10;
