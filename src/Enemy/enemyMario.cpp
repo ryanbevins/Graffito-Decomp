@@ -1301,6 +1301,8 @@ void TEnemyMario::emRunAwayToNearestNode()
 			MSoundSESystem::MSoundSE::startSoundActor(
 			    0x1976, &mPosition, 0, nullptr, 0, 4);
 		break;
+	case 8:
+		break;
 	case 100: {
 		JGeometry::TVec3<f32> dir = target;
 		dir.sub(emDownPos(this));
