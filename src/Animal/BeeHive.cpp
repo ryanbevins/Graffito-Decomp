@@ -118,6 +118,12 @@ BOOL TNerveBeeHiveReset::execute(TSpineBase<TLiveActor>* spine) const
 	return FALSE;
 }
 
+const TNerveBeeHiveAttack& TNerveBeeHiveAttack::theNerve()
+{
+	static TNerveBeeHiveAttack instance;
+	return instance;
+}
+
 DEFINE_NERVE(TNerveBeeHiveMarioWaterIn, TLiveActor)
 {
 	TBeeHive* hive = (TBeeHive*)spine->getBody();
@@ -137,7 +143,7 @@ DEFINE_NERVE(TNerveBeeHiveMarioWaterIn, TLiveActor)
 	return FALSE;
 }
 
-DEFINE_NERVE(TNerveBeeHiveAttack, TLiveActor)
+BOOL TNerveBeeHiveAttack::execute(TSpineBase<TLiveActor>* spine) const
 {
 	TBeeHive* hive = (TBeeHive*)spine->getBody();
 	if (spine->getTime() == 0)
