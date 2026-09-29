@@ -687,7 +687,7 @@ void TMario::loadAfter()
 	}
 
 	if (SMS_isMultiPlayerMap()) {
-		gpCamera->addMultiPlayer(&mPosition, 60.0f, 80.0f);
+		gpCamera->addMultiPlayer(&mPosition, 60.0f, 150.0f);
 	}
 
 	initParticle();
