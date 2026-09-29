@@ -44,8 +44,9 @@ void TMarDirector::initECTGft(
 		param_1->push_back(graffitiEfbTex, 0x80);
 
 		param_1->push_back(new JDrama::TViewport(rect, "graffito"), 0x8);
-		param_1->push_back(new JDrama::TOrthoProj(0.0f, 0.0f, 512.0f, 512.0f),
-		                   0x10);
+		JDrama::TOrthoProj* ortho
+		    = new JDrama::TOrthoProj(0.0f, 0.0f, 512.0f, 512.0f);
+		param_1->push_back(ortho, 0x10);
 		param_1->push_back(drawInit, 0x8);
 		param_1->push_back(graffitiGroup, 0x1000000);
 		param_1->push_back(graffitiEfbTex, 0x8);
@@ -71,9 +72,9 @@ void TMarDirector::initECTGft(
 			efbTex->setSrcRect(rect);
 			param_2->push_back(efbTex, 0x80);
 			param_2->push_back(new JDrama::TViewport(rect, "graffito"), 0x8);
-			param_2->push_back(
-			    new JDrama::TOrthoProj(0.0f, 0.0f, img->width, img->height),
-			    0x10);
+			JDrama::TOrthoProj* ortho
+			    = new JDrama::TOrthoProj(0.0f, 0.0f, img->width, img->height);
+			param_2->push_back(ortho, 0x10);
 			param_2->push_back(drawInit, 0x8);
 			param_2->push_back(graffitiGroup, (i << 16) | 0x2000008);
 			param_2->push_back(efbTex, 0x8);
