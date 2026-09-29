@@ -1195,7 +1195,7 @@ void TTinKoopaFlame::emitFlameEffects()
 	f32 xzScale;
 	yScale = xzScale = unk6C * baseScale;
 	if (unk68->unk17C > 0)
-		yScale *= 3.0f;
+		yScale *= 0.5f;
 
 	JPABaseEmitter* emitter
 	    = gpMarioParticleManager->emitAndBindToMtxPtr(0x1bb, mtx, 1, this);
