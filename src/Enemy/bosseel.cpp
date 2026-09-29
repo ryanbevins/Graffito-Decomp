@@ -915,7 +915,8 @@ void TBossEel::init(TLiveManager* manager)
 	manager->manageActor(this);
 
 	mMActorKeeper = new TMActorKeeper(manager);
-	mMActor       = mMActorKeeper->createMActorFromAllBmd(0);
+	mMActorKeeper->createMActorFromAllBmd(0);
+	mMActor = mMActorKeeper->getMActor(0);
 	unk1E8       = &((TBossEelManager*)manager)->mSaveParams;
 	unk150.set(mPosition.x, mPosition.y, mPosition.z);
 
