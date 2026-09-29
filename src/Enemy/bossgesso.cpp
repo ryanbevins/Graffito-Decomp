@@ -243,7 +243,10 @@ void TBGBeakHit::perform(u32 param_1, JDrama::TGraphics* param_2)
 
 		if (mHolder != nullptr) {
 			JGeometry::TVec3<f32> us2mario = SMS_GetMarioPos();
-			us2mario -= mOwner->mPosition;
+			const JGeometry::TVec3<f32>& ownerPos = mOwner->mPosition;
+			us2mario.x -= ownerPos.x;
+			us2mario.y -= ownerPos.y;
+			us2mario.z -= ownerPos.z;
 			if (!us2mario.isZero())
 				VECNormalize(&us2mario, &us2mario);
 			else
@@ -251,8 +254,7 @@ void TBGBeakHit::perform(u32 param_1, JDrama::TGraphics* param_2)
 
 			JGeometry::TVec3<f32> offset = us2mario;
 			JGeometry::TVec3<f32> perp;
-			JGeometry::TVec3<f32> up(0.0f, 1.0f, 0.0f);
-			perp.cross(offset, up);
+			perp.cross(JGeometry::TVec3<f32>(0.0f, 1.0f, 0.0f), us2mario);
 			if (!perp.isZero())
 				VECNormalize(&perp, &perp);
 			else
