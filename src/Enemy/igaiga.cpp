@@ -1033,14 +1033,22 @@ void TGorogoro::generateByGateKeeper(const JGeometry::TVec3<f32>& position,
 		PSVECNormalize((Vec*)&target, (Vec*)&target);
 
 		f32 randFactor = rand() * 0.000030517578f;
-		s16 angle      = (15.0f - 30.0f * randFactor) * (65536.0f / 360.0f);
+		s16 angle      = (30.0f * randFactor - 15.0f) * (65536.0f / 360.0f);
 		f32 sin        = JMASSin(angle);
 		f32 cos        = JMASCos(angle);
-		Mtx rotMtx     = {
-			    { cos, 0.0f, sin, 0.0f },
-			    { 0.0f, 1.0f, 0.0f, 0.0f },
-			    { -sin, 0.0f, cos, 0.0f },
-		};
+		Mtx rotMtx;
+		rotMtx[0][0] = cos;
+		rotMtx[0][1] = 0.0f;
+		rotMtx[0][2] = sin;
+		rotMtx[0][3] = 0.0f;
+		rotMtx[1][0] = 0.0f;
+		rotMtx[1][1] = 1.0f;
+		rotMtx[1][2] = 0.0f;
+		rotMtx[1][3] = 0.0f;
+		rotMtx[2][0] = -sin;
+		rotMtx[2][1] = 0.0f;
+		rotMtx[2][2] = cos;
+		rotMtx[2][3] = 0.0f;
 		PSMTXMultVec(rotMtx, (Vec*)&target, (Vec*)&target);
 
 		mRotation.y = MsAngleWrap(MsGetRotFromZaxisY(target));
