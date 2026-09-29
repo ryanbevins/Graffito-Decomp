@@ -40,6 +40,7 @@ public:
 	void collideToMario();
 	void forceShedTears(bool);
 	void shedTears(MtxPtr);
+	void calcAndSetCollisionCubeBite_();
 	void updateTearsCnt();
 	void setBckAnm(int);
 	bool canEatMario();

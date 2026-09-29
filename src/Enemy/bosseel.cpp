@@ -691,6 +691,18 @@ MtxPtr TBossEel::getTakingMtx()
 	return mMActor->getModel()->mNodeMatrices[7];
 }
 
+void TBossEel::calcAndSetCollisionCubeBite_()
+{
+	TCubeGeneralInfo* cube = &(*unk1AC->unk14)[1];
+	cube->unk18.set(mRotation);
+	cube->unkC.set(mPosition.x, mPosition.y + 1900.0f, mPosition.z);
+	cube->unk24.set(1100.0f, 1000.0f, 1100.0f);
+	cube->unkC.set(mPosition.x, mPosition.y + 9600.0f * mScaling.y,
+	               mPosition.z);
+	cube->unk24.set(7000.0f * mScaling.x, 10000.0f * mScaling.y,
+	                7000.0f * mScaling.z);
+}
+
 void TBossEel::perform(u32 flags, JDrama::TGraphics* graphics)
 {
 	u32 calcFlag = flags & 2;
@@ -758,23 +770,7 @@ void TBossEel::perform(u32 flags, JDrama::TGraphics* graphics)
 		mDamageHeight = unk1E8->mSLBodyDamageHeight.value * mScaling.x;
 		calcEntryRadius();
 
-		TCubeGeneralInfo* smallCube = &(*unk1AC->unk14)[1];
-		smallCube->unk18.x          = mRotation.x;
-		smallCube->unk18.y          = mRotation.y;
-		smallCube->unk18.z          = mRotation.z;
-		smallCube->unkC.x           = mPosition.x;
-		smallCube->unkC.y           = mPosition.y + 1900.0f;
-		smallCube->unkC.z           = mPosition.z;
-		smallCube->unk24.x          = 1100.0f;
-		smallCube->unk24.y          = 1000.0f;
-		smallCube->unk24.z          = 1100.0f;
-
-		largeCube->unkC.x  = mPosition.x;
-		largeCube->unkC.y  = mPosition.y + 9600.0f * mScaling.y;
-		largeCube->unkC.z  = mPosition.z;
-		largeCube->unk24.x = 7000.0f * mScaling.x;
-		largeCube->unk24.y = 10000.0f * mScaling.y;
-		largeCube->unk24.z = 7000.0f * mScaling.z;
+		calcAndSetCollisionCubeBite_();
 
 		if (mHitPoints != 0) {
 			unk1C8 = FALSE;
