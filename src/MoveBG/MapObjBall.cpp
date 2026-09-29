@@ -1187,15 +1187,11 @@ void TMapObjBall::boundByActor(THitActor* actor)
 		JGeometry::TVec3<f32> v  = mVelocity;
 		JGeometry::TVec3<f32> v2 = v;
 		f32 dot                  = v2.dot(diff);
-		bool bigBounce           = false;
-		if (dot >= 0.0f) {
-			JGeometry::TVec3<f32> v3 = v;
-			f32 thresh = mMapObjData->mPhysical->unk4->unkC;
-			if (fabsf(v3.x) > thresh && fabsf(v3.z) > thresh) {
-				bigBounce = true;
-			}
-		}
-		if (bigBounce) {
+		if (dot >= 0.0f
+		    && fabsf(JGeometry::TVec3<f32>(mVelocity).x)
+		           > mMapObjData->mPhysical->unk4->unkC
+		    && fabsf(JGeometry::TVec3<f32>(mVelocity).z)
+		           > mMapObjData->mPhysical->unk4->unkC) {
 			f32 add     = 1.0f + unk16C;
 			mVelocity.x = mVelocity.x - add * (diff.x * dot);
 			mVelocity.y = mVelocity.y + unk168;
