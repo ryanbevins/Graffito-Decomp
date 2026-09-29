@@ -1099,39 +1099,52 @@ BOOL TNerveKoopaWait::execute(TSpineBase<TLiveActor>* spine) const
 	else if (turnDiff > prm->focusRange.get())
 		turn = 1;
 
-	if (turn < 0) {
-		spine->pushNerve(&TNerveKoopaTurnL::theNerve());
-		return FALSE;
-	}
-	if (turn > 0) {
-		spine->pushNerve(&TNerveKoopaTurnR::theNerve());
-		return FALSE;
-	}
-
 	if (hasGrip) {
-		self->changeAnm(12, 1, prm->waitSpeed.get());
-		bool shouldTumble = false;
-		if (self->mMActor->getCurAnmIdx(0) == 12) {
-			if (self->mMActor->curAnmEndsNext(0, nullptr)) {
-				shouldTumble = true;
-			} else {
-				J3DFrameCtrl* ctrl = self->mMActor->getFrameCtrl(0);
-				shouldTumble = ctrl->checkPass(2.0f)
-				               || ctrl->checkPass(400.0f)
-				               || ctrl->checkPass(700.0f);
+		switch (turn) {
+		case -1:
+			spine->pushNerve(&TNerveKoopaTurnL::theNerve());
+			break;
+		case 1:
+			spine->pushNerve(&TNerveKoopaTurnR::theNerve());
+			break;
+		default: {
+			self->changeAnm(12, 1, prm->waitSpeed.get());
+			bool shouldTumble = false;
+			if (self->mMActor->getCurAnmIdx(0) == 12) {
+				if (self->mMActor->curAnmEndsNext(0, nullptr)) {
+					shouldTumble = true;
+				} else {
+					J3DFrameCtrl* ctrl = self->mMActor->getFrameCtrl(0);
+					shouldTumble = ctrl->checkPass(2.0f)
+					               || ctrl->checkPass(400.0f)
+					               || ctrl->checkPass(700.0f);
+				}
 			}
+			if (shouldTumble && bathtub->allowsTumble())
+				spine->pushNerve(&TNerveKoopaTumble::theNerve());
+			break;
 		}
-		if (shouldTumble && bathtub->allowsTumble())
-			spine->pushNerve(&TNerveKoopaTumble::theNerve());
+		}
 		return FALSE;
 	}
 
-	f32 flameDiff = std::fmodf(
-	    360.0f + ((self->getTargetDir(*gpMarioPos) - self->unk150) - -180.0f),
-	    360.0f);
-	flameDiff += -180.0f;
-	self->unk154 = flameDiff < 0.0f;
-	spine->setNext(&TNerveKoopaFlame::theNerve());
+	switch (turn) {
+	case -1:
+		spine->pushNerve(&TNerveKoopaTurnL::theNerve());
+		break;
+	case 1:
+		spine->pushNerve(&TNerveKoopaTurnR::theNerve());
+		break;
+	default: {
+		f32 flameDiff = std::fmodf(
+		    360.0f + ((self->getTargetDir(*gpMarioPos) - self->unk150) - -180.0f),
+		    360.0f);
+		flameDiff += -180.0f;
+		self->unk154 = flameDiff < 0.0f;
+		spine->setNext(&TNerveKoopaFlame::theNerve());
+		break;
+	}
+	}
 	return FALSE;
 }
 
