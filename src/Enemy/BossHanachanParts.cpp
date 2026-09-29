@@ -542,10 +542,10 @@ void TBossHanachanPartsBody::initFootHitActor_(TIdxGroupObj* group)
 		TFootHitActor* foot = new TFootHitActor("ボスハナチャンの足");
 		mFeet[i]            = foot;
 		mFeet[i]->initHitActor(mActorType, 1, 0x80000000,
-		                   params->mSLFootAttackRadius.value,
-		                   params->mSLFootAttackHeight.value,
-		                   params->mSLFootDamageRadius.value,
-		                   params->mSLFootDamageHeight.value);
+		                   params->mSLFootAttackRadius.get(),
+		                   params->mSLFootAttackHeight.get(),
+		                   params->mSLFootDamageRadius.get(),
+		                   params->mSLFootDamageHeight.get());
 		group->getChildren().push_back(mFeet[i]);
 		mFeet[i]->unk64 &= ~1;
 		MtxPtr m = getMActor()->getModel()->getAnmMtx((u16)jointIndices[i]);
