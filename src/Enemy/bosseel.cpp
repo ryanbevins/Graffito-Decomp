@@ -566,10 +566,16 @@ inline void TBossEel::setBckAnm(int bck_index)
 	unk1B8 = mMActor->getCurAnmIdx(0);
 	unk1B4 = bck_index;
 	unk1BC = 1.0f;
-	J3DAnmTransform* oldAnm
-	    = !mMActor->unkC ? nullptr : mMActor->unkC->unk24;
-	if (mMActor->unkC)
-		mMActor->unkC->setOldMotionBlendAnmPtr(oldAnm);
+	{
+		MActor* oldActor = mMActor;
+		J3DAnmTransform* oldAnm;
+		if (!oldActor->unkC)
+			oldAnm = nullptr;
+		else
+			oldAnm = oldActor->unkC->unk24;
+		if (oldActor->unkC)
+			oldActor->unkC->setOldMotionBlendAnmPtr(oldAnm);
+	}
 	mMActor->setBckFromIndex(bck_index);
 	MActor* actor = mMActor;
 	f32 blendRatio = unk1BC;
