@@ -92,8 +92,7 @@ public:
 	virtual void kill();
 
 public:
-	/* 0x138 */ JGeometry::TVec3<f32> unk138;
-	/* 0x144 */ JGeometry::TVec3<f32> unk144;
+	/* 0x138 */ JGeometry::TVec3<f32> unk138[2];
 	/* 0x150 */ TMapCollisionMove* unk150[5];
 	/* 0x164 */ TMapCollisionMove* unk164[17];
 	/* 0x1A8 */ TBathtubGripPartsFragile* unk1A8[5];

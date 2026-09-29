@@ -356,12 +356,12 @@ BOOL TBathtubGrip::receiveMessage(THitActor* sender, u32 message)
 		if (unk248 != 0 || unk249 == 0)
 			return false;
 
-		unk138.x = gpMarioPos->x;
-		unk138.y = gpMarioPos->y;
-		unk138.z = gpMarioPos->z;
+		unk138[0].x = gpMarioPos->x;
+		unk138[0].y = gpMarioPos->y;
+		unk138[0].z = gpMarioPos->z;
 		if (gpMSound->gateCheck(0x3821)) {
 			MSoundSESystem::MSoundSE::startSoundActor(
-			    0x3821, (Vec*)&unk138, 0, nullptr, 0, 4);
+			    0x3821, (Vec*)&unk138[0], 0, nullptr, 0, 4);
 		}
 
 		s32 deadCount = (u16)unk244->getNumGripsDead();
@@ -514,12 +514,12 @@ void TBathtubGrip::control()
 			ctrl->setRate(unk250 * SMSGetAnmFrameRate() * 0.5f);
 
 		MtxPtr mtx = *unk1A8[0]->getRootJointMtx();
-		unk144.set(mtx[0][3], mtx[1][3], mtx[2][3]);
+		unk138[1].set(mtx[0][3], mtx[1][3], mtx[2][3]);
 		if (gpMSound->gateCheck(0x300D)) {
 			MSoundSESystem::MSoundSE::startSoundActor(
-			    0x300D, (Vec*)&unk144, 0, nullptr, 0, 4);
+			    0x300D, (Vec*)&unk138[1], 0, nullptr, 0, 4);
 		}
-		SMSRumbleMgr->start(8, (Vec*)&unk138);
+		SMSRumbleMgr->start(8, (Vec*)&unk138[0]);
 		return;
 	}
 
