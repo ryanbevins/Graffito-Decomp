@@ -968,9 +968,9 @@ void TKoopaJrSubmarine::makeKillerVelocity(TBathtubKiller* killer,
 	if (queuedType == 2) {
 		direction.set(0.0f, 1.0f, 0.0f);
 
+		JGeometry::TVec3<f32> marioPosition = *gpMarioPos;
 		JGeometry::TVec3<f32> toMario;
-		toMario = *gpMarioPos;
-		toMario.sub(killer->mPosition);
+		toMario.sub(marioPosition, killer->mPosition);
 		toMario.y = 0.0f;
 		toMario.normalize();
 
