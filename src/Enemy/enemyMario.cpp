@@ -1340,8 +1340,9 @@ void TEnemyMario::emRunAwayToNearestNode()
 		if (gpMarDirector->mMap == 1) {
 			Vec next;
 			getOwnerGraphPoint(this, 7, &next);
-			mFaceAngle.y
-			    = matan(next.z - target.z, next.x - target.x);
+			f32 dx = next.x - target.x;
+			f32 dz = next.z - target.z;
+			mFaceAngle.y = matan(dz, dx);
 			mModelFaceAngle = mFaceAngle.y;
 			mPosition = target;
 			mPosition.y += 5.0f;
