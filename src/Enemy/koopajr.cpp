@@ -973,7 +973,9 @@ void TKoopaJrSubmarine::makeKillerVelocity(TBathtubKiller* killer,
 		toMario.normalize();
 
 		JGeometry::TVec3<f32> axis;
-		axis.cross(direction, toMario);
+		axis.x = direction.y * toMario.z - direction.z * toMario.y;
+		axis.y = direction.z * toMario.x - direction.x * toMario.z;
+		axis.z = direction.x * toMario.y - direction.y * toMario.x;
 		axis.normalize();
 
 		JGeometry::TQuat4<f32> rotation;
