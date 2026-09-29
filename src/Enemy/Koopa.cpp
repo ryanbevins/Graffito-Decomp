@@ -125,14 +125,10 @@ int KoopaNeckCallBack(J3DNode* node, int timing)
 			turn.mul(pitch, turn);
 		}
 
-		Mtx turnMtx;
-		((JGeometry::TRotation3<
-		     JGeometry::TMatrix34<JGeometry::SMatrix34C<f32> > >*)&turnMtx)
-		    ->setQuat(turn);
-		turnMtx[0][3] = 0.0f;
-		turnMtx[1][3] = 0.0f;
-		turnMtx[2][3] = 0.0f;
-		PSMTXConcat(mtx, turnMtx, mtx);
+		TPosition3f turnMtx;
+		turnMtx.setQuat(turn);
+		turnMtx.zeroTrans();
+		((TMtx34f*)mtx)->concat(*(TMtx34f*)mtx, turnMtx);
 	}
 
 	PSMTXCopy(mtx, J3DSys::mCurrentMtx);
