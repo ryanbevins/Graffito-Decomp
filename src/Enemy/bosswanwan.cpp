@@ -861,10 +861,9 @@ void TBossWanwan::init(TLiveManager* manager)
 
 	mSpine->initWith(&TNerveBWGraphWander::theNerve());
 
-	TBWParams* params = (TBWParams*)getSaveParam();
-	mMarchSpeed       = params->mSLMarchSpeed.get();
-	mTurnSpeed        = params->mSLTurnSpeed.get();
-	mPosition         = BW_HEAD_START;
+	mMarchSpeed = ((TBWParams*)getSaveParam())->mSLMarchSpeed.get();
+	mTurnSpeed  = ((TBWParams*)getSaveParam())->mSLTurnSpeed.get();
+	mPosition   = BW_HEAD_START;
 	reset();
 
 	mLeash   = new TBWLeash(this, 15, "ボスワンワン鎖");
@@ -910,7 +909,7 @@ void TBossWanwan::init(TLiveManager* manager)
 		mMActor->getModel()->setSkinDeform(new J3DSkinDeform,
 		                                    J3D_DEFORM_ATTACH_FLAG_UNK_1);
 
-	mHitPoints = params->mSLBWHitPointMax.get();
+	mHitPoints = ((TBWParams*)getSaveParam())->mSLBWHitPointMax.get();
 	unk15C.zero();
 
 	mMapCollisionManager = new TMapCollisionManager(1, "/scene/bwanwan", this);
