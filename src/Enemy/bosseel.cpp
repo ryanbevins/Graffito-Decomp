@@ -757,11 +757,12 @@ void TBossEel::perform(u32 flags, JDrama::TGraphics* graphics)
 
 		unk1A8->mPosition = mPosition;
 		unk1A8->mPosition.y += unk1E8->mSLBodyToHeadDistance.value * mScaling.y;
-		unk1A8->mAttackRadius = unk1E8->mSLHeadAttackRadius.value * mScaling.x;
-		unk1A8->mAttackHeight = unk1E8->mSLHeadAttackHeight.value * mScaling.x;
-		unk1A8->mDamageRadius = unk1E8->mSLHeadDamageRadius.value * mScaling.x;
-		unk1A8->mDamageHeight = unk1E8->mSLHeadDamageHeight.value * mScaling.x;
-		unk1A8->calcEntryRadius();
+		TBossEelSaveParams* headParams = unk1E8;
+		f32 headScale = mScaling.x;
+		unk1A8->setHitParams(headParams->mSLHeadAttackRadius.get() * headScale,
+		                    headParams->mSLHeadAttackHeight.get() * headScale,
+		                    headParams->mSLHeadDamageRadius.get() * headScale,
+		                    headParams->mSLHeadDamageHeight.get() * headScale);
 
 		TBossEelSaveParams* params = unk1E8;
 		f32 bodyScale = mScaling.x;
