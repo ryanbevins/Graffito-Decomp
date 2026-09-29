@@ -91,17 +91,14 @@ void TBiancoGateKeeper::perform(u32 flags, JDrama::TGraphics* graphics)
 	if (checkLiveFlag(LIVE_FLAG_DEAD))
 		return;
 
-	u8 gameState = gpMarDirector->unk124;
-	if (!(gameState == 3 || gameState == 4)) {
-		if (gameState == 1 || gameState == 2)
-			flags &= ~1;
-	}
+	if (!gpMarDirector->checkUnk124Thing2() && gpMarDirector->isTalkModeNow())
+		flags &= ~1;
 
-	BOOL doMove = flags & 1;
+	u32 doMove = flags & 1;
 	if (doMove) {
 		for (int i = 0; i < getColNum(); ++i) {
 			THitActor* actor = getCollision(i);
-			if (actor->getActorType() == 0x80000001)
+			if (actor->isActorType(0x80000001))
 				SMS_SendMessageToMario(this, HIT_MESSAGE_ATTACK);
 		}
 
