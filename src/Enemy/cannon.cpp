@@ -158,11 +158,12 @@ void TCannon::killerShoot()
 		                                    killer->getGravityY());
 		JGeometry::TVec3<f32> diff = target;
 		diff.sub(mPosition);
+		f32 velocityRate;
 		f32 flightTime
 		    = __fabsf(MsVECMag2((Vec*)&diff) / (velocity.x * mVelocityRate));
 
 		killer->mIsChaseMode = 0;
-		f32 velocityRate = mVelocityRate;
+		velocityRate = mVelocityRate;
 		TMsRange<s32> rollRange(0, 100);
 		int roll = rollRange.rand();
 		if (roll % 5 == 0) {
