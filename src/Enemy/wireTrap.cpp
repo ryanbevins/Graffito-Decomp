@@ -216,7 +216,7 @@ void TWireTrap::calcRootMatrix()
 	getModel()->setBaseTRMtx(mtx);
 
 	JGeometry::TVec3<f32> scale = mScaling;
-	scale.scale(mScaleRate);
+	scale.scale(mScaleRate, scale);
 	getModel()->setBaseScale(scale);
 }
 
