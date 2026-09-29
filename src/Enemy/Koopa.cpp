@@ -1100,7 +1100,7 @@ BOOL TNerveKoopaWait::execute(TSpineBase<TLiveActor>* spine) const
 	    ((TKoopaParams*)((TEnemyManager*)self->mManager)->unk38)->waitRange.get(),
 	    &self->unk150);
 	if (!hasGrip) {
-		predicted = marioSpeed;
+		predicted.set(*gpMarioSpeedX, *gpMarioSpeedY, *gpMarioSpeedZ);
 		predicted.scale(self->getSaveParam2()->marioEstimationFire.get());
 		self->unk150 = bathtub->getNextJuncture(*gpMarioPos, predicted);
 	}
