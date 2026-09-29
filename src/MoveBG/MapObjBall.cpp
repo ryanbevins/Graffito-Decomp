@@ -894,7 +894,7 @@ void TMapObjBall::initMapObj()
 		unk170      = 0.9f;
 		unk174      = 0.13f;
 		unk178      = 20.0f;
-		unk164      = 0.2f;
+		unk164      = 2.0f;
 		unk168      = 0.02f;
 		unk16C      = 0.3f;
 		unk17C      = 0.05f;
