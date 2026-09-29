@@ -1150,10 +1150,8 @@ void TMapObjBall::calcCurrentMtx()
 
 void TMapObjBall::boundByActor(THitActor* actor)
 {
-	JGeometry::TVec3<f32> diff;
-	diff.x = actor->mPosition.x - mPosition.x;
-	diff.y = 0.0f;
-	diff.z = actor->mPosition.z - mPosition.z;
+	JGeometry::TVec3<f32> diff(actor->mPosition.x - mPosition.x, 0.0f,
+	                           actor->mPosition.z - mPosition.z);
 	f32 r;
 	if (isActorType(0x400000D0))
 		r = mAttackRadius + actor->mDamageRadius;
