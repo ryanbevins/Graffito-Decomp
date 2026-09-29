@@ -121,8 +121,17 @@ int KoopaNeckCallBack(J3DNode* node, int timing)
 		turn.normalize();
 
 		if (!koopa->isFlaming()) {
+			JGeometry::TVec3<f32> cross;
+			cross.cross(projected, toMario);
+			f32 angle = fabsf(atan2f(cross.length(), projected.dot(toMario)));
+			if (toMario.dot(localY) < 0.0f)
+				angle = -angle;
+
+			JGeometry::TVec3<f32> axis;
+			turn.getZDir(axis);
 			JGeometry::TQuat4<f32> pitch;
-			pitch.setRotate(projected, toMario, focus);
+			pitch.setRotate(axis, angle * focus);
+			pitch.normalize();
 			turn.mul(pitch, turn);
 		}
 
