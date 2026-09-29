@@ -977,9 +977,9 @@ void TBossEel::init(TLiveManager* manager)
 	SDLModelData* eyeModelData = new SDLModelData(J3DModelLoaderDataBase::load(
 	    modelResource, 0x10240000));
 	for (int i = 0; i < 4; ++i) {
-		unk15C[i] = new TBossEelEye(this,
-		                            jointName->getIndex(sEyePartsJointTable[i]),
-		                            eyeModelData, 3, cBossEelEyeName);
+		int jointIndex = jointName->getIndex(sEyePartsJointTable[i]);
+		unk15C[i] = new TBossEelEye(this, jointIndex, eyeModelData, 3,
+		                            cBossEelEyeName);
 	}
 	unk15C[0]->unk68 = unk15C[1];
 	unk15C[1]->unk68 = unk15C[0];
