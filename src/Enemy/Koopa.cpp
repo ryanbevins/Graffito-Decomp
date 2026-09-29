@@ -1065,6 +1065,18 @@ const TNerveKoopaGetShowered& TNerveKoopaGetShowered::theNerve()
 	return instance;
 }
 
+// TODO: original helper name unknown.
+static inline bool passesKoopaWaitFrame(TKoopa* koopa, f32 frame)
+{
+	bool passed = false;
+	if (koopa->mMActor->getFrameCtrl(0)->getFrame() <= frame) {
+		J3DFrameCtrl* ctrl = koopa->mMActor->getFrameCtrl(0);
+		if (frame <= 0.005f + (ctrl->getFrame() + ctrl->getRate()))
+			passed = true;
+	}
+	return passed;
+}
+
 BOOL TNerveKoopaWait::execute(TSpineBase<TLiveActor>* spine) const
 {
 	TKoopa* self = (TKoopa*)spine->getBody();
@@ -1114,10 +1126,9 @@ BOOL TNerveKoopaWait::execute(TSpineBase<TLiveActor>* spine) const
 				if (self->mMActor->curAnmEndsNext(0, nullptr)) {
 					shouldTumble = true;
 				} else {
-					J3DFrameCtrl* ctrl = self->mMActor->getFrameCtrl(0);
-					shouldTumble = ctrl->checkPass(2.0f)
-					               || ctrl->checkPass(400.0f)
-					               || ctrl->checkPass(700.0f);
+					shouldTumble = passesKoopaWaitFrame(self, 2.0f)
+					               || passesKoopaWaitFrame(self, 400.0f)
+					               || passesKoopaWaitFrame(self, 700.0f);
 				}
 			}
 			if (shouldTumble && bathtub->allowsTumble())
