@@ -86,8 +86,9 @@ void JUTConsole::doDraw(JUTConsole::EConsoleType consoleType) const
 					ortho.setPort();
 				} else {
 					JUTVideo* pVideo = JUTGetVideoManager();
-					J2DOrthoGraph ortho(0, 0, pVideo->getFbWidth(),
-					                    pVideo->getEfbHeight());
+					u32 width  = pVideo->getFbWidth();
+					u32 height = pVideo->getEfbHeight();
+					J2DOrthoGraph ortho(0, 0, width, height);
 					ortho.setPort();
 				}
 
