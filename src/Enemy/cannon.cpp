@@ -467,10 +467,9 @@ void TCannon::perform(u32 flags, JDrama::TGraphics* graphics)
 		if ((flags & 0x200)
 		    && mSpine->getCurrentNerve()
 		           == &TNerveCannonDamage::theNerve()) {
-			MActor* chorobeiActor = unk1A8->unk6C->getMActor();
-			chorobeiActor->offMakeDL();
+			unk1A8->unk6C->getMActor()->offMakeDL();
 			SMS_AddDamageFogEffect(
-			    chorobeiActor->getModel()->getModelData(), mPosition,
+			    unk1A8->unk6C->getMActor()->getModel()->getModelData(), mPosition,
 			    graphics);
 		}
 
