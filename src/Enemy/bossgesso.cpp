@@ -1187,7 +1187,7 @@ void TBossGesso::doAttackUnison()
 		return;
 	}
 	JGeometry::TVec3<f32> delta = SMS_GetMarioPos();
-	delta -= mPosition;
+	delta.sub(delta, mPosition);
 
 	f32 unisonAttackLen2 = getSaveParam2()->mSLUnisonAttackLen.value;
 	unisonAttackLen2 *= unisonAttackLen2;
