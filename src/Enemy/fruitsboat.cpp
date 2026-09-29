@@ -498,15 +498,7 @@ void TFruitsBoat::moveObject()
 			nv.y = up2733.z * mp.x - up2733.x * mp.z;
 			nv.z = up2733.x * mp.y - up2733.y * mp.x;
 
-			f32 nvLenSq = nv.x * nv.x + nv.y * nv.y + nv.z * nv.z;
-			if (nvLenSq < 0.0000038146973f) {
-				nv.set(0.0f, 0.0f, 0.0f);
-			} else {
-				f32 r = JGeometry::TUtil<f32>::inv_sqrt(nvLenSq);
-				nv.x *= r;
-				nv.y *= r;
-				nv.z *= r;
-			}
+			nv.normalize();
 
 			mWaveNormal.x += (nv.x - mWaveNormal.x) * 0.1f;
 			mWaveNormal.y += (nv.y - mWaveNormal.y) * 0.1f;
