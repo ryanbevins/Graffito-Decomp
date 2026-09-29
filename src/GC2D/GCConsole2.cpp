@@ -1056,6 +1056,11 @@ static inline void updateCounterState(TGCConsole2* console)
 			console->unk5A = 0;
 		}
 	}
+}
+
+static inline void updateStarCounterState(TGCConsole2* console)
+{
+	TFlagManager* flags = TFlagManager::smInstance;
 
 	int blueTotal = flags->getFlag(0x40001);
 	if ((int)console->unk168 != blueTotal) {
@@ -4240,18 +4245,6 @@ void TGCConsole2::perform(u32 flags, JDrama::TGraphics* graphics)
 		updateLifeMeterState(this);
 		updateCounterState(this);
 
-		if (unk34) {
-			bool done = processAppearStar(unk5C);
-			done      = processDownCoin(unk5C) && done;
-			if (done) {
-				int shines = TFlagManager::smInstance->getFlag(0x40000);
-				if ((int)unk24 != shines)
-					unk24 = shines;
-				unk34 = 0;
-			}
-			++unk5C;
-		}
-
 		if (unk35) {
 			bool done = true;
 			if (!unk140->update())
@@ -4272,6 +4265,20 @@ void TGCConsole2::perform(u32 flags, JDrama::TGraphics* graphics)
 				unk164->setStatus(JPABaseEmitter::STATUS_STOP_EMIT);
 				unk35 = 0;
 			}
+		}
+
+		updateStarCounterState(this);
+
+		if (unk34) {
+			bool done = processAppearStar(unk5C);
+			done      = processDownCoin(unk5C) && done;
+			if (done) {
+				int shines = TFlagManager::smInstance->getFlag(0x40000);
+				if ((int)unk24 != shines)
+					unk24 = shines;
+				unk34 = 0;
+			}
+			++unk5C;
 		}
 
 		updateWaterGaugeFill(this);
