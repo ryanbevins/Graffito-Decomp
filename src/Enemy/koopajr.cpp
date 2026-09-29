@@ -515,6 +515,15 @@ BOOL TKoopaJr::receiveMessage(THitActor* sender, u32 message)
 	return FALSE;
 }
 
+void TKoopaJr::checkSubmarineSwing()
+{
+	f32 limit = 0.5f * unk164->getSaveParam2()->mSLSwingAmplitudeMax.get();
+	if (unk164->unk190 < limit)
+		return;
+	unk150 = getSaveParam2()->mSLDamagePeriod.get();
+	startDamageNerve();
+}
+
 void TKoopaJr::perform(u32 flags, JDrama::TGraphics* graphics)
 {
 	if (!unk164) {
@@ -531,22 +540,8 @@ void TKoopaJr::perform(u32 flags, JDrama::TGraphics* graphics)
 	if (!unk15C)
 		unk15C = JDrama::TNameRefGen::search<TBathtub>("バスタブ");
 
-	if (flags & 2) {
-		f32 limit
-		    = 0.5f * unk164->getSaveParam2()->mSLSwingAmplitudeMax.get();
-		if (unk164->unk190 >= limit) {
-			unk150 = getSaveParam2()->mSLDamagePeriod.get();
-
-			if (mSpine->getCurrentNerve() == &TNerveKoopaJrWait::theNerve())
-				mSpine->pushNerve(&TNerveKoopaJrDamage::theNerve());
-
-			if (mSpine->getCurrentNerve() == &TNerveKoopaJrLaunch::theNerve()
-			    || mSpine->getCurrentNerve()
-			        == &TNerveKoopaJrYahoo::theNerve()) {
-				mSpine->becomeNerveAfterPop(&TNerveKoopaJrDamage::theNerve());
-			}
-		}
-	}
+	if (flags & 2)
+		checkSubmarineSwing();
 
 	if (flags & 1) {
 		if (unk150 > 0)
