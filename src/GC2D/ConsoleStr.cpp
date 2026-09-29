@@ -241,13 +241,15 @@ void TConsoleStr::perform(u32 param_1, JDrama::TGraphics* param_2)
 			for (int i = 0; i < 3; ++i) {
 				TBoundPane* pane = unk28[i];
 
-				u8 uVar13        = pane->getPane()->getAlpha();
+				u8 uVar13 = pane->getPane()->getAlpha();
+				u8 trailAlpha = uVar13;
 				JUTRect local_a0 = pane->getPane()->getBounds();
 
 				for (int j = 0; j < 3; ++j) {
 					int iVar9 = local_b0[j];
 					if (unk34[i][iVar9].x != 0) {
-						unk28[i]->getPane()->setAlpha((u8)(uVar13 * 0.7f));
+						trailAlpha = (u8)(trailAlpha * 0.7f);
+						unk28[i]->getPane()->setAlpha(trailAlpha);
 
 						unk28[i]->getPane()->resize(
 						    local_a0.getWidth() - 3 * iVar9,
