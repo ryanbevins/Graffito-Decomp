@@ -230,10 +230,8 @@ void TCannon::killerShoot()
 		    0xCB, &igaiga->mPosition, 0,
 		    (s16)(igaiga->mRotation.y * 182.04445f), 0, 0, nullptr);
 		if (emitter != nullptr) {
-			JGeometry::TVec3<f32> scale;
-			scale.x = 1.5f * mScaling.x;
-			scale.y = 1.5f * mScaling.y;
-			scale.z = 1.5f * mScaling.z;
+			JGeometry::TVec3<f32> scale(1.5f, 1.5f, 1.5f);
+			scale.mul(mScaling);
 			emitter->setScale(scale);
 		}
 
