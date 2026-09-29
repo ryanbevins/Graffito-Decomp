@@ -1047,16 +1047,13 @@ void TMapObjBall::calcCurrentMtx()
 	    rotMtx;
 	rotMtx.identity();
 
-	{
-		JGeometry::TVec3<f32> v = mVelocity;
-		f32 thresh              = mMapObjData->mPhysical->unk4->unkC;
-		if (fabsf(v.x) < thresh) {
-			JGeometry::TVec3<f32> v2 = mVelocity;
-			if (fabsf(v2.z) < thresh && mGroundPlane->mNormal.y == 1.0f) {
-				mVelocity.x = 0.0f;
-				mVelocity.z = 0.0f;
-			}
-		}
+	if (fabsf(JGeometry::TVec3<f32>(mVelocity).x)
+	        < mMapObjData->mPhysical->unk4->unkC
+	    && fabsf(JGeometry::TVec3<f32>(mVelocity).z)
+	           < mMapObjData->mPhysical->unk4->unkC
+	    && mGroundPlane->mNormal.y == 1.0f) {
+		mVelocity.x = 0.0f;
+		mVelocity.z = 0.0f;
 	}
 
 	{
