@@ -614,11 +614,7 @@ DEFINE_NERVE(TNerveLimitKoopaGetShowered, TLiveActor)
 {
 	TLimitKoopa* self = (TLimitKoopa*)spine->getBody();
 
-	f32 rate  = self->getSaveParam2()->waterhitSpeed.get();
-	MActor* m = self->mMActor;
-	if (!m->checkCurBckFromIndex(14))
-		m->setBckFromIndex(14);
-	self->mMActor->getFrameCtrl(0)->setRate(rate);
+	self->changeBck(14, self->getSaveParam2()->waterhitSpeed.get());
 
 	if (self->mMActor->curAnmEndsNext(0, nullptr))
 		return TRUE;
@@ -668,11 +664,7 @@ DEFINE_NERVE(TNerveLimitKoopaTumble, TLiveActor)
 {
 	TLimitKoopa* self = (TLimitKoopa*)spine->getBody();
 
-	f32 speed = self->getSaveParam2()->tumbleSpeed.get();
-	MActor* m = self->mMActor;
-	if (!m->checkCurBckFromIndex(8))
-		m->setBckFromIndex(8);
-	self->mMActor->getFrameCtrl(0)->setRate(speed);
+	self->changeBck(8, self->getSaveParam2()->tumbleSpeed.get());
 
 	if (self->mMActor->curAnmEndsNext(0, nullptr))
 		return TRUE;
