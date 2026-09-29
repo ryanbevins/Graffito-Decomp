@@ -134,9 +134,9 @@ void TCannon::killerShoot()
 		killer->mPosition.set(localMtx.mMtx[0][3], localMtx.mMtx[1][3],
 		                      localMtx.mMtx[2][3]);
 
-		JGeometry::TVec3<f32> target = *gpMarioPos;
 		f32 marioSpeedX = *gpMarioSpeedX;
 		f32 marioSpeedZ = *gpMarioSpeedZ;
+		JGeometry::TVec3<f32> target = *gpMarioPos;
 		TMsRange<f32> targetRange(-300.0f, 300.0f);
 		target.x += targetRange.rand();
 
