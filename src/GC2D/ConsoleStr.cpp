@@ -236,9 +236,8 @@ void TConsoleStr::perform(u32 param_1, JDrama::TGraphics* param_2)
 		local_1a0.setup2D();
 
 		if (unk2B8 == 1 && unk18 > 60.0f) {
-			int local_b0[3] = { 4, 10, 20 };
-
 			for (int i = 0; i < 3; ++i) {
+				int local_b0[3] = { 4, 10, 20 };
 				TBoundPane* pane = unk28[i];
 
 				u8 uVar13 = pane->getPane()->getAlpha();
