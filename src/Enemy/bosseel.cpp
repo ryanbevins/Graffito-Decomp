@@ -556,8 +556,10 @@ inline void TBossEel::setBckAnm(int bck_index)
 	if (mMActor->unkC)
 		mMActor->unkC->setOldMotionBlendAnmPtr(oldAnm);
 	mMActor->setBckFromIndex(bck_index);
-	if (mMActor->unkC)
-		mMActor->unkC->setMotionBlendRatio(unk1BC);
+	MActor* actor = mMActor;
+	f32 blendRatio = unk1BC;
+	if (actor->unkC)
+		actor->unkC->setMotionBlendRatio(blendRatio);
 	f32 rate = 0.25f * SMSGetAnmFrameRate();
 	mMActor->getFrameCtrl(0)->setRate(rate);
 	const char** basTable = getBasNameTable();
