@@ -923,7 +923,7 @@ void TBossEel::init(TLiveManager* manager)
 	onLiveFlag(LIVE_FLAG_UNK8 | LIVE_FLAG_UNK10);
 
 	mGroundHeight
-	    = gpMap->checkGround(mPosition.x, mPosition.y + mBodyScale * mHeadHeight,
+	    = gpMap->checkGround(mPosition.x, mPosition.y + getHeadHeight(),
 	                         mPosition.z, &mGroundPlane);
 
 	if (mMActor->unkC)
