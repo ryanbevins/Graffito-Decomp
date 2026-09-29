@@ -1494,8 +1494,8 @@ void TEnemyMario::emReplayJumpToNearestNode()
 	TGraphNode* targetNode = nullptr;
 	u8* settings          = emSettings(this);
 
+	f32 best = 1.0f;
 	if (settings[0x7C] == 0) {
-		f32 best = 1.0f;
 		for (int i = 0; i < 3; ++i) {
 			u8 nextNode = links[node * 6 + i * 2];
 			if (nextNode == 0xFF)
