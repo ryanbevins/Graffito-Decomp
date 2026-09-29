@@ -1019,7 +1019,7 @@ void TGorogoro::generateByGateKeeper(const JGeometry::TVec3<f32>& position,
 	TGraphNode& node = graph->getGraphNode(nodeIndex);
 	BOOL aimAtMario;
 	JGeometry::TVec3<f32> target;
-	if (MsIsInSight(position, velocity.y, *gpMarioPos, 2000.0f, 360.0f, -1.0f)) {
+	if (MsIsInSight(position, velocity.y, SMS_GetMarioPos(), 2000.0f, 360.0f, -1.0f)) {
 		target = *gpMarioPos;
 		aimAtMario = TRUE;
 	} else {
