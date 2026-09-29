@@ -881,7 +881,7 @@ f32 TKoopa::getFlameDirRate() const
 	}
 	}
 
-	return 1.0f;
+	return 0.0f;
 }
 
 f32 TKoopa::getFlameDirDegree() const
