@@ -857,8 +857,8 @@ void TMapObjBall::initMapObj()
 		unk178      = 2.5f;
 		unk17C      = 0.001f;
 		unk180      = 0.3f;
-		unk184      = 0.0f;
-		unk188      = 0.0f;
+		unk184      = 1.5f;
+		unk188      = 1.5f;
 		mBodyRadius = 50.0f * mScaling.y;
 		unk18C      = mBodyRadius / 3.0f;
 		break;
