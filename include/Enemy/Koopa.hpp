@@ -179,6 +179,7 @@ public:
 	virtual void reset();
 
 	bool isFlaming() const;
+	bool isBreathing() const;
 	f32 getFlameDirDegree() const;
 	BOOL allowsLaunch() const;
 	bool effectsTumble() const;

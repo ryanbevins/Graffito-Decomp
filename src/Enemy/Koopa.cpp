@@ -487,6 +487,16 @@ BOOL TKoopa::updateAnmSound()
 	}
 }
 
+bool TKoopa::isBreathing() const
+{
+	if (mMActor->getCurAnmIdx(0) == 4)
+		return true;
+	if (mMActor->getCurAnmIdx(0) == 5
+	    && mMActor->getFrameCtrl(0)->getFrame() >= 85.0f)
+		return true;
+	return false;
+}
+
 void TKoopa::perform(u32 flags, JDrama::TGraphics* graphics)
 {
 	if (flags & 1) {
@@ -528,9 +538,7 @@ void TKoopa::perform(u32 flags, JDrama::TGraphics* graphics)
 	}
 
 	if (flags & 2) {
-		bool emitFlame = mMActor->getCurAnmIdx(0) == 4
-		    || (mMActor->getCurAnmIdx(0) == 5
-		        && mMActor->getFrameCtrl(0)->getFrame() >= 85.0f);
+		bool emitFlame = isBreathing();
 		if (!emitFlame) {
 			if (mMActor->getCurAnmIdx(0) == 6) {
 				f32 frame = mMActor->getFrameCtrl(0)->getFrame();
