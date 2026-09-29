@@ -1051,14 +1051,14 @@ void TGorogoro::generateByGateKeeper(const JGeometry::TVec3<f32>& position,
 		rotMtx[2][3] = 0.0f;
 		PSMTXMultVec(rotMtx, (Vec*)&target, (Vec*)&target);
 
-		mRotation.y = MsAngleWrap(MsGetRotFromZaxisY(target));
+		mRotation.y = MsWrap(MsGetRotFromZaxisY(target), 0.0f, 360.0f);
 
 		target.scale(1500.0f * (rand() * 0.000030517578f));
 		target.add(position);
 		mVelocity = calcVelocityToJumpToY(target, 15.0f, getGravityY());
 	} else {
 		mVelocity = calcVelocityToJumpToY(position, 15.0f, getGravityY());
-		mRotation.y = MsAngleWrap(MsGetRotFromZaxisY(target));
+		mRotation.y = MsWrap(MsGetRotFromZaxisY(target), 0.0f, 360.0f);
 	}
 
 	if (aimAtMario) {
