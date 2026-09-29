@@ -1142,7 +1142,9 @@ BOOL TNerveKoopaWait::execute(TSpineBase<TLiveActor>* spine) const
 						shouldTumble = true;
 				}
 			}
-			if (shouldTumble && bathtub->allowsTumble())
+			if (shouldTumble
+			    && JDrama::TNameRefGen::search<TBathtub>("バスタブ")
+			           ->allowsTumble())
 				spine->pushNerve(&TNerveKoopaTumble::theNerve());
 			break;
 		}
