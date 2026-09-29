@@ -1245,7 +1245,7 @@ DEFINE_NERVE(TNerveCannonDamage, TLiveActor)
 		TChorobei* chorobei = self->unk1A8;
 		if (self->mHitPoints == 0) {
 			if (self->unk1A4 != nullptr)
-				self->unk1A4->forceKill();
+				self->unk1A4->kill();
 
 			chorobei->unk6C->getMActor()->setBckFromIndex(13);
 			const char** bas = chorobei->unk68->getBasNameTable();
