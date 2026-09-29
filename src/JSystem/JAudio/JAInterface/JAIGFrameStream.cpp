@@ -814,9 +814,11 @@ namespace StreamLib {
 
 			if (dspside != (playside + 1) % LOOP_BLOCKS)
 				decode = true;
+			else
+				decode = false;
 		}
 
-		if (decode || movieframe == 0) {
+		if (decode == TRUE || movieframe == 0) {
 			if (adpcmbuf_state == 2 || adpcmbuf_state == 4) {
 				if (adpcmbuf_state == 2) {
 					switch (header.unkA) {
