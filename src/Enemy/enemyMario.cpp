@@ -618,7 +618,7 @@ void TEnemyMario::perform(u32 flags, JDrama::TGraphics* graphics)
 		}
 
 		if (mAction != ACTION_RUNNING || marioUnk14E(this) == 0) {
-			checkController(graphics);
+			playerControl(graphics);
 			setPositions();
 		}
 	}
