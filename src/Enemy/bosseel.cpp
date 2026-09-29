@@ -755,14 +755,13 @@ void TBossEel::perform(u32 flags, JDrama::TGraphics* graphics)
 		else
 			((THitActor*)unk1B0)->onHitFlag(HIT_FLAG_NO_COLLISION);
 
-		THitActor* head = (THitActor*)unk1A8;
-		head->mPosition = mPosition;
-		head->mPosition.y += unk1E8->mSLBodyToHeadDistance.value * mScaling.y;
-		head->mAttackRadius = unk1E8->mSLHeadAttackRadius.value * mScaling.x;
-		head->mAttackHeight = unk1E8->mSLHeadAttackHeight.value * mScaling.x;
-		head->mDamageRadius = unk1E8->mSLHeadDamageRadius.value * mScaling.x;
-		head->mDamageHeight = unk1E8->mSLHeadDamageHeight.value * mScaling.x;
-		head->calcEntryRadius();
+		unk1A8->mPosition = mPosition;
+		unk1A8->mPosition.y += unk1E8->mSLBodyToHeadDistance.value * mScaling.y;
+		unk1A8->mAttackRadius = unk1E8->mSLHeadAttackRadius.value * mScaling.x;
+		unk1A8->mAttackHeight = unk1E8->mSLHeadAttackHeight.value * mScaling.x;
+		unk1A8->mDamageRadius = unk1E8->mSLHeadDamageRadius.value * mScaling.x;
+		unk1A8->mDamageHeight = unk1E8->mSLHeadDamageHeight.value * mScaling.x;
+		unk1A8->calcEntryRadius();
 
 		TBossEelSaveParams* params = unk1E8;
 		f32 bodyScale = mScaling.x;
@@ -775,8 +774,8 @@ void TBossEel::perform(u32 flags, JDrama::TGraphics* graphics)
 
 		if (mHitPoints != 0) {
 			unk1C8 = FALSE;
-			for (int i = 0; i < head->getColNum(); ++i) {
-				THitActor* hitActor = head->getCollision(i);
+			for (int i = 0; i < unk1A8->getColNum(); ++i) {
+				THitActor* hitActor = unk1A8->getCollision(i);
 				if (hitActor->isActorTypeOf(ACTOR_TYPE_PLAYER))
 					unk1C8 = TRUE;
 			}
@@ -815,7 +814,7 @@ void TBossEel::perform(u32 flags, JDrama::TGraphics* graphics)
 		if (allTeethBroken
 		    && mSpine->getCurrentNerve() != &TNerveBossEelDie::theNerve()) {
 			mSpine->setNext(&TNerveBossEelDie::theNerve());
-			head->onHitFlag(HIT_FLAG_NO_COLLISION);
+			unk1A8->onHitFlag(HIT_FLAG_NO_COLLISION);
 		}
 	}
 

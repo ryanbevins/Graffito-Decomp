@@ -56,7 +56,7 @@ public:
 	/* 0x18C */ TBossEelVortex* unk18C;
 	/* 0x190 */ TMapCollisionMove* unk190[4];
 	/* 0x1A0 */ u16 unk1A0[4];
-	/* 0x1A8 */ void* unk1A8;
+	/* 0x1A8 */ THitActor* unk1A8;
 	/* 0x1AC */ TCubeManagerBase* unk1AC;
 	/* 0x1B0 */ void* unk1B0;
 	/* 0x1B4 */ s32 unk1B4;
