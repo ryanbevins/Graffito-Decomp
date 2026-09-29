@@ -656,23 +656,16 @@ TBossHanachanPartsHead::TBossHanachanPartsHead(TBossHanachan* owner,
 TBossHanachanPartsBody::TBossHanachanPartsBody(TBossHanachan* owner,
                                                const char* name)
     : TBossHanachanPartsBase(owner, 0x08000015, 0, name)
+    , unk114(0)
+    , unk120(0.0f)
+    , unk124(0.0f, 0.0f, 0.0f)
+    , unk130(0.0f, 0.0f, 0.0f)
+    , unk13C(0.0f)
+    , unk140(0.0f)
+    , unk144(0.0f)
+    , unk148(0.0f)
+    , unk154(0.0f, 0.0f, 0.0f)
 {
-	unk114 = 0;
-	unk120 = 0.0f;
-	unk124.x = 0.0f;
-	unk124.y = 0.0f;
-	unk124.z = 0.0f;
-	unk130.x = 0.0f;
-	unk130.y = 0.0f;
-	unk130.z = 0.0f;
-	unk13C = 0.0f;
-	unk140 = 0.0f;
-	unk144 = 0.0f;
-	unk148 = 0.0f;
-	unk154.x = 0.0f;
-	unk154.y = 0.0f;
-	unk154.z = 0.0f;
-
 	J3DModel* model = getModel();
 	JUTNameTab* tab = model->mModelData->unkB0;
 	const char* leftJointName = cLegJointName_L3;
