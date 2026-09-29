@@ -1043,6 +1043,8 @@ TBossEelHeartCoin::TBossEelHeartCoin(TBossEel* boss, int index,
 	}
 }
 
+// Retail keeps coin generation out of line.
+#pragma dont_inline on
 void TBossEelHeartCoin::generate(JGeometry::TVec3<f32>& position)
 {
 	PAD_STACK(0x10);
@@ -1058,6 +1060,8 @@ void TBossEelHeartCoin::generate(JGeometry::TVec3<f32>& position)
 		mCoins[i]->mPosition.set(mtx[0][3], mtx[1][3], mtx[2][3]);
 	}
 }
+
+#pragma dont_inline off
 
 void TBossEelHeartCoin::perform(u32 flags, JDrama::TGraphics* graphics)
 {
