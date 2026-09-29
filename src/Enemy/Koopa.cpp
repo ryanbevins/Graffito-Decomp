@@ -965,7 +965,7 @@ void TKoopa::setUpHitActors()
 	TKoopaParams* prm = (TKoopaParams*)((TEnemyManager*)mManager)->unk38;
 	MtxPtr headMtx = mMActor->getModel()->getAnmMtx(mHeadJointIndex);
 	JGeometry::TVec3<f32> headPosition;
-	headPosition.set(headMtx[0][3], headMtx[1][3], headMtx[2][3]);
+	((TPosition3f*)headMtx)->getTrans(headPosition);
 	headPosition.y -= 200.0f;
 	mHeadHitActor->set(headPosition, prm->headRadius.get(), 0.0f);
 	mBodyHitActor->set(mPosition, 800.0f, 2000.0f);
