@@ -932,10 +932,10 @@ void TBossEel::init(TLiveManager* manager)
 	mSpine->initWith(&TNerveBossEelWaitAppear::theNerve());
 
 	initHitActor(0x08000003, 1, 0x80000000,
-	             unk1E8->mSLBodyAttackRadius.value,
-	             unk1E8->mSLBodyAttackHeight.value,
-	             unk1E8->mSLBodyDamageRadius.value,
-	             unk1E8->mSLBodyDamageHeight.value);
+	             unk1E8->mSLBodyAttackRadius.get(),
+	             unk1E8->mSLBodyAttackHeight.get(),
+	             unk1E8->mSLBodyDamageRadius.get(),
+	             unk1E8->mSLBodyDamageHeight.get());
 	offHitFlag(HIT_FLAG_NO_COLLISION);
 
 	{
@@ -950,10 +950,10 @@ void TBossEel::init(TLiveManager* manager)
 	unk1A8 = new THitActor(cBossEelHeadName);
 	((THitActor*)unk1A8)
 	    ->initHitActor(0x08000003, 2, 0x80000000,
-	                   unk1E8->mSLHeadAttackRadius.value,
-	                   unk1E8->mSLHeadAttackHeight.value,
-	                   unk1E8->mSLHeadDamageRadius.value,
-	                   unk1E8->mSLHeadDamageHeight.value);
+	                   unk1E8->mSLHeadAttackRadius.get(),
+	                   unk1E8->mSLHeadAttackHeight.get(),
+	                   unk1E8->mSLHeadDamageRadius.get(),
+	                   unk1E8->mSLHeadDamageHeight.get());
 	TIdxGroupObj* enemyGroup
 	    = JDrama::TNameRefGen::search<TIdxGroupObj>(cBossEelEnemyGroupName);
 	enemyGroup->getChildren().push_back((THitActor*)unk1A8);
