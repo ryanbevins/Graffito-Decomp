@@ -338,6 +338,9 @@ void TLimitKoopa::init(TLiveManager* manager)
 
 	J3DModelData* modelData = getModel()->getModelData();
 	JUTNameTab* nameTab     = modelData->getJointName();
+	for (u16 i = 0; i < nameTab->getNameNum(); ++i) {
+		// Empty in retail; likely stripped joint-name debug output.
+	}
 	mHeadJointIndex         = nameTab->getIndex("ago");
 	mNeckJointIndex         = nameTab->getIndex("head");
 	mJointIndex2            = nameTab->getIndex("neck");
