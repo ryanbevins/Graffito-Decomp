@@ -469,7 +469,8 @@ void TCannon::perform(u32 flags, JDrama::TGraphics* graphics)
 		           == &TNerveCannonDamage::theNerve()) {
 			unk1A8->unk6C->getMActor()->offMakeDL();
 			SMS_AddDamageFogEffect(
-			    unk1A8->unk6C->getMActor()->getModel()->getModelData(), mPosition,
+			    unk1A8->unk6C->getMActor()->getModel()->getModelData(),
+			    mPosition,
 			    graphics);
 		}
 
@@ -489,13 +490,12 @@ void TCannon::perform(u32 flags, JDrama::TGraphics* graphics)
 						if (unk1AC[i]->unk30 > 360.0f)
 							unk1AC[i]->unk30 -= 360.0f;
 
-						f32 angle = 0.5f * unk1AC[i]->unk30;
-						u16 angleShort = (u16)(s32)(182.04445f * angle);
-						u32 index = angleShort >> jmaSinShift;
 						if (i == 2) {
-							unk1AC[i]->unk28 = -10.0f * jmaSinTable[index];
+							unk1AC[i]->unk28
+							    = -10.0f * JMASin(0.5f * unk1AC[i]->unk30);
 						} else {
-							unk1AC[i]->unk28 = -20.0f * jmaSinTable[index];
+							unk1AC[i]->unk28
+							    = -20.0f * JMASin(0.5f * unk1AC[i]->unk30);
 						}
 					}
 				} else {
