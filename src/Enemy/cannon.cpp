@@ -946,10 +946,11 @@ DEFINE_NERVE(TNerveCannonSearch, TLiveActor)
 	TCannon* self = (TCannon*)spine->getBody();
 	self->updateSquareToMario();
 
+	f32 bombDistSquared = self->unk28C->mSLBombDist.get()
+	                      * self->unk28C->mSLBombDist.get();
 	f32 distToMario = self->mDistToMarioSquared;
 	if (spine->getTime() == 0) {
-		f32 bombDist = self->unk28C->mSLBombDist.get();
-		if (distToMario < bombDist * bombDist)
+		if (distToMario < bombDistSquared)
 			self->setGoalPathMario();
 
 		TChorobei* chorobei = self->unk1A8;
