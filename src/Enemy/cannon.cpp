@@ -434,14 +434,13 @@ void TCannon::perform(u32 flags, JDrama::TGraphics* graphics)
 	TSmallEnemy::perform(flags, graphics);
 
 	if (unk238) {
-		MActor* marioActor = unk1BC->getMActor();
-		marioActor->perform(flags, graphics);
+		unk1BC->getMActor()->perform(flags, graphics);
 
-		if ((flags & 1) && marioActor->curAnmEndsNext(0, nullptr))
+		if ((flags & 1) && unk1BC->getMActor()->curAnmEndsNext(0, nullptr))
 			unk238 = false;
 
 		if ((flags & 2) && unk230 == 1) {
-			J3DFrameCtrl* ctrl = marioActor->getFrameCtrl(0);
+			J3DFrameCtrl* ctrl = unk1BC->getMActor()->getFrameCtrl(0);
 			if (ctrl->checkPass(174.0f)) {
 				MtxPtr mtx = unk1B8->getMActor()->getModel()->getAnmMtx(0);
 				gpMarioParticleManager->emitAndBindToMtxPtr(
