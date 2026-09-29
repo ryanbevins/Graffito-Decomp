@@ -850,9 +850,9 @@ TBossWanwan::TBossWanwan(const char* name)
 void TBossWanwan::init(TLiveManager* manager)
 {
 	mManager = manager;
-	manager->manageActor(this);
+	mManager->manageActor(this);
 
-	mMActorKeeper = new TMActorKeeper(manager, 0x11);
+	mMActorKeeper = new TMActorKeeper(mManager, 0x11);
 	mMActor       = mMActorKeeper->createMActor("bwanwan_body.bmd", 0);
 
 	TGraphWeb* web = gpConductor->getGraphByName("bwanwan");
