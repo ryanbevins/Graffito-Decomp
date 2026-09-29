@@ -474,39 +474,38 @@ void TCannon::perform(u32 flags, JDrama::TGraphics* graphics)
 		}
 
 		for (int i = 0; i < 3; ++i) {
-			TCannonDom* dom = unk1AC[i];
-			if (dom->unk24)
+			if (unk1AC[i]->unk24)
 				continue;
 
 			if (flags == 1) {
 				f32 bombDist = unk28C->mSLBombDist.get();
 				if (bombDist * bombDist < mDistToMarioSquared
 				    && unk230 == 5) {
-					dom->unk2C = (&unk224)[i];
+					unk1AC[i]->unk2C = (&unk224)[i];
 					if (i != unk214
 					    && mSpine->getCurrentNerve()
 					           != &TNerveCannonObject::theNerve()) {
-						dom->unk30 += 1.0f;
-						if (dom->unk30 > 360.0f)
-							dom->unk30 -= 360.0f;
+						unk1AC[i]->unk30 += 1.0f;
+						if (unk1AC[i]->unk30 > 360.0f)
+							unk1AC[i]->unk30 -= 360.0f;
 
-						f32 angle = 0.5f * dom->unk30;
+						f32 angle = 0.5f * unk1AC[i]->unk30;
 						u16 angleShort = (u16)(s32)(182.04445f * angle);
 						u32 index = angleShort >> jmaSinShift;
 						if (i == 2) {
-							dom->unk28 = -10.0f * jmaSinTable[index];
+							unk1AC[i]->unk28 = -10.0f * jmaSinTable[index];
 						} else {
-							dom->unk28 = -20.0f * jmaSinTable[index];
+							unk1AC[i]->unk28 = -20.0f * jmaSinTable[index];
 						}
 					}
 				} else {
-					dom->unk30 = 0.0f;
-					dom->unk28 *= 0.99f;
-					unk1C0[i]->moveMtx(dom->getConnectedMtx());
+					unk1AC[i]->unk30 = 0.0f;
+					unk1AC[i]->unk28 *= 0.99f;
+					unk1C0[i]->moveMtx(unk1AC[i]->getConnectedMtx());
 				}
 			}
 
-			dom->perform(flags, graphics);
+			unk1AC[i]->perform(flags, graphics);
 		}
 	} else {
 		if (!unk1B8->unk24)
