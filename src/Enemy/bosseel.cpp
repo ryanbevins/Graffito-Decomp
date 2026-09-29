@@ -1028,13 +1028,6 @@ void TBossEel::init(TLiveManager* manager)
 	((THitActor*)unk214)->onHitFlag(HIT_FLAG_NO_COLLISION);
 
 	unk18C = new TBossEelVortex(this, cBossEelVortexName);
-	unk18C->initHitActor(0x08000003, 3, 0x80000000,
-	                      unk1E8->mSLVortexAttackRadius.value,
-	                      unk1E8->mSLVortexAttackHeight.value,
-	                      unk1E8->mSLVortexDamageRadius.value,
-	                      unk1E8->mSLVortexDamageHeight.value);
-	enemyGroup->getChildren().push_back((THitActor*)unk18C);
-	unk18C->offHitFlag(HIT_FLAG_NO_COLLISION);
 
 	unk1AC = new TCubeManagerBase(cBossEelCollisionCubeName, (u8)2);
 	TCubeGeneralInfo* cubeInfo = &(*unk1AC->unk14)[0];
@@ -1436,6 +1429,22 @@ void TBossEelBodyCollision::initCollision()
 	unk70 = 5800.0f;
 	unk78 = 5000.0f;
 	initHitActor(0x08000023, 5, 0x80000000, unk6C, unk70, unk74, unk78);
+}
+
+TBossEelVortex::TBossEelVortex(TBossEel* eel, const char* name)
+    : THitActor(name)
+    , unk68(eel)
+    , unk6C(TRUE)
+{
+	initHitActor(0x08000003, 3, 0x80000000,
+	             unk68->unk1E8->mSLVortexAttackRadius.get(),
+	             unk68->unk1E8->mSLVortexAttackHeight.get(),
+	             unk68->unk1E8->mSLVortexDamageRadius.get(),
+	             unk68->unk1E8->mSLVortexDamageHeight.get());
+	TIdxGroupObj* enemyGroup
+	    = JDrama::TNameRefGen::search<TIdxGroupObj>(cBossEelEnemyGroupName);
+	enemyGroup->getChildren().push_back(this);
+	offHitFlag(HIT_FLAG_NO_COLLISION);
 }
 
 void TBossEelVortex::reset()

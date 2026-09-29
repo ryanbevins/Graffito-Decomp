@@ -232,13 +232,7 @@ public:
 
 class TBossEelVortex : public THitActor {
 public:
-	TBossEelVortex(TBossEel* eel, const char* name)
-	    : THitActor(name)
-	    , unk68(eel)
-	    , unk6C(FALSE)
-	    , unk70(0)
-	{
-	}
+	TBossEelVortex(TBossEel*, const char*);
 
 	virtual void perform(u32, JDrama::TGraphics*);
 	virtual void reset();
