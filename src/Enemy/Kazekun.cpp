@@ -501,8 +501,11 @@ void TKazekun::doAttackPose(bool decide)
 		quat.mul(quat, rot);
 		mQuat = quat;
 
-		JGeometry::TVec3<f32> vel(0.0f, 0.0f,
-		                          getKazekunParam()->mPoseSpeed.get());
+		TKazekunParams* params = getKazekunParam();
+		JGeometry::TVec3<f32> vel;
+		vel.x = 0.0f;
+		vel.y = 0.0f;
+		vel.z = params->mPoseSpeed.get();
 		quat.rotate(vel, vel);
 		mVelocity = vel;
 	}
