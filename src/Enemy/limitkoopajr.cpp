@@ -183,9 +183,7 @@ void TLimitKoopaJr::moveRun()
 	JGeometry::TVec3<f32> dirVec = mDirection1.calcDirectionVector();
 	dirVec.scale(mRoundRadius);
 
-	mPosition.x = tp.x + dirVec.x;
-	mPosition.y = tp.y + dirVec.y;
-	mPosition.z = tp.z + dirVec.z;
+	mPosition.add(mTargetActor->mPosition, dirVec);
 	mPosition.y = getSaveParam2()->mSLRoundHeight.get();
 
 	dirVec.normalize();
