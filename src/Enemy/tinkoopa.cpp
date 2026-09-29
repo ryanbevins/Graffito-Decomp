@@ -1059,7 +1059,7 @@ void TTinKoopa::init(TLiveManager* manager)
 		TTinKoopaPartsBase* part
 		    = new TTinKoopaPartsBase(partsCollisionFileTable[i], i, this);
 		unk1CC[i] = part;
-		part->initTinKoopaPartsBase();
+		unk1CC[i]->initTinKoopaPartsBase();
 	}
 
 	TTinKoopaParams* params = (TTinKoopaParams*)getSaveParam();
