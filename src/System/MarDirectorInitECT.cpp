@@ -66,9 +66,9 @@ void TMarDirector::initECTGft(
 			param_2->push_back(
 			    new JDrama::TOrthoProj(0.0f, 0.0f, img->width, img->height),
 			    0x10);
-			param_1->push_back(drawInit, 0x8);
-			param_1->push_back(graffitiGroup, (i << 16) | 0x2000008);
-			param_1->push_back(efbTex, 0x8);
+			param_2->push_back(drawInit, 0x8);
+			param_2->push_back(graffitiGroup, (i << 16) | 0x2000008);
+			param_2->push_back(efbTex, 0x8);
 		}
 	}
 }
