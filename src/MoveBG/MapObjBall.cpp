@@ -1042,19 +1042,10 @@ void TMapObjBall::kicked()
 
 void TMapObjBall::calcCurrentMtx()
 {
-	Mtx rotMtx;
-	rotMtx[2][3] = 0.0f;
-	rotMtx[1][3] = 0.0f;
-	rotMtx[0][3] = 0.0f;
-	rotMtx[1][2] = 0.0f;
-	rotMtx[0][2] = 0.0f;
-	rotMtx[2][1] = 0.0f;
-	rotMtx[0][1] = 0.0f;
-	rotMtx[2][0] = 0.0f;
-	rotMtx[1][0] = 0.0f;
-	rotMtx[2][2] = 1.0f;
-	rotMtx[1][1] = 1.0f;
-	rotMtx[0][0] = 1.0f;
+	JGeometry::TRotation3<
+	    JGeometry::TMatrix34<JGeometry::SMatrix34C<f32> > >
+	    rotMtx;
+	rotMtx.identity();
 
 	{
 		JGeometry::TVec3<f32> v = mVelocity;
@@ -1098,30 +1089,7 @@ void TMapObjBall::calcCurrentMtx()
 
 			f32 angle = 2.0f * (mag / mBodyRadius);
 
-			JGeometry::TVec3<f32> axis;
-			f32 dot = result.dot(result);
-			if (dot <= 0.0000038146973f) {
-				axis.x = 0.0f;
-				axis.y = 0.0f;
-				axis.z = 0.0f;
-			} else {
-				axis.scale(1.0f * JGeometry::TUtil<f32>::inv_sqrt(dot),
-				           result);
-			}
-
-			f32 sn = sinf(angle);
-			f32 cs = cosf(angle);
-			f32 om = 1.0f - cs;
-
-			rotMtx[0][0] = om * (axis.x * axis.x) + cs;
-			rotMtx[0][1] = (om * axis.x) * axis.y - sn * axis.z;
-			rotMtx[0][2] = (om * axis.x) * axis.z + sn * axis.y;
-			rotMtx[1][0] = (om * axis.x) * axis.y + sn * axis.z;
-			rotMtx[1][1] = om * (axis.y * axis.y) + cs;
-			rotMtx[1][2] = (om * axis.y) * axis.z - sn * axis.x;
-			rotMtx[2][0] = (om * axis.x) * axis.z - sn * axis.y;
-			rotMtx[2][1] = (om * axis.y) * axis.z + sn * axis.x;
-			rotMtx[2][2] = om * (axis.z * axis.z) + cs;
+			rotMtx.setRotate(result, angle);
 		}
 	}
 
@@ -1132,17 +1100,19 @@ void TMapObjBall::calcCurrentMtx()
 	animMtx[2][3] = 0.0f;
 	PSMTXConcat(rotMtx, animMtx, rotMtx);
 
-	rotMtx[0][3] = mPosition.x;
-	rotMtx[1][3] = mPosition.y + mBodyRadius;
-	rotMtx[2][3] = mPosition.z;
+	rotMtx.mMtx[0][3] = mPosition.x;
+	rotMtx.mMtx[1][3] = mPosition.y + mBodyRadius;
+	rotMtx.mMtx[2][3] = mPosition.z;
 
 	if (isActorType(0x40000394)) {
-		if (rotMtx[1][1] > 0.0f) {
-			rotMtx[1][3] = rotMtx[1][3] - 50.0f * rotMtx[1][1];
+		if (rotMtx.mMtx[1][1] > 0.0f) {
+			rotMtx.mMtx[1][3]
+			    = rotMtx.mMtx[1][3] - 50.0f * rotMtx.mMtx[1][1];
 		}
 	}
 	if (isActorType(0x40000392)) {
-		rotMtx[1][3] = rotMtx[1][3] - 10.0f * (1.0f - rotMtx[1][1]);
+		rotMtx.mMtx[1][3]
+		    = rotMtx.mMtx[1][3] - 10.0f * (1.0f - rotMtx.mMtx[1][1]);
 	}
 
 	PSMTXCopy(rotMtx, getModel()->mNodeMatrices[0]);
