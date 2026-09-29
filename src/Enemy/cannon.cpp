@@ -128,9 +128,7 @@ void TCannon::killerShoot()
 
 		TPosition3f localMtx;
 		localMtx.identity33();
-		localMtx.mMtx[0][3] = 0.0f;
-		localMtx.mMtx[1][3] = -60.0f;
-		localMtx.mMtx[2][3] = 150.0f;
+		localMtx.setTrans(0.0f, -60.0f, 150.0f);
 		PSMTXConcat(unk1E0, localMtx.mMtx, localMtx.mMtx);
 		killer->mPosition.set(localMtx.mMtx[0][3], localMtx.mMtx[1][3],
 		                      localMtx.mMtx[2][3]);
@@ -223,9 +221,7 @@ void TCannon::killerShoot()
 
 		TPosition3f localMtx;
 		localMtx.identity33();
-		localMtx.mMtx[0][3] = 0.0f;
-		localMtx.mMtx[1][3] = -60.0f;
-		localMtx.mMtx[2][3] = 150.0f;
+		localMtx.setTrans(0.0f, -60.0f, 150.0f);
 		PSMTXConcat(unk1E0, localMtx.mMtx, localMtx.mMtx);
 		igaiga->mPosition.set(localMtx.mMtx[0][3], localMtx.mMtx[1][3],
 		                      localMtx.mMtx[2][3]);
