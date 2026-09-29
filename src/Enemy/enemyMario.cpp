@@ -1337,15 +1337,15 @@ void TEnemyMario::emRunAwayToNearestNode()
 			    0x197C, &mPosition, 0, nullptr, 0, 4);
 		break;
 	case 300:
-		mPosition = target;
-		mPosition.y += 5.0f;
-		changePlayerStatus(0x0C400201, 0, true);
 		if (gpMarDirector->mMap == 1) {
 			Vec next;
 			getOwnerGraphPoint(this, 7, &next);
 			mFaceAngle.y
 			    = matan(next.z - target.z, next.x - target.x);
 			mModelFaceAngle = mFaceAngle.y;
+			mPosition = target;
+			mPosition.y += 5.0f;
+			changePlayerStatus(0x0C400201, 0, true);
 			emReplayIndex(this) = emRunAwayNode(this);
 			emInputReplayArray(this) = emInputReplayArrayBackup(this);
 			emInputReplayArray(this)[emReplayIndex(this)]->reset();
@@ -1355,6 +1355,9 @@ void TEnemyMario::emRunAwayToNearestNode()
 			emTimer(this) = 0;
 			emDoing(this) = 0x11;
 		} else {
+			mPosition = target;
+			mPosition.y += 5.0f;
+			changePlayerStatus(0x0C400201, 0, true);
 			pushNearestFlaggedNodeInput(this);
 			emTimer(this) = 0;
 			emDoing(this) = 0xD;
