@@ -118,6 +118,7 @@ int KoopaNeckCallBack(J3DNode* node, int timing)
 
 		JGeometry::TQuat4<f32> turn;
 		turn.setRotate(localX, projected, focus);
+		turn.normalize();
 
 		if (!koopa->isFlaming()) {
 			JGeometry::TQuat4<f32> pitch;
