@@ -485,20 +485,29 @@ TKoopaJr::TKoopaJr(const char* name)
 	mLiveFlag &= ~0x100;
 }
 
+void TKoopaJr::startDamageNerve()
+{
+	if (mSpine->getCurrentNerve() == &TNerveKoopaJrWait::theNerve())
+		mSpine->pushNerve(&TNerveKoopaJrDamage::theNerve());
+
+	if (mSpine->getCurrentNerve() == &TNerveKoopaJrLaunch::theNerve()
+	    || mSpine->getCurrentNerve() == &TNerveKoopaJrYahoo::theNerve())
+		mSpine->setNext(&TNerveKoopaJrDamage::theNerve());
+}
+
+void TKoopaJr::damageKoopaJr()
+{
+	unk150 = getSaveParam2()->mSLDamagePeriod.get();
+	startDamageNerve();
+}
+
 BOOL TKoopaJr::receiveMessage(THitActor* sender, u32 message)
 {
 	if (message == HIT_MESSAGE_SPRAYED_BY_WATER) {
 		gpMarioParticleManager->emit(0xE7, &sender->mPosition, 0, nullptr);
 		gpMSound->startSoundSet(0x6802, &mPosition, 0, 0.0f, 0, 0, 4);
 
-		unk150 = getSaveParam2()->mSLDamagePeriod.get();
-
-		if (mSpine->getCurrentNerve() == &TNerveKoopaJrWait::theNerve())
-			mSpine->pushNerve(&TNerveKoopaJrDamage::theNerve());
-
-		if (mSpine->getCurrentNerve() == &TNerveKoopaJrLaunch::theNerve()
-		    || mSpine->getCurrentNerve() == &TNerveKoopaJrYahoo::theNerve())
-			mSpine->setNext(&TNerveKoopaJrDamage::theNerve());
+		damageKoopaJr();
 
 		return TRUE;
 	}

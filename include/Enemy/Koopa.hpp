@@ -237,6 +237,8 @@ public:
 	virtual const char** getBasNameTable() const;
 	virtual void reset();
 
+	void startDamageNerve();
+	void damageKoopaJr();
 	void checkNerveKillerHit();
 	void checkNerveKillerLaunchFast();
 	void checkNerveKillerLaunchNormal();
