@@ -334,8 +334,8 @@ TKoopaJrParams::TKoopaJrParams(const char* path)
 	mSLKoopaJrScale.set(2.0f);
 	mSLFastLaunchDistance.set(4600.0f);
 	mSLDamagePeriod.set(240);
-	mSLLaunchKillerPeriod.set(840);
 	mSLLaunchKillerPeriodFast.set(360);
+	mSLLaunchKillerPeriod.set(840);
 }
 
 TKoopaJrSubmarineParams::TKoopaJrSubmarineParams(const char* path)
