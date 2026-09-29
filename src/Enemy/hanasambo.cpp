@@ -1505,11 +1505,11 @@ void THanaSambo::createPollen()
 	JPABaseEmitter* emitter;
 	if (mSpine->getCurrentNerve() == &TNerveHanaSamboWait::theNerve()) {
 		emitter = gpMarioParticleManager->emit(0xB2, &pos, 0, nullptr);
-		mtx[1][3] += 2000.0f;
+		mtx[1][3] += 200.0f;
 	} else {
 		emitter = gpMarioParticleManager->emit(0xB3, &pos, 0, nullptr);
 
-		JGeometry::TVec3<f32> offset(0.0f, 0.0f, 2000.0f);
+		JGeometry::TVec3<f32> offset(0.0f, 0.0f, 200.0f);
 		Mtx rot;
 		MsMtxSetRotRPH(rot, mRotation.x, mRotation.y, mRotation.z);
 		PSMTXMultVec(rot, &offset, &offset);
