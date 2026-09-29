@@ -807,11 +807,7 @@ void TBossEel::perform(u32 flags, JDrama::TGraphics* graphics)
 					updateTearsCnt();
 			}
 
-			unk1BC -= 0.01f;
-			if (unk1BC > 1.0f)
-				unk1BC = 1.0f;
-			else if (unk1BC < 0.0f)
-				unk1BC = 0.0f;
+			unk1BC = MsClamp(unk1BC - 0.01f, 0.0f, 1.0f);
 
 			if (mMActor->unkC)
 				mMActor->unkC->setMotionBlendRatio(unk1BC);
