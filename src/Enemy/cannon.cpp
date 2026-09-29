@@ -142,13 +142,13 @@ void TCannon::killerShoot()
 
 		switch (unk214) {
 		case 0: {
-			f32 offset = targetRange.rand();
-			target.z -= 2.0f * __fabsf(offset);
+			f32 offset = __fabsf(targetRange.rand());
+			target.z -= 2.0f * offset;
 			break;
 		}
 		case 2: {
-			f32 offset = targetRange.rand();
-			target.z += 2.0f * __fabsf(offset);
+			f32 offset = __fabsf(targetRange.rand());
+			target.z += 2.0f * offset;
 			break;
 		}
 		}
