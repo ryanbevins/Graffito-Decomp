@@ -2589,17 +2589,18 @@ DEFINE_NERVE(TNerveBossEelEat, TLiveActor)
 		if (eel->mMActor->checkCurBckFromIndex(17)) {
 			if (eel->canEatMario()) {
 				eel->setBckAnm(12);
-				if (SMS_SendMessageToMario(eel, HIT_MESSAGE_TAKE))
+				if (SMS_SendMessageToMario(eel, HIT_MESSAGE_TAKE)) {
 					eel->mHeldObject = (TTakeActor*)SMS_GetMarioHitActor();
 
-				if (!eel->unk21C) {
-					gpMarDirector->mConsole->startAppearBalloon(0xE0015, true);
-					TMarDirector* director = gpMarDirector;
-					director->fireStartDemoCamera(
-					    "meoto_mogu_camera", &eel->mPosition, -1, 0.0f,
-					    false, hoseiDiveCameraCallback, (u32)eel, nullptr,
-					    JDrama::TFlagT<u16>(0));
-					eel->unk21C = TRUE;
+					if (!eel->unk21C) {
+						gpMarDirector->mConsole->startAppearBalloon(0xE0015, true);
+						TMarDirector* director = gpMarDirector;
+						director->fireStartDemoCamera(
+						    "meoto_mogu_camera", &eel->mPosition, -1, 0.0f,
+						    false, hoseiDiveCameraCallback, (u32)eel, nullptr,
+						    JDrama::TFlagT<u16>(0));
+						eel->unk21C = TRUE;
+					}
 				}
 			} else {
 				eel->setBckAnm(5);
