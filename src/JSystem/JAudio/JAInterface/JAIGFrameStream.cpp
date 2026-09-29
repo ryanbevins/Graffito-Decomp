@@ -708,9 +708,6 @@ namespace StreamLib {
 
 	s32 callBack(void* param)
 	{
-		static s32 oldstat;
-		static u32 old_dspside;
-
 		bool started = false;
 
 		if (startInitFlag != 0) {
@@ -753,6 +750,7 @@ namespace StreamLib {
 			return -1;
 		}
 
+		static s32 oldstat = 0;
 		s32 status = DVDGetDriveStatus();
 		switch (status) {
 		case 5:
@@ -810,6 +808,7 @@ namespace StreamLib {
 			++movieframe;
 
 			u32 dspside = (LOOP_SAMPLESIZE - (buffer->unk6C >> 16)) / 0x1400;
+			static u32 old_dspside = 0;
 			if (old_dspside != dspside)
 				old_dspside = dspside;
 
