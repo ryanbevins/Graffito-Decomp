@@ -545,6 +545,12 @@ void TBossEel::collideToMario()
 			closeEye->unk18->unkC->setMotionBlendRatio(closeRatio);            \
 	} while (0)
 
+void TBossEel::forceEat()
+{
+	if (mSpine->getCurrentNerve() != &TNerveBossEelEat::theNerve())
+		mSpine->pushNerve(&TNerveBossEelEat::theNerve());
+}
+
 bool TBossEel::canEatMario()
 {
 	if (unk1C8)
@@ -1324,12 +1330,8 @@ void TBossEelCollision::behaveToMario()
 			canEat = false;
 	}
 
-	if (canEat) {
-		TBossEel* parent = unk7C;
-		if (parent->mSpine->getCurrentNerve()
-		    != &TNerveBossEelEat::theNerve())
-			parent->mSpine->pushNerve(&TNerveBossEelEat::theNerve());
-	}
+	if (canEat)
+		unk7C->forceEat();
 }
 
 void TBossEelCollision::initCollision()

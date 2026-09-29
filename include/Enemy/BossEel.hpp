@@ -46,6 +46,7 @@ public:
 	void updateTearsCnt();
 	void setBckAnm(int);
 	bool canEatMario();
+	void forceEat();
 
 	static f32 mOpenRollSpeed;
 	static u8 mUseObjCollision;
