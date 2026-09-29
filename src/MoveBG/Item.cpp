@@ -959,7 +959,7 @@ inline void TEggYoshi::startBalloonAnim()
 {
 	switch (unk14C) {
 	case 0x40000394:
-		unk148->getFrameCtrl(3)->setFrame(7.0f);
+		unk148->getFrameCtrl(3)->setFrame(1.0f);
 		break;
 	case 0x40000393:
 		unk148->getFrameCtrl(3)->setFrame(3.0f);
@@ -968,10 +968,10 @@ inline void TEggYoshi::startBalloonAnim()
 		unk148->getFrameCtrl(3)->setFrame(5.0f);
 		break;
 	case 0x40000392:
-		unk148->getFrameCtrl(3)->setFrame(9.0f);
+		unk148->getFrameCtrl(3)->setFrame(7.0f);
 		break;
 	case 0x40000390:
-		unk148->getFrameCtrl(3)->setFrame(11.0f);
+		unk148->getFrameCtrl(3)->setFrame(9.0f);
 		break;
 	}
 }
