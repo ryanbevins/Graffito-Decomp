@@ -551,9 +551,8 @@ inline void TBossEel::setBckAnm(int bck_index)
 	unk1B8 = mMActor->getCurAnmIdx(0);
 	unk1B4 = bck_index;
 	unk1BC = 1.0f;
-	J3DAnmTransform* oldAnm = nullptr;
-	if (mMActor->unkC)
-		oldAnm = mMActor->unkC->unk24;
+	J3DAnmTransform* oldAnm
+	    = mMActor->unkC ? mMActor->unkC->unk24 : nullptr;
 	if (mMActor->unkC)
 		mMActor->unkC->setOldMotionBlendAnmPtr(oldAnm);
 	mMActor->setBckFromIndex(bck_index);
@@ -561,11 +560,8 @@ inline void TBossEel::setBckAnm(int bck_index)
 		mMActor->unkC->setMotionBlendRatio(unk1BC);
 	f32 rate = 0.25f * SMSGetAnmFrameRate();
 	mMActor->getFrameCtrl(0)->setRate(rate);
-	const char* bas = nullptr;
 	const char** basTable = getBasNameTable();
-	if (basTable)
-		bas = basTable[bck_index];
-	setAnmSound(bas);
+	setAnmSound(basTable ? basTable[bck_index] : nullptr);
 }
 
 void TBossEel::forceShedTears(bool use_back_eye)
