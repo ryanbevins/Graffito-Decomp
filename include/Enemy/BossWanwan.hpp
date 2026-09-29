@@ -44,6 +44,7 @@ public:
 	    : M3UMtxCalcSIAnmBlendQuat(false)
 	    , mOwner(owner)
 	{
+		unk50 = 0.0f;
 	}
 
 	virtual void calc(u16);
