@@ -1060,18 +1060,10 @@ void TMapObjBall::calcCurrentMtx()
 	}
 
 	{
-		JGeometry::TVec3<f32> v3 = mVelocity;
-		f32 thresh               = mMapObjData->mPhysical->unk4->unkC;
-		bool computeRot          = false;
-		if (fabsf(v3.x) > thresh) {
-			computeRot = true;
-		} else {
-			JGeometry::TVec3<f32> v4 = mVelocity;
-			if (fabsf(v4.z) > thresh)
-				computeRot = true;
-		}
-
-		if (computeRot) {
+		if (fabsf(JGeometry::TVec3<f32>(mVelocity).x)
+		        > mMapObjData->mPhysical->unk4->unkC
+		    || fabsf(JGeometry::TVec3<f32>(mVelocity).z)
+		           > mMapObjData->mPhysical->unk4->unkC) {
 			JGeometry::TVec3<f32> v5 = mVelocity;
 			JGeometry::TVec3<f32> v6 = mVelocity;
 			JGeometry::TVec3<f32> result;
