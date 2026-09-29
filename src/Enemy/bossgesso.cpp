@@ -1131,7 +1131,7 @@ void TBossGesso::doAttackDouble()
 	}
 
 	JGeometry::TVec3<f32> delta = mPosition;
-	delta -= SMS_GetMarioPos();
+	delta.sub(delta, SMS_GetMarioPos());
 
 	f32 doubleAttackLen2 = getSaveParam2()->mSLDoubleAttackLen.value;
 	doubleAttackLen2 *= doubleAttackLen2;
