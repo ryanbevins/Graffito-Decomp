@@ -1126,9 +1126,12 @@ BOOL TNerveKoopaWait::execute(TSpineBase<TLiveActor>* spine) const
 				if (self->mMActor->curAnmEndsNext(0, nullptr)) {
 					shouldTumble = true;
 				} else {
-					shouldTumble = passesKoopaWaitFrame(self, 2.0f)
-					               || passesKoopaWaitFrame(self, 400.0f)
-					               || passesKoopaWaitFrame(self, 700.0f);
+					if (passesKoopaWaitFrame(self, 2.0f))
+						shouldTumble = true;
+					else if (passesKoopaWaitFrame(self, 400.0f))
+						shouldTumble = true;
+					else if (passesKoopaWaitFrame(self, 700.0f))
+						shouldTumble = true;
 				}
 			}
 			if (shouldTumble && bathtub->allowsTumble())
