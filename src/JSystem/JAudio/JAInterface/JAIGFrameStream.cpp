@@ -76,7 +76,7 @@ namespace StreamLib {
 	static u32 playmode            = 0;
 	static u32 shift_sample        = 0;
 	static u32 extra_sample        = 0;
-	static u32 DvdLoadFlag         = false;
+	static BOOL DvdLoadFlag         = false;
 	static u32 startInitFlag       = false;
 	static u32 Mode                = 0;
 	static void* Head              = nullptr;
