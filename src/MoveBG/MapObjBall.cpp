@@ -1082,11 +1082,11 @@ void TMapObjBall::calcCurrentMtx()
 		}
 	}
 
-	Mtx animMtx;
-	JGeometry::gekko_ps_copy12(animMtx, getModel()->mNodeMatrices);
-	animMtx[0][3] = 0.0f;
-	animMtx[1][3] = 0.0f;
-	animMtx[2][3] = 0.0f;
+	TMtx34f animMtx;
+	animMtx.set(getModel()->getAnmMtx(0));
+	animMtx.mMtx[0][3] = 0.0f;
+	animMtx.mMtx[1][3] = 0.0f;
+	animMtx.mMtx[2][3] = 0.0f;
 	PSMTXConcat(rotMtx, animMtx, rotMtx);
 
 	rotMtx.mMtx[0][3] = mPosition.x;
