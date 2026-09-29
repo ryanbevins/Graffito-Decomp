@@ -1129,12 +1129,8 @@ void TBossEelEye::perform(u32 flags, JDrama::TGraphics* graphics)
 		return;
 
 	if (flags & 2) {
-		f32 z = getConnectedMtx()[2][3];
-		f32 y = getConnectedMtx()[1][3];
-		f32 x = getConnectedMtx()[0][3];
-		unk70.x = x;
-		unk70.y = y;
-		unk70.z = z;
+		unk70.set(getConnectedMtx()[0][3], getConnectedMtx()[1][3],
+		          getConnectedMtx()[2][3]);
 
 		JPABaseEmitter* emitter = gpMarioParticleManager->emitAndBindToPosPtr(
 		    0x192, &unk70, 1, this);
