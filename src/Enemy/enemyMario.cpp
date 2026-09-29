@@ -1464,9 +1464,9 @@ void TEnemyMario::emReplayJumpToNearestNode()
 	JGeometry::TVec3<f32> currentPoint;
 	currentNode->getPoint(&currentPoint);
 
-	mPosition.x += (currentPoint.x - mPosition.x) * 0.05f;
-	mPosition.z += (currentPoint.z - mPosition.z) * 0.05f;
-	mPosition.y += (currentPoint.y - mPosition.y) * 0.05f;
+	mPosition.x = mPosition.x + (currentPoint.x - mPosition.x) * 0.05f;
+	mPosition.z = mPosition.z + (currentPoint.z - mPosition.z) * 0.05f;
+	mPosition.y = mPosition.y + (currentPoint.y - mPosition.y) * 0.05f;
 
 	if (mAction != 0x0C400201) {
 		int nearest = owner()->unk124->getGraph()->findNearestNodeIndex(
