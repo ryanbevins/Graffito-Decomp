@@ -190,7 +190,7 @@ void TDolpicEventRiccoMammaGate::loadAfter()
 	unk38 = 720;
 	unk3C = 120;
 	unk40 = 120;
-	unk34 = 0.008f / (f32)(unk38 - unk3C - unk40);
+	unk34 = 1.0f / (f32)(unk38 - unk3C - unk40);
 
 	if (unk30) {
 		unk28->setUp();
