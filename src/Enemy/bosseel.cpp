@@ -2711,19 +2711,15 @@ DEFINE_NERVE(TNerveBossEelMouthOpenWait, TLiveActor)
 			eel->setBckAnm(14);
 			gpCameraShake->startShake((EnumCamShakeMode)0x1c, 1.0f);
 
-			TBossEelVortex* vortex
-			    = *(TBossEelVortex**)((u8*)eel + 0x18C);
-			vortex->reset();
+			eel->unk18C->reset();
 
 			MtxPtr mtx
 			    = eel->mMActor->getModel()->mNodeMatrices[eel->unk1A0[2]];
-			vortex->mPosition.x = mtx[0][3];
-			vortex->mPosition.y = mtx[1][3];
-			vortex->mPosition.z = mtx[2][3];
-			vortex->unk6C       = FALSE;
-			vortex->mScaling.x  = eel->unk1E8->mSLVortexScaleXZ.value;
-			vortex->mScaling.y  = eel->unk1E8->mSLVortexScaleY.value;
-			vortex->mScaling.z  = eel->unk1E8->mSLVortexScaleXZ.value;
+			eel->unk18C->mPosition.set(mtx[0][3], mtx[1][3], mtx[2][3]);
+			eel->unk18C->unk6C = FALSE;
+			eel->unk18C->mScaling.set(eel->unk1E8->mSLVortexScaleXZ.get(),
+			                         eel->unk1E8->mSLVortexScaleY.get(),
+			                         eel->unk1E8->mSLVortexScaleXZ.get());
 			eel->offHitFlag(1);
 		} else {
 			s32 mouthOpenFrame = eel->unk1E8->mSLMouthOpenFrame.value;
