@@ -25,6 +25,7 @@
 #include <System/MarDirector.hpp>
 #include <stdlib.h>
 #include <math.h>
+#include <M3DUtil/InfectiousStrings.hpp>
 
 extern JGeometry::TVec3<f32>* gpMarioPos;
 
