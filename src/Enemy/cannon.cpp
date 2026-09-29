@@ -124,6 +124,7 @@ void TCannon::killerShoot()
 			return;
 
 		killer->reset();
+		unk1E0 = unk1AC[unk214]->getMActor()->getModel()->getBaseTRMtx();
 		unk1E0 = unk1AC[unk214]->getMActor()->getModel()->getAnmMtx(1);
 
 		TPosition3f localMtx;
