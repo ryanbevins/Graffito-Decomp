@@ -1034,7 +1034,7 @@ void TYoshi::movement()
 		break;
 	}
 
-	if ((u8)mState != 0) {
+	if (isHatched()) {
 		f32 blend = *(f32*)((u8*)_04b + 0xC);
 		f32 redBlend = blend * ((f32)bodyColor[mType].r - mRedComponent);
 		mRedComponent += redBlend;
