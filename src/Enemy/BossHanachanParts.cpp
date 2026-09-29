@@ -618,10 +618,13 @@ TBossHanachanPartsBase::TBossHanachanPartsBase(TBossHanachan* owner,
 
 	initHitActor(actorType, 0, 0, 0.0f, 0.0f, 0.0f, 0.0f);
 	unk64 |= 1;
-	if (actorType == 0x08000015) {
+	switch (actorType) {
+	case 0x08000015:
 		mScaledBodyRadius = owner->mParams->mSLBodyShadowSize.value;
-	} else if (actorType == 0x08000014) {
+		break;
+	case 0x08000014:
 		mScaledBodyRadius = owner->mParams->mSLHeadShadowSize.value;
+		break;
 	}
 	mLiveFlag |= 8;
 	initAnmSound();
