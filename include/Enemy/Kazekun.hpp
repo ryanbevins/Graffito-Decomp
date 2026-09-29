@@ -52,6 +52,7 @@ public:
 	virtual void attackToMario();
 	virtual bool isCollidMove(THitActor*);
 
+	f32 getAroundRate(const JGeometry::TVec3<f32>&) const;
 	void getAroundQuat(JGeometry::TQuat4<f32>&,
 	                   const JGeometry::TVec3<f32>&, f32);
 	void doAttackPose(bool);

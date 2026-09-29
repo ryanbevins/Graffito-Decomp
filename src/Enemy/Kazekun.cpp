@@ -470,6 +470,14 @@ void TKazekun::behaveToWater(THitActor*)
 	}
 }
 
+f32 TKazekun::getAroundRate(const JGeometry::TVec3<f32>& direction) const
+{
+	TKazekunParams* params = getKazekunParam();
+	f32 distance = direction.length();
+	return JGeometry::TUtil<f32>::clamp(
+	    distance / params->mAroundDist.get(), 0.0f, 2.0f);
+}
+
 void TKazekun::getAroundQuat(JGeometry::TQuat4<f32>& quat,
                             const JGeometry::TVec3<f32>& direction, f32 angle)
 {
@@ -541,10 +549,7 @@ void TKazekun::flyAroundMario()
 	f32 tilt = JGeometry::TUtil<f32>::clamp(dir.y, -400.0f, 400.0f) * 0.0025f;
 	dir.y    = 0.0f;
 
-	TKazekunParams* params = getKazekunParam();
-	f32 dist  = JGeometry::TUtil<f32>::sqrt(dir.dot(dir));
-	f32 ratio = JGeometry::TUtil<f32>::clamp(
-	    dist / params->mAroundDist.get(), 0.0f, 2.0f);
+	f32 ratio = getAroundRate(dir);
 
 	JGeometry::TQuat4<f32> quat;
 	getAroundQuat(quat, dir, (2.0f - ratio) * 1.5707964f);
