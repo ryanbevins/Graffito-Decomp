@@ -545,6 +545,22 @@ void TBossEel::collideToMario()
 			closeEye->unk18->unkC->setMotionBlendRatio(closeRatio);            \
 	} while (0)
 
+bool TBossEel::canEatMario()
+{
+	if (unk1C8)
+		return true;
+
+	MtxPtr mtx = mMActor->getModel()->mNodeMatrices[unk1A0[0]];
+	JGeometry::TVec3<f32> pos = *gpMarioPos;
+	pos.x -= mtx[0][3];
+	pos.y -= mtx[1][3];
+	pos.z -= mtx[2][3];
+	if (MsVECMag2(&pos) < unk1D4 * unk1D8)
+		return true;
+	else
+		return false;
+}
+
 inline void TBossEel::setBckAnm(int bck_index)
 {
 	unk1B8 = mMActor->getCurAnmIdx(0);
@@ -2726,20 +2742,8 @@ DEFINE_NERVE(TNerveBossEelMouthOpenWait, TLiveActor)
 			s32 canEatFrame   = eel->unk1E8->mSLCanEatFrame.value;
 
 			if (spine->getTime() > mouthOpenFrame - canEatFrame) {
-				u8 canEat = *(u8*)((u8*)eel + 0x1C8);
-				if (!canEat) {
-					JGeometry::TVec3<f32> pos = *gpMarioPos;
-					MtxPtr mtx = eel->mMActor->getModel()
-					                 ->mNodeMatrices[*(u16*)((u8*)eel + 0x1A0)];
-					pos.x -= mtx[0][3];
-					pos.y -= mtx[1][3];
-					pos.z -= mtx[2][3];
 
-					if (MsVECMag2(&pos) < eel->unk1D4 * eel->unk1D8)
-						canEat = TRUE;
-				}
-
-				if (canEat) {
+				if (eel->canEatMario()) {
 					spine->pushAfterCurrent(&TNerveBossEelEat::theNerve());
 					return TRUE;
 				}
