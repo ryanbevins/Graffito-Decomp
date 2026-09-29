@@ -142,6 +142,22 @@ inline TLimitKoopaFlame::TLimitKoopaFlame(TLimitKoopa* owner)
 {
 }
 
+inline void TLimitKoopaParts::set(const JGeometry::TVec3<f32>& position,
+                                 f32 radius, f32 height)
+{
+	if (height <= 0.0f)
+		height = 2.0f * radius;
+	mPosition.set(position);
+	offHitFlag(0x2);
+	offHitFlag(0x4);
+	offHitFlag(0x1);
+	mAttackRadius = radius;
+	mAttackHeight = height;
+	mDamageRadius = radius;
+	mDamageHeight = height;
+	calcEntryRadius();
+}
+
 void TLimitKoopaParts::perform(u32 flags, JDrama::TGraphics* graphics)
 {
 	TLiveActor::perform(flags, graphics);
@@ -374,9 +390,9 @@ void TLimitKoopa::setUpHitActors()
 
 			f32 dist = 0.8f * (2.0f + (f32)(2 * i)) * flameRadius * ratio;
 
-			THitActor* hit = mFlameHitActors[i];
+			TLimitKoopaFlame* hit = mFlameHitActors[i];
 			JGeometry::TVec3<f32> flameOffset(dist, 0.0f, 0.0f);
-			hit->mPosition.set<f32>(
+			JGeometry::TVec3<f32> position(
 			    neckMtx[0][3]
 			        + (neckMtx[0][0] * flameOffset.x
 			           + neckMtx[0][1] * flameOffset.y
@@ -387,18 +403,7 @@ void TLimitKoopa::setUpHitActors()
 			           + neckMtx[2][1] * flameOffset.y
 			           + neckMtx[2][2] * flameOffset.z));
 
-			hit->offHitFlag(0x2);
-			hit->offHitFlag(0x4);
-			hit->offHitFlag(0x1);
-
-			f32 height = flameHeight;
-			if (height <= 0.0f)
-				height = 2.0f * flameRadius;
-			hit->mAttackRadius = flameRadius;
-			hit->mAttackHeight = height;
-			hit->mDamageRadius = flameRadius;
-			hit->mDamageHeight = height;
-			hit->calcEntryRadius();
+			hit->set(position, flameRadius, flameHeight);
 		}
 	} else {
 		for (int i = 0; i < 10; i++) {
@@ -411,20 +416,10 @@ void TLimitKoopa::setUpHitActors()
 
 	MtxPtr headMtx = getMActor()->getModel()->getAnmMtx(mHeadJointIndex);
 	f32 headRadius = getSaveParam2()->headRadius.get();
-	THitActor* head = mHeadHitActor;
-
-	head->mPosition.set<f32>(headMtx[0][3], headMtx[1][3] - 200.0f,
-	                         headMtx[2][3]);
-
-	head->offHitFlag(0x2);
-	head->offHitFlag(0x4);
-	head->offHitFlag(0x1);
-
-	head->mAttackRadius = headRadius;
-	head->mAttackHeight = 2.0f * headRadius;
-	head->mDamageRadius = headRadius;
-	head->mDamageHeight = 2.0f * headRadius;
-	head->calcEntryRadius();
+	TLimitKoopaHead* head = mHeadHitActor;
+	JGeometry::TVec3<f32> position(headMtx[0][3], headMtx[1][3] - 200.0f,
+	                              headMtx[2][3]);
+	head->set(position, headRadius, 0.0f);
 }
 
 #pragma dont_inline on

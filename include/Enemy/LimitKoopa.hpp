@@ -49,6 +49,7 @@ class TLimitKoopa;
 class TLimitKoopaParts : public TLiveActor {
 public:
 	TLimitKoopaParts(const char*, u32, TLimitKoopa*, f32);
+	void set(const JGeometry::TVec3<f32>&, f32, f32);
 
 	virtual void perform(u32, JDrama::TGraphics*);
 	virtual void attack_(THitActor*) = 0;
@@ -115,10 +116,10 @@ public:
 	/* 0x16C */ TDirectionCalc mDirection;
 	/* 0x170 */ f32 unk170;
 	/* 0x174 */ s32 unk174;
-	/* 0x178 */ THitActor* mFlameHitActors[10];
+	/* 0x178 */ TLimitKoopaFlame* mFlameHitActors[10];
 	/* 0x1A0 */ THitActor* unk1A0;
 	/* 0x1A4 */ THitActor* unk1A4;
-	/* 0x1A8 */ THitActor* mHeadHitActor;
+	/* 0x1A8 */ TLimitKoopaHead* mHeadHitActor;
 	/* 0x1AC */ THitActor* unk1AC;
 	/* 0x1B0 */ s32 mNeckJointIndex;
 	/* 0x1B4 */ s32 mJointIndex2;
