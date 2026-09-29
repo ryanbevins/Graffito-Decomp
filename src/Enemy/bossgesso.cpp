@@ -1106,8 +1106,8 @@ void TBossGesso::doAttackSingle()
 				if (fabsf(dVar9 - dVar10) < 30.0f)
 					changeAttackMode(ASTATE_SHOOT);
 			}
-			return;
 		}
+		return;
 	}
 
 	if (gpMarDirector->unk7D == 4 ? 1 : 0) {
