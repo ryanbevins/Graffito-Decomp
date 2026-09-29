@@ -114,8 +114,7 @@ void TMapObjGeneral::thrown()
 {
 	mPosition.set<f32>(gpMarioPos->x, gpMarioPos->y, gpMarioPos->z);
 
-	mRotation.set<f32>((f32)*gpMarioAngleX, (f32)*gpMarioAngleY,
-	                   (f32)*gpMarioAngleZ);
+	mRotation.set<s16>(*gpMarioAngleX, *gpMarioAngleY, *gpMarioAngleZ);
 
 	mGroundHeight = gpMap->checkGround(mPosition, &mGroundPlane);
 
