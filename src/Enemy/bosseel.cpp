@@ -1561,15 +1561,7 @@ void TBossEelTooth::perform(u32 flags, JDrama::TGraphics* graphics)
 						    ->makeOneEnemyAppear(pos, cBossEelTearsManagerName,
 						                         0);
 						if (tears) {
-							tears->unk16C->unk81 = FALSE;
-							tears->unk16C->offHitFlag(HIT_FLAG_NO_COLLISION);
-							tears->unk16C->unk80 = TRUE;
-							tears->unk16C->mPosition = tears->mPosition;
-							tears->unk16C->mPosition = tears->mPosition;
-							tears->mSpine->initWith(
-							    &TNerveBEelTearsMarioRecover::theNerve());
-							tears->onLiveFlag(LIVE_FLAG_HIDDEN);
-							tears->unk16C->unk81 = TRUE;
+							tears->setRecoverTears();
 						}
 
 						unk68->getMActor()->setFrameRate(
@@ -1789,6 +1781,23 @@ BOOL TBEelTears::receiveMessage(THitActor*, u32 message)
 	}
 
 	return FALSE;
+}
+
+void TBEelTears::setRecoverTears()
+{
+	setBubble();
+	onLiveFlag(LIVE_FLAG_HIDDEN);
+	unk16C->unk81 = TRUE;
+}
+
+void TBEelTears::setBubble()
+{
+	unk16C->unk81 = FALSE;
+	unk16C->offHitFlag(HIT_FLAG_NO_COLLISION);
+	unk16C->unk80 = TRUE;
+	unk16C->mPosition = mPosition;
+	unk16C->mPosition = mPosition;
+	mSpine->initWith(&TNerveBEelTearsMarioRecover::theNerve());
 }
 
 void TBEelTears::reset()
@@ -2689,15 +2698,7 @@ DEFINE_NERVE(TNerveBossEelDie, TLiveActor)
 			TBEelTears* tears = (TBEelTears*)gpConductor->makeOneEnemyAppear(
 			    pos, cBossEelTearsManagerName, 0);
 			if (tears) {
-				tears->unk16C->unk81 = FALSE;
-				tears->unk16C->offHitFlag(HIT_FLAG_NO_COLLISION);
-				tears->unk16C->unk80      = TRUE;
-				tears->unk16C->mPosition = tears->mPosition;
-				tears->unk16C->mPosition = tears->mPosition;
-				tears->mSpine->initWith(
-				    &TNerveBEelTearsMarioRecover::theNerve());
-				tears->onLiveFlag(LIVE_FLAG_HIDDEN);
-				tears->unk16C->unk81 = TRUE;
+				tears->setRecoverTears();
 			}
 
 			s32 jointIndex = eel->mMActor->getModel()

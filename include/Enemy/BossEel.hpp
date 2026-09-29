@@ -328,6 +328,8 @@ public:
 
 class TBEelTears : public TSpineEnemy {
 public:
+	void setRecoverTears();
+	void setBubble();
 	TBEelTears(const char*);
 	virtual void perform(u32, JDrama::TGraphics*);
 	virtual BOOL receiveMessage(THitActor*, u32);
