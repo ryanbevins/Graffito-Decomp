@@ -1687,13 +1687,12 @@ TBossEelTooth::TBossEelTooth(u8 tooth_id, TBossEel* boss,
 	}
 	unkB8.a = 0xFF;
 
-	TBossEelSaveParams* params = unk6C->unk1E8;
-	unk70                       = params->mSLToothMaxHitPoint.value;
+	unk70 = unk6C->unk1E8->mSLToothMaxHitPoint.get();
 	initHitActor(0x08000022, 5, 0x81000000,
-	             params->mSLToothAttackRadius.value,
-	             params->mSLToothAttackHeight.value,
-	             params->mSLToothDamageRadius.value,
-	             params->mSLToothDamageHeight.value);
+	             unk6C->unk1E8->mSLToothAttackRadius.get(),
+	             unk6C->unk1E8->mSLToothAttackHeight.get(),
+	             unk6C->unk1E8->mSLToothDamageRadius.get(),
+	             unk6C->unk1E8->mSLToothDamageHeight.get());
 
 	TIdxGroupObj* group = JDrama::TNameRefGen::search<TIdxGroupObj>("敵グループ");
 	group->getChildren().push_back(this);
