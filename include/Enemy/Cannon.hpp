@@ -88,6 +88,7 @@ public:
 	bool isObject();
 	void setKillerGoalPoint();
 	void killerShoot();
+	void updateAttachPos();
 	void hitHead(TBombHei*);
 	void bombShoot();
 	void bombSet();
