@@ -205,7 +205,9 @@ void TWireTrap::calcRootMatrix()
 	mtx.getQuat(quat);
 
 	mRotation.z += -17.75f;
-	mRotation.z = std::fmodf(360.0f + (mRotation.z - 0.0f), 360.0f) + 0.0f;
+	mRotation.z = JGeometry::TUtil<f32>::zero()
+	              + std::fmodf(360.0f + (mRotation.z - JGeometry::TUtil<f32>::zero()),
+	                           360.0f);
 
 	spin.setRotate(JGeometry::TVec3<f32>(0.0f, 0.0f, 1.0f),
 	               mRotation.z * 0.017453294f);
