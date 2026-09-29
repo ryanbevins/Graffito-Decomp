@@ -642,12 +642,15 @@ int MarioHeadCtrl(J3DNode* param_1, int param_2)
 			    = gpMarioForCallBack->mUpperBodyParams.mHoverHeadAngle.get();
 			MsMtxSetRotRPH(transform, 0.0f, 0.0f, SHORTANGLE2DEG(headAngle));
 		} else if (gpMarioForCallBack->mAction == 0xC400201
-		           && gpMarioForCallBack->mDeParams.mFeelDeep.get()
-		                  < gpMarioForCallBack->unk370) {
+		           && (gpMarioForCallBack->unk370
+		                       > gpMarioForCallBack->mDeParams.mFeelDeep.get()
+		                   ? true
+		                   : false)) {
 			s16 headAngle
 			    = gpMarioForCallBack->mUpperBodyParams.mFeelDeepHeadAngle.get();
 			MsMtxSetRotRPH(transform, 0.0f, 0.0f, SHORTANGLE2DEG(headAngle));
-		} else if (gpMarioForCallBack->isWallInFront()) {
+		} else if (gpMarioForCallBack->mAction == 0xC400201
+		           && gpMarioForCallBack->isWallInFront()) {
 
 			s16 headAngle = gpMarioForCallBack->mUpperBodyParams
 			                    .mFrontWallHeadAngle.get();
