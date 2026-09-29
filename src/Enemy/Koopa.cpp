@@ -1398,20 +1398,25 @@ BOOL TNerveKoopaTurnR::execute(TSpineBase<TLiveActor>* spine) const
 BOOL TNerveKoopaGetDown::execute(TSpineBase<TLiveActor>* spine) const
 {
 	TKoopa* self = (TKoopa*)spine->getBody();
-	TKoopaParams* prm = self->getSaveParam2();
 
 	switch (self->mMActor->getCurAnmIdx(0)) {
 	case 0:
 		if (self->mMActor->curAnmEndsNext(0, nullptr))
-			self->changeAnm(1, 0, prm->downSpeed.get());
+			self->changeAnm(
+			    1, 0, ((TKoopaParams*)((TEnemyManager*)self->mManager)->unk38)
+			              ->downSpeed.get());
 		break;
 
 	case 1: {
 		TBathtub* bathtub = JDrama::TNameRefGen::search<TBathtub>("バスタブ");
 		s32 step = spine->getTime() * (bathtub->getNumGripsDead() + 2);
-		if ((f32)step >= prm->downStep.get()) {
+		if ((f32)step
+		    >= ((TKoopaParams*)((TEnemyManager*)self->mManager)->unk38)
+		           ->downStep.get()) {
 			if (self->mMActor->curAnmEndsNext(0, nullptr))
-				self->changeAnm(7, 0, prm->downSpeed.get());
+				self->changeAnm(
+			    7, 0, ((TKoopaParams*)((TEnemyManager*)self->mManager)->unk38)
+			              ->downSpeed.get());
 		}
 		break;
 	}
@@ -1422,7 +1427,9 @@ BOOL TNerveKoopaGetDown::execute(TSpineBase<TLiveActor>* spine) const
 		break;
 
 	default: {
-		self->changeAnm(0, 0, prm->downSpeed.get());
+		self->changeAnm(
+		    0, 0, ((TKoopaParams*)((TEnemyManager*)self->mManager)->unk38)
+		              ->downSpeed.get());
 		static TBathtub* bathtub
 		    = JDrama::TNameRefGen::search<TBathtub>("バスタブ");
 		gpMarioParticleManager->emitAndBindToMtx(
