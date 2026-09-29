@@ -1018,7 +1018,7 @@ void TBossEel::init(TLiveManager* manager)
 		unk1A0[i]  = jointName->getIndex(sCollisionJointTable[i]);
 		unk190[i] = new TMapCollisionMove();
 		unk190[i]->init(sCollisionFileTable[i], 2, this);
-		unk190[i]->moveTrans(mPosition);
+		unk190[i]->setUpTrans(mPosition);
 	}
 
 	unk214 = new TBossEelAwaCollision(model->mNodeMatrices[unk1A0[2]],
