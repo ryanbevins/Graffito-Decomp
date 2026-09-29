@@ -1552,10 +1552,8 @@ void TEnemyMario::emReplayJumpToNearestNode()
 			total += weights[i];
 		}
 
-		if (total != 0.0f) {
-			for (int i = 0; i < count; ++i)
-				weights[i] /= total;
-		}
+		for (int i = 0; i < count; ++i)
+			weights[i] /= total;
 
 		int choice = 0;
 		f32 roll  = rand() * 0.000030517578f;
