@@ -844,7 +844,7 @@ namespace StreamLib {
 					prepareflag = 2;
 					playflag2   = 1;
 
-					for (u8 i = 0; i < 2; ++i) {
+					for (u32 i = 0; i < 2; ++i) {
 						JASystem::DSPInterface::DSPBuffer* buffer
 						    = JASystem::DSPInterface::getDSPHandle(assign_ch[i]->unk0);
 						u16 pitch = (u16)((header.unk8 << 12) / 32000);
