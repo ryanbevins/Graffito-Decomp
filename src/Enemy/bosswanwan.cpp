@@ -377,6 +377,25 @@ void TBWLeash::perform(u32 flags, JDrama::TGraphics* graphics)
 		mNodes[i]->testPerform(flags, graphics);
 }
 
+inline TBWPicket::TBWPicket(TBossWanwan* owner, const char* name)
+    : TTakeActor(name)
+    , mOwner(owner)
+    , unk74()
+    , mMActor(nullptr)
+{
+	PSMTXIdentity(unk74);
+	initHitActor(0x0800000D, 1, 0x80000000,
+	             ((TBWParams*)mOwner->getSaveParam())->mSLPicketRadius.get(),
+	             ((TBWParams*)mOwner->getSaveParam())->mSLPicketHeight.get(),
+	             ((TBWParams*)mOwner->getSaveParam())->mSLPicketRadius.get(),
+	             ((TBWParams*)mOwner->getSaveParam())->mSLPicketHeight.get());
+	TIdxGroupObj* group
+	    = JDrama::TNameRefGen::search<TIdxGroupObj>("敵グループ");
+	group->add(this);
+	offHitFlag(HIT_FLAG_NO_COLLISION);
+	mMActor = mOwner->mMActorKeeper->createMActor("bwanwan_picket.bmd", 0);
+}
+
 BOOL TBWPicket::receiveMessage(THitActor* sender, u32 message)
 {
 	if (sender->getActorType() == 0x80000001) {
@@ -851,17 +870,6 @@ void TBossWanwan::init(TLiveManager* manager)
 	mLeash   = new TBWLeash(this, 15, "ボスワンワン鎖");
 	mPicket  = new TBWPicket(this, "ボスワンワンつかみ");
 
-	mPicket->initHitActor(0x0800000D, 1, 0x80000000,
-	                      params->mSLPicketRadius.get(),
-	                      params->mSLPicketHeight.get(),
-	                      params->mSLPicketRadius.get(),
-	                      params->mSLPicketHeight.get());
-	TIdxGroupObj* shadowGroup
-	    = JDrama::TNameRefGen::search<TIdxGroupObj>("敵グループ");
-	shadowGroup->add(mPicket);
-	mPicket->offHitFlag(HIT_FLAG_NO_COLLISION);
-	mPicket->mMActor
-	    = mPicket->mOwner->mMActorKeeper->createMActor("bwanwan_picket.bmd", 0);
 	mPicket->mPosition = BW_PICKET_START;
 
 	unk17C = 1;
@@ -876,6 +884,8 @@ void TBossWanwan::init(TLiveManager* manager)
 	mBodyHit->initHitActor(0x0800000B, 3, 0xA0000000, 300.0f, 500.0f,
 	                       270.0f, 500.0f);
 
+	TIdxGroupObj* shadowGroup
+	    = JDrama::TNameRefGen::search<TIdxGroupObj>("敵グループ");
 	shadowGroup->add(mHeadHit);
 	mHeadHit->offHitFlag(HIT_FLAG_NO_COLLISION);
 	shadowGroup->add(mBodyHit);

@@ -77,14 +77,7 @@ public:
 
 class TBWPicket : public TTakeActor {
 public:
-	TBWPicket(TBossWanwan* owner, const char* name)
-	    : TTakeActor(name)
-	    , mOwner(owner)
-	    , unk74()
-	    , mMActor(nullptr)
-	{
-		PSMTXIdentity(unk74);
-	}
+	TBWPicket(TBossWanwan* owner, const char* name);
 
 	virtual void perform(u32, JDrama::TGraphics*);
 	virtual BOOL receiveMessage(THitActor*, u32);
