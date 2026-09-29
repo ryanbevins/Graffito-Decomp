@@ -666,7 +666,7 @@ void TKoopa::stagger(bool ignoreFlame)
 	mSpine->pushNerve(&TNerveKoopaStagger::theNerve());
 }
 
-BOOL TKoopa::getShowered()
+bool TKoopa::getShowered()
 {
 	if (&TNerveKoopaFall::theNerve() == mSpine->getCurrentNerve())
 		return FALSE;
