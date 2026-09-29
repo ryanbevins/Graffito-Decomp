@@ -42,6 +42,7 @@ public:
 	void shedTears(MtxPtr);
 	void calcAndSetCollisionCubeBite_();
 	void deadCheck();
+	bool isValidToothDamage();
 	void updateTearsCnt();
 	void setBckAnm(int);
 	bool canEatMario();

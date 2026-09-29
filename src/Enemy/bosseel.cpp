@@ -703,6 +703,13 @@ void TBossEel::calcAndSetCollisionCubeBite_()
 	                7000.0f * mScaling.z);
 }
 
+bool TBossEel::isValidToothDamage()
+{
+	if (mSpine->getCurrentNerve() == &TNerveBossEelEat::theNerve())
+		return false;
+	return true;
+}
+
 void TBossEel::deadCheck()
 {
 	for (int i = 0; i < 8; ++i) {
@@ -1525,8 +1532,7 @@ void TBossEelTooth::perform(u32 flags, JDrama::TGraphics* graphics)
 
 		for (int i = 0; i < mColCount; ++i) {
 			THitActor* hit = mCollisions[i];
-			if (unk6C->mSpine->getCurrentNerve()
-			        != &TNerveBossEelEat::theNerve()
+			if (unk6C->isValidToothDamage()
 			    && hit->isActorTypeOf(ACTOR_TYPE_PLAYER) && unk70 > 1) {
 				SMS_SendMessageToMario(this, HIT_MESSAGE_ATTACK);
 			}
