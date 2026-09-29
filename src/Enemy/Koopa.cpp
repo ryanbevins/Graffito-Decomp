@@ -439,51 +439,24 @@ void TKoopa::calcRootMatrix()
 	f32 offY = rootMtx[1][1] * -1500.0f;
 	f32 offZ = rootMtx[2][1] * -1500.0f;
 
-	Mtx mtx;
+	TMtx34f mtx;
 	MsMtxSetRotRPH(mtx, 0.0f, mRotation.y, 0.0f);
-	mtx[0][3] = 0.0f;
-	mtx[1][3] = 0.0f;
-	mtx[2][3] = 0.0f;
+	mtx.mMtx[0][3] = 0.0f;
+	mtx.mMtx[1][3] = 0.0f;
+	mtx.mMtx[2][3] = 0.0f;
 
-	((JGeometry::SMatrix34C<f32>*)&mtx)
-	    ->set(rootMtx[0][0] * mtx[0][0] + rootMtx[0][1] * mtx[1][0]
-	              + rootMtx[0][2] * mtx[2][0],
-	          rootMtx[0][0] * mtx[0][1] + rootMtx[0][1] * mtx[1][1]
-	              + rootMtx[0][2] * mtx[2][1],
-	          rootMtx[0][0] * mtx[0][2] + rootMtx[0][1] * mtx[1][2]
-	              + rootMtx[0][2] * mtx[2][2],
-	          rootMtx[0][3] + rootMtx[0][0] * mtx[0][3]
-	              + rootMtx[0][1] * mtx[1][3]
-	              + rootMtx[0][2] * mtx[2][3],
-	          rootMtx[1][0] * mtx[0][0] + rootMtx[1][1] * mtx[1][0]
-	              + rootMtx[1][2] * mtx[2][0],
-	          rootMtx[1][0] * mtx[0][1] + rootMtx[1][1] * mtx[1][1]
-	              + rootMtx[1][2] * mtx[2][1],
-	          rootMtx[1][0] * mtx[0][2] + rootMtx[1][1] * mtx[1][2]
-	              + rootMtx[1][2] * mtx[2][2],
-	          rootMtx[1][3] + rootMtx[1][0] * mtx[0][3]
-	              + rootMtx[1][1] * mtx[1][3]
-	              + rootMtx[1][2] * mtx[2][3],
-	          rootMtx[2][0] * mtx[0][0] + rootMtx[2][1] * mtx[1][0]
-	              + rootMtx[2][2] * mtx[2][0],
-	          rootMtx[2][0] * mtx[0][1] + rootMtx[2][1] * mtx[1][1]
-	              + rootMtx[2][2] * mtx[2][1],
-	          rootMtx[2][0] * mtx[0][2] + rootMtx[2][1] * mtx[1][2]
-	              + rootMtx[2][2] * mtx[2][2],
-	          rootMtx[2][3] + rootMtx[2][0] * mtx[0][3]
-	              + rootMtx[2][1] * mtx[1][3]
-	              + rootMtx[2][2] * mtx[2][3]);
+	mtx.concat(*(JGeometry::SMatrix34C<f32>*)rootMtx, mtx);
 
-	mPosition.x = mtx[0][3];
-	mPosition.y = mtx[1][3];
-	mPosition.z = mtx[2][3];
+	mPosition.x = mtx.mMtx[0][3];
+	mPosition.y = mtx.mMtx[1][3];
+	mPosition.z = mtx.mMtx[2][3];
 	mPosition.x += offX;
 	mPosition.y += offY;
 	mPosition.z += offZ;
 
-	mtx[0][3] = mPosition.x;
-	mtx[1][3] = mPosition.y;
-	mtx[2][3] = mPosition.z;
+	mtx.mMtx[0][3] = mPosition.x;
+	mtx.mMtx[1][3] = mPosition.y;
+	mtx.mMtx[2][3] = mPosition.z;
 	PSMTXCopy(mtx, getModel()->getBaseTRMtx());
 
 	JGeometry::TVec3<f32> scale(1.0f, 1.0f, 1.0f);
