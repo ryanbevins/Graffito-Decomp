@@ -1319,10 +1319,9 @@ DEFINE_NERVE(TNerveCannonDamage, TLiveActor)
 		self->mPosition.y += 10.0f;
 	}
 
-	MActor* chorobeiActor = self->unk1A8->unk6C->getMActor();
-	if (chorobeiActor->curAnmEndsNext(0, nullptr)) {
+	if (self->unk1A8->unk6C->getMActor()->curAnmEndsNext(0, nullptr)) {
 		SMS_ResetDamageFogEffect(
-		    chorobeiActor->getModel()->getModelData());
+		    self->unk1A8->unk6C->getMActor()->getModel()->getModelData());
 		if (self->mHitPoints == 0) {
 			spine->pushAfterCurrent(&TNerveCannonDamageDemo::theNerve());
 			return TRUE;
