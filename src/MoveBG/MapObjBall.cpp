@@ -1654,8 +1654,7 @@ void TBigWatermelon::control()
 	} else {
 		JGeometry::TVec3<f32> v;
 		v = mVelocity;
-		f32 sq = v.x * v.x + v.y * v.y + v.z * v.z;
-		if (sq > 0.0000038146973f || mGroundPlane->mActor != nullptr) {
+		if (!v.isZero() || mGroundPlane->mActor != nullptr) {
 			calcCurrentMtx();
 		}
 	}
