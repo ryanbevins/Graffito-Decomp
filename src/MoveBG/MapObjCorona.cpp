@@ -292,7 +292,7 @@ TBathtubGrip::TBathtubGrip(TBathtub* bathtub, f32 angle, MActorAnmData* data,
 	getModel()->calc();
 
 	JUTNameTab* names = getModel()->getModelData()->getJointName();
-	char jointName[256];
+	char jointName[16];
 	char collisionPath[256];
 
 	for (s32 i = 0; i < 17; ++i) {
