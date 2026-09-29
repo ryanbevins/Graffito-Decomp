@@ -622,6 +622,11 @@ void TCannon::init(TLiveManager* manager)
 		}
 
 		unk1A8 = new TChorobei(this, 0, "チョロベー");
+		MActor* chorobeiActor = unk1A8->unk6C->getMActor();
+		for (u8 i = 0;
+		     i < chorobeiActor->getModel()->getModelData()->getJointNum(); ++i) {
+			// The retail build retains this loop with an empty body.
+		}
 		unk1A8->initHitActor(
 		    0x1000001d, 3, 0x90000000,
 		    unk28C->mSLChorobeiAttackRadius.get(),
