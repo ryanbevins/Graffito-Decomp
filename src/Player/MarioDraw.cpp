@@ -624,11 +624,11 @@ int MarioHeadCtrl(J3DNode* param_1, int param_2)
 	Mtx transform;
 	if (param_2 == 0) {
 		if (gpMarioForCallBack->mAction == 0x10001308) {
-			if (gpMarDirector->unkA0 == nullptr) {
+			TBaseNPC* npc = gpMarDirector->getTalkingNPC();
+			if (npc == nullptr) {
 				return 0;
 			}
-			JGeometry::TVec3<f32> npcResetToPos
-			    = gpMarDirector->unkA0->getFocalPoint();
+			JGeometry::TVec3<f32> npcResetToPos = npc->getFocalPoint();
 			JGeometry::TVec3<f32> pos = gpMarioForCallBack->mPosition;
 			pos.y += 112.0f;
 			JGeometry::TVec3<f32> other = npcResetToPos - pos;
