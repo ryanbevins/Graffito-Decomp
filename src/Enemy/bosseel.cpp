@@ -48,7 +48,6 @@
 
 static f32 dummy1431[3] = { 1.0f, 1.0f, 1.0f };
 static f32 dummy1411[3] = { 1.0f, 1.0f, 1.0f };
-static u32 dummy1210[4] = { 0, 2, 1, 3 };
 static f32 testHeight;
 
 static s32 hoseiDiveCameraCallback(u32, u32);
@@ -648,6 +647,7 @@ void TBossEel::shedTears(MtxPtr mtx)
 
 void TBossEel::updateTearsCnt()
 {
+	static const u32 eyeTable[4] = { 0, 2, 1, 3 };
 	++unk1C4;
 
 	int interval = unk1E8->mSLGenTearsTime.value;
@@ -660,14 +660,14 @@ void TBossEel::updateTearsCnt()
 		interval *= 2;
 
 	if (unk1C4 == interval - 100) {
-		int eyeIndex = dummy1210[unk1C0];
+		int eyeIndex = eyeTable[unk1C0];
 		START_BOSS_EEL_EYE_CLOSE(unk15C[eyeIndex]);
 		START_BOSS_EEL_EYE_CLOSE(unk15C[eyeIndex]->unk68);
 	}
 
 	if (unk1C4 > interval) {
 		unk1C4           = 0;
-		int eyeIndex     = dummy1210[unk1C0];
+		int eyeIndex     = eyeTable[unk1C0];
 		J3DAnmTransform* oldAnm;
 		MtxPtr mtx       = unk15C[eyeIndex]->getConnectedMtx();
 		TBossEelEye* eye = unk15C[eyeIndex];
