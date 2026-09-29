@@ -71,12 +71,11 @@ int KoopaNeckCallBack(J3DNode* node, int timing)
 	J3DJoint* joint = (J3DJoint*)node;
 	MtxPtr mtx = j3dSys.getModel()->mNodeMatrices[joint->getJntNo()];
 
-	JGeometry::TVec3<f32> mario(*gpMarioPos);
-	mario.y += 180.0f;
-
-	JGeometry::TVec3<f32> toMario(mario.x - mtx[0][3],
-	                              mario.y - mtx[1][3],
-	                              mario.z - mtx[2][3]);
+	JGeometry::TVec3<f32> toMario(*gpMarioPos);
+	toMario.y += 180.0f;
+	toMario.x -= mtx[0][3];
+	toMario.y -= mtx[1][3];
+	toMario.z -= mtx[2][3];
 
 	if (koopa->isFlaming()) {
 		TKoopaParams* prm = koopa->getSaveParam2();
