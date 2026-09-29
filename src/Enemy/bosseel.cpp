@@ -973,8 +973,9 @@ void TBossEel::init(TLiveManager* manager)
 	enemyGroup->getChildren().push_back((THitActor*)unk210);
 	((THitActor*)unk210)->offHitFlag(HIT_FLAG_NO_COLLISION);
 
+	void* modelResource = JKRFileLoader::getGlbResource(cBossEelEyeModelPath);
 	SDLModelData* eyeModelData = new SDLModelData(J3DModelLoaderDataBase::load(
-	    JKRFileLoader::getGlbResource(cBossEelEyeModelPath), 0x10240000));
+	    modelResource, 0x10240000));
 	for (int i = 0; i < 4; ++i) {
 		unk15C[i] = new TBossEelEye(this,
 		                            jointName->getIndex(sEyePartsJointTable[i]),
@@ -988,14 +989,15 @@ void TBossEel::init(TLiveManager* manager)
 	unk15C[3]->getMActor()->getFrameCtrl(0)->setFrame(100.0f);
 
 	SDLModelData* toothModelData[3];
+	modelResource = JKRFileLoader::getGlbResource(cBossEelToothModelPath);
 	toothModelData[0] = new SDLModelData(J3DModelLoaderDataBase::load(
-	    JKRFileLoader::getGlbResource(cBossEelToothModelPath), 0x10100000));
+	    modelResource, 0x10100000));
+	modelResource = JKRFileLoader::getGlbResource(cBossEelBadToothModelPath);
 	toothModelData[1] = new SDLModelData(J3DModelLoaderDataBase::load(
-	    JKRFileLoader::getGlbResource(cBossEelBadToothModelPath),
-	    0x10100000));
+	    modelResource, 0x10100000));
+	modelResource = JKRFileLoader::getGlbResource(cBossEelGoldToothModelPath);
 	toothModelData[2] = new SDLModelData(J3DModelLoaderDataBase::load(
-	    JKRFileLoader::getGlbResource(cBossEelGoldToothModelPath),
-	    0x10100000));
+	    modelResource, 0x10100000));
 
 	for (int i = 0; i < 8; ++i) {
 		u8 toothType = 0;
@@ -1011,9 +1013,9 @@ void TBossEel::init(TLiveManager* manager)
 		unk16C[i]->unkBC = (i <= 2 || i == 7) ? TRUE : FALSE;
 	}
 
+	modelResource = JKRFileLoader::getGlbResource(cBossEelHeartCoinModelPath);
 	SDLModelData* heartModelData = new SDLModelData(J3DModelLoaderDataBase::load(
-	    JKRFileLoader::getGlbResource(cBossEelHeartCoinModelPath),
-	    0x10240000));
+	    modelResource, 0x10240000));
 	unk218 = new TBossEelHeartCoin(this, 0, heartModelData, 3,
 	                               cBossEelHeartCoinName);
 
