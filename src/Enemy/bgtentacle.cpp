@@ -463,7 +463,7 @@ void TBGTentacle::TNode::calcVelocity(TBGTentacle* param_1,
 		if (unk24) {
 			if (!param_2->unk24) {
 				local_8C.scale(nodeLenLimit);
-				mPosition += local_8C;
+				param_2->mPosition += local_8C;
 			}
 		} else {
 			local_8C.scale(nodeLenLimit);
@@ -471,7 +471,7 @@ void TBGTentacle::TNode::calcVelocity(TBGTentacle* param_1,
 			mPosition += local_8C;
 		}
 	} else {
-		if (nodeLen < fVar5) {
+		if (fVar5 < nodeLen) {
 			f32 m = nodeLen - fVar5;
 			if (m > speedMax)
 				m = speedMax;
@@ -885,12 +885,12 @@ void TBGTentacle::moveNode()
 		break;
 	case 3:
 		local_88.x = JMASin(unk40) * 1.0f * fVar2;
-		local_88.y = JMASin(unk40) * 0.8f * fVar2;
+		local_88.y = JMASin(unk44) * 0.8f * fVar2;
 		local_88.z = JMACos(unk44) * 1.1f * fVar2;
 		break;
 	default:
 		local_88.x = JMASin(unk40) * 1.9f * fVar2;
-		local_88.y = JMASin(unk44) * 1.0f * fVar2;
+		local_88.y = JMASin(unk40) * 1.0f * fVar2;
 		local_88.z = JMACos(unk44) * 1.8f * fVar2;
 		break;
 	}
@@ -1036,7 +1036,7 @@ void TBGTentacle::moveConstraint()
 				local_38.y += getNodeLen();
 			}
 		} else {
-			static int jntidx[] = { 8, 14, 16, 34 };
+			static int jntidx[] = { 8, 14, 28, 34 };
 			int iVar15          = jntidx[mIndex];
 			for (int i = 0; i < mNodeNum; ++i) {
 				MtxPtr mtx = mOwner->getModel()->getAnmMtx(i + iVar15);
