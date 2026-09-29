@@ -1184,7 +1184,8 @@ TCallbackHitActor::TCallbackHitActor(const char* name, u32 id, f32 radius,
 {
 	initHitActor(id, 0, 0, 0.0f, 0.0f, radius, height);
 	offHitFlag(1);
-	JDrama::TNameRefGen::search<TIdxGroupObj>("敵グループ")->add(this);
+	JDrama::TNameRefGen::search<TIdxGroupObj>("敵グループ")
+	    ->getChildren().push_back(this);
 }
 
 void TKoopaJrSubmarine::init(TLiveManager* manager)
