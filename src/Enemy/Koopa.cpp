@@ -1409,10 +1409,11 @@ BOOL TNerveKoopaGetDown::execute(TSpineBase<TLiveActor>* spine) const
 
 	case 1: {
 		TBathtub* bathtub = JDrama::TNameRefGen::search<TBathtub>("バスタブ");
+		f32 downStep
+		    = ((TKoopaParams*)((TEnemyManager*)self->mManager)->unk38)
+		          ->downStep.get();
 		s32 step = spine->getTime() * (bathtub->getNumGripsDead() + 2);
-		if ((f32)step
-		    >= ((TKoopaParams*)((TEnemyManager*)self->mManager)->unk38)
-		           ->downStep.get()) {
+		if ((f32)step >= downStep) {
 			if (self->mMActor->curAnmEndsNext(0, nullptr))
 				self->changeAnm(
 			    7, 0, ((TKoopaParams*)((TEnemyManager*)self->mManager)->unk38)
