@@ -636,7 +636,7 @@ static inline bool checkDragRelease(TTabePuku* self)
 		JGeometry::TVec3<f32> base = getTabePukuGoalRef(self);
 		base.sub(self->mPosition);
 		f32 distance = base.length();
-		if (self->getSaveParam2()->mDragLength.get() >= distance)
+		if (!(self->getSaveParam2()->mDragLength.get() < distance))
 			return false;
 	}
 	SMS_SendMessageToMario(self, HIT_MESSAGE_UNK8);
