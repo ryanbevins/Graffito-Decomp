@@ -1292,7 +1292,7 @@ DEFINE_NERVE(TNerveCannonDamage, TLiveActor)
 			self->onHitFlag(HIT_FLAG_NO_COLLISION);
 			chorobei->onHitFlag(HIT_FLAG_NO_COLLISION);
 		} else {
-			self->setDeadAnm();
+			self->setFreezeAnm();
 
 			chorobei->unk6C->getMActor()->setBckFromIndex(13);
 			const char** bas = chorobei->unk68->getBasNameTable();
