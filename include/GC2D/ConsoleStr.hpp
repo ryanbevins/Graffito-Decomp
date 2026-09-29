@@ -42,7 +42,7 @@ public:
 	/* 0x14 */ J2DSetScreen* unk14;
 	/* 0x18 */ f32 unk18;
 	/* 0x1C */ int unk1C;
-	/* 0x20 */ u32 unk20;
+	/* 0x20 */ s32 unk20;
 	/* 0x24 */ u32 unk24;
 	/* 0x28 */ TBoundPane* unk28[3];
 	/* 0x34 */ JUTPoint unk34[3][22];
