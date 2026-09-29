@@ -1063,8 +1063,9 @@ void TGorogoro::generateByGateKeeper(const JGeometry::TVec3<f32>& position,
 	}
 
 	if (aimAtMario) {
+		TPathNode marioTarget(*gpMarioPos);
 		unk114.push(unkF4);
-		unkF4 = TPathNode(*gpMarioPos);
+		unkF4 = marioTarget;
 	}
 
 	unk1A8 = true;
