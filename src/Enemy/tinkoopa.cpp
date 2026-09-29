@@ -548,7 +548,7 @@ void TTinKoopa::reset()
 		f32 height   = params->mSLFlameDamageHeight0.get();
 		params       = (TTinKoopaParams*)flame->unk68->getSaveParam();
 		flame->setHitParams(0.0f, 0.0f,
-		                    params->mSLFlameDamageRadius0.get(), height);
+		             params->mSLFlameDamageRadius0.get(), height);
 	} else if (flame->unk68->unk150 == 1) {
 		params       = (TTinKoopaParams*)flame->unk68->getSaveParam();
 		f32 height   = params->mSLFlameDamageHeight1.get();
@@ -972,9 +972,24 @@ void TTinKoopa::makeLaunchSchedule()
 	order->unkD = 1;
 }
 
-inline TTinKoopaFlame::TTinKoopaFlame(const char* name)
+TTinKoopaFlame::TTinKoopaFlame(const char* name, TTinKoopa* owner)
     : THitActor(name)
 {
+	unk68 = owner;
+
+	TTinKoopaParams* params = (TTinKoopaParams*)unk68->getSaveParam();
+	f32 height = params->mSLFlameDamageHeight0.get();
+	params     = (TTinKoopaParams*)unk68->getSaveParam();
+	initHitActor(0x08000027, 0, 0, 0.0f, 0.0f,
+	             params->mSLFlameDamageRadius0.get(), height);
+	offHitFlag(HIT_FLAG_NO_COLLISION);
+
+	JDrama::TNameRefGen::search<TIdxGroupObj>("敵グループ")->add(this);
+
+	params = (TTinKoopaParams*)unk68->getSaveParam();
+	unk70 = (s16)params->mSLFlameHP.get();
+	unk6C = 1.0f;
+	unk72 = 0;
 }
 
 inline TTinKoopaPartsBase::TTinKoopaPartsBase(const char* name, s32 partIndex,
@@ -1012,26 +1027,7 @@ void TTinKoopa::init(TLiveManager* manager)
 		TTinKoopa_jointIndexTable[i]
 		    = jointNames->getIndex(TTinKoopa_jointNameTable[i]);
 
-	TTinKoopaFlame* flame = new TTinKoopaFlame("flame");
-	if (flame) {
-		flame->unk68 = this;
-
-		TTinKoopaParams* params
-		    = (TTinKoopaParams*)flame->unk68->getSaveParam();
-		f32 height = params->mSLFlameDamageHeight0.get();
-		params     = (TTinKoopaParams*)flame->unk68->getSaveParam();
-		flame->initHitActor(0x08000027, 0, 0, 0.0f, 0.0f,
-		                    params->mSLFlameDamageRadius0.get(), height);
-		flame->offHitFlag(HIT_FLAG_NO_COLLISION);
-
-		JDrama::TNameRefGen::search<TIdxGroupObj>("敵グループ")->add(flame);
-
-		params       = (TTinKoopaParams*)flame->unk68->getSaveParam();
-		flame->unk70 = (s16)params->mSLFlameHP.get();
-		flame->unk6C = 1.0f;
-		flame->unk72 = 0;
-	}
-	unk160 = flame;
+	unk160 = new TTinKoopaFlame("flame", this);
 
 	for (int i = 0; i < 6; ++i) {
 		TTinKoopaPartsBase* part

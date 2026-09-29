@@ -96,7 +96,7 @@ public:
 
 class TTinKoopaFlame : public THitActor {
 public:
-	TTinKoopaFlame(const char*);
+	TTinKoopaFlame(const char*, TTinKoopa*);
 
 	virtual void perform(u32, JDrama::TGraphics*);
 	virtual BOOL receiveMessage(THitActor*, u32);
