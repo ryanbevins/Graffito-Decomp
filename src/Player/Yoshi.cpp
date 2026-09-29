@@ -1035,13 +1035,14 @@ void TYoshi::movement()
 	}
 
 	if (isHatched()) {
-		f32 blend = *(f32*)((u8*)_04b + 0xC);
-		f32 redBlend = blend * ((f32)bodyColor[mType].r - mRedComponent);
+		f32 redBlend = *(f32*)((u8*)_04b + 0xC)
+		               * ((f32)bodyColor[mType].r - mRedComponent);
 		mRedComponent += redBlend;
-		f32 greenBlend
-		    = blend * ((f32)bodyColor[mType].g - mGreenComponent);
+		f32 greenBlend = *(f32*)((u8*)_04b + 0xC)
+		                 * ((f32)bodyColor[mType].g - mGreenComponent);
 		mGreenComponent += greenBlend;
-		f32 blueBlend = blend * ((f32)bodyColor[mType].b - mBlueComponent);
+		f32 blueBlend = *(f32*)((u8*)_04b + 0xC)
+		                * ((f32)bodyColor[mType].b - mBlueComponent);
 		mBlueComponent += blueBlend;
 
 		mTongue->movement();
