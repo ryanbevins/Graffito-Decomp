@@ -46,7 +46,10 @@ const char* cLegJointName_R3          = "leg_R3";
 const char* cNoseHallJointName_L      = "L_hall";
 const char* cNoseHallJointName_R      = "R_hall";
 
+// The parts constructor calls this specialization out of line in retail.
+#pragma dont_inline on
 template s16 CLBPalFrame<s16>(s16);
+#pragma dont_inline off
 
 static inline bool BHPartsIsCurBckDone(MActor* a)
 {
