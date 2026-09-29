@@ -1245,7 +1245,7 @@ BOOL TBossTelesa::rouletteFall()
 {
 	if (((TRoulette*)unk178[0])->mPosition.y
 	    > ((TRoulette*)unk178[1])->mPosition.y) {
-		((TRoulette*)unk178[0])->mPosition.y -= 1.0f;
+		((TRoulette*)unk178[0])->mPosition.y -= 2.0f;
 		((TRoulette*)unk178[0])->mMActor->setBck("rulet00");
 
 		if (((TRoulette*)unk178[0])->mPosition.y
