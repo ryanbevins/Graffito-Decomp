@@ -807,7 +807,7 @@ void TBossTelesa::generateSlotItem()
 	f32 angleStep                     = 120.0f / slotItemNum;
 	f32 angleOffset                   = angleStep * slotItemNum * 0.5f;
 
-	if (result == 2) {
+	if (unk1A8 == 2) {
 		s32 numFruit = params->mSLSlotFruitNum.get();
 		if (numFruit > 20)
 			numFruit = 20;
@@ -872,7 +872,7 @@ void TBossTelesa::generateSlotItem()
 			                             rootMtx[2][3] + dir.z);
 			unk274++;
 		}
-	} else if (result == 0) {
+	} else if (unk1A8 == 0) {
 		s32 numItems = params->mSLSlotFruitNum.get();
 		if (numItems > 10)
 			numItems = 10;
@@ -920,7 +920,7 @@ void TBossTelesa::generateSlotItem()
 	} else {
 		s32 count = slotItemNum;
 		s32 kind  = 0;
-		switch (result) {
+		switch (unk1A8) {
 		case -1:
 			count *= 2;
 			kind = 0;
@@ -943,7 +943,7 @@ void TBossTelesa::generateSlotItem()
 		s32 randomKind = kindRange.rand();
 
 		for (int i = 0; i < count; ++i) {
-			if (result == 3) {
+			if (unk1A8 == 3) {
 				if ((i & 1) == 0)
 					randomKind++;
 				if (randomKind > maxKind)
