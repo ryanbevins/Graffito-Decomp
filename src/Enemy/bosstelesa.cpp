@@ -2530,46 +2530,45 @@ DEFINE_NERVE(TNerveBossTelesaHideWait, TLiveActor)
 DEFINE_NERVE(TNerveBossTelesaAppear, TLiveActor)
 {
 	TBossTelesa* boss = getBoss(spine);
-	if (spine->getTime() == 0) {
-		if (!boss->mMActor->checkCurBckFromIndex(0)) {
-			boss->unk164 = boss->mMActor->getCurAnmIdx(0);
-			boss->unk160 = 0;
-			boss->unk168 = 1.0f;
+	if (spine->getTime() == 0
+	    && !boss->mMActor->checkCurBckFromIndex(0)) {
+		boss->unk164 = boss->mMActor->getCurAnmIdx(0);
+		boss->unk160 = 0;
+		boss->unk168 = 1.0f;
 
-			MActor* oldAnmActor = boss->mMActor;
-			J3DAnmTransform* oldAnm;
-			if (!oldAnmActor->unkC)
-				oldAnm = nullptr;
-			else
-				oldAnm = oldAnmActor->unkC->unk24;
-			if (oldAnmActor->unkC)
-				oldAnmActor->unkC->setOldMotionBlendAnmPtr(oldAnm);
+		MActor* oldAnmActor = boss->mMActor;
+		J3DAnmTransform* oldAnm;
+		if (!oldAnmActor->unkC)
+			oldAnm = nullptr;
+		else
+			oldAnm = oldAnmActor->unkC->unk24;
+		if (oldAnmActor->unkC)
+			oldAnmActor->unkC->setOldMotionBlendAnmPtr(oldAnm);
 
-			boss->mMActor->setBckFromIndex(0);
-			MActor* blendActor = boss->mMActor;
-			f32 blendRatio = boss->unk168;
-			if (blendActor->unkC)
-				blendActor->unkC->setMotionBlendRatio(blendRatio);
+		boss->mMActor->setBckFromIndex(0);
+		MActor* blendActor = boss->mMActor;
+		f32 blendRatio = boss->unk168;
+		if (blendActor->unkC)
+			blendActor->unkC->setMotionBlendRatio(blendRatio);
 
-			const char** basTable = boss->getBasNameTable();
-			const char* basName;
-			if (!basTable)
-				basName = nullptr;
-			else
-				basName = basTable[0];
-			boss->setAnmSound(basName);
+		const char** basTable = boss->getBasNameTable();
+		const char* basName;
+		if (!basTable)
+			basName = nullptr;
+		else
+			basName = basTable[0];
+		boss->setAnmSound(basName);
 
-			if (!boss->unk384) {
-				boss->unk384 = 1;
-				MSBgm::startBGM(0x8001000D);
-			}
-
-			boss->unk184->mScaling.set(1.0f, 1.0f, 1.0f);
-			boss->unk184->randomReset();
-			boss->offHitFlag(HIT_FLAG_NO_COLLISION);
-			boss->unk16C->offHitFlag(HIT_FLAG_NO_COLLISION);
-			boss->unk170->offHitFlag(HIT_FLAG_NO_COLLISION);
+		if (!boss->unk384) {
+			boss->unk384 = 1;
+			MSBgm::startBGM(0x8001000D);
 		}
+
+		boss->unk184->mScaling.set(1.0f, 1.0f, 1.0f);
+		boss->unk184->randomReset();
+		boss->offHitFlag(HIT_FLAG_NO_COLLISION);
+		boss->unk16C->offHitFlag(HIT_FLAG_NO_COLLISION);
+		boss->unk170->offHitFlag(HIT_FLAG_NO_COLLISION);
 	} else if (boss->checkCurAnmEnd(0)
 	           && !boss->mMActor->checkCurBckFromIndex(15)) {
 		boss->unk164 = boss->mMActor->getCurAnmIdx(0);
