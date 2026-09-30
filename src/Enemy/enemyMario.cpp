@@ -259,6 +259,40 @@ static unkTMarioAnimeFilesStruct marioAnimeFiles[199] = {
 	{ 0x00000001, "yo_slide_end" },
 };
 
+class TEnemyMario::TSettingParams : public TParams {
+public:
+	TSettingParams(const char* path)
+	    : TParams(path)
+	    , PARAM_INIT(mSearchDist, 1000.0f)
+	    , PARAM_INIT(mSearchHeight, 300.0f)
+	    , PARAM_INIT(mWaterCtMax, (s16)64)
+	    , PARAM_INIT(mStopFlag, (u8)1)
+	    , PARAM_INIT(mStampFlag, (u8)1)
+	    , PARAM_INIT(mRandomFlag, (u8)1)
+	    , PARAM_INIT(mCarryFlag, (u8)0)
+	    , PARAM_INIT(mInvincibleFlag, (u8)0)
+	    , PARAM_INIT(mRandomPow, 1.0f)
+	    , PARAM_INIT(mDownTime, (s16)1200)
+	    , PARAM_INIT(mPolluteFlag, (u8)0)
+	    , PARAM_INIT(mPolluteSize, 160.0f)
+	{
+		TParams::load(mPrmPath);
+	}
+
+	TParamRT<f32> mSearchDist;
+	TParamRT<f32> mSearchHeight;
+	TParamRT<s16> mWaterCtMax;
+	TParamRT<u8> mStopFlag;
+	TParamRT<u8> mStampFlag;
+	TParamRT<u8> mRandomFlag;
+	TParamRT<u8> mCarryFlag;
+	TParamRT<u8> mInvincibleFlag;
+	TParamRT<f32> mRandomPow;
+	TParamRT<s16> mDownTime;
+	TParamRT<u8> mPolluteFlag;
+	TParamRT<f32> mPolluteSize;
+};
+
 namespace {
 
 static const char* sEnemyMarioModelNames[] = {
@@ -282,39 +316,6 @@ static const char* sRecordFileNamesDolpic1[] = {
 
 static const char* sRecordFileNamesMonteMan[] = { "AB0", "AB1", "AB2" };
 
-class TEnemyMarioParams : public TParams {
-public:
-	TEnemyMarioParams(const char* path, bool can_carry)
-	    : TParams(path)
-	    , PARAM_INIT(mSearchDist, 1000.0f)
-	    , PARAM_INIT(mSearchHeight, 300.0f)
-	    , PARAM_INIT(mWaterCtMax, (s16)64)
-	    , PARAM_INIT(mStopFlag, (u8)1)
-	    , PARAM_INIT(mStampFlag, (u8)1)
-	    , PARAM_INIT(mRandomFlag, (u8)1)
-	    , PARAM_INIT(mCarryFlag, (u8)(can_carry ? 1 : 0))
-	    , PARAM_INIT(mInvincibleFlag, (u8)0)
-	    , PARAM_INIT(mRandomPow, 1.0f)
-	    , PARAM_INIT(mDownTime, (s16)1200)
-	    , PARAM_INIT(mPolluteFlag, (u8)0)
-	    , PARAM_INIT(mPolluteSize, 160.0f)
-	{
-		TParams::load(mPrmPath);
-	}
-
-	TParamRT<f32> mSearchDist;
-	TParamRT<f32> mSearchHeight;
-	TParamRT<s16> mWaterCtMax;
-	TParamRT<u8> mStopFlag;
-	TParamRT<u8> mStampFlag;
-	TParamRT<u8> mRandomFlag;
-	TParamRT<u8> mCarryFlag;
-	TParamRT<u8> mInvincibleFlag;
-	TParamRT<f32> mRandomPow;
-	TParamRT<s16> mDownTime;
-	TParamRT<u8> mPolluteFlag;
-	TParamRT<f32> mPolluteSize;
-};
 
 inline u16& emFlags(TEnemyMario* mario)
 {
@@ -1944,18 +1945,22 @@ void TEnemyMario::initEnemyValues()
 		emOwner(this)->offHitFlag(1);
 	}
 
-	const char* prmPath = "/../map/pad/Setting.prm";
-	bool canCarry      = true;
-	if (flagState == 2) {
+	switch (flagState) {
+	case 0:
+	case 1:
+		emScenarioType(this) = 0;
+		emSettings(this) = (u8*)new TSettingParams("/../map/pad/Setting.prm");
+		break;
+	case 2:
 		emScenarioType(this) = 1;
-		prmPath              = "/../map/pad2/Setting.prm";
-		canCarry             = false;
-	} else if (flagState == 3) {
+		emSettings(this) = (u8*)new TSettingParams("/../map/pad2/Setting.prm");
+		break;
+	case 3:
 		emScenarioType(this) = 2;
-		prmPath              = "/../map/pad3/Setting.prm";
+		emSettings(this) = (u8*)new TSettingParams("/../map/pad3/Setting.prm");
+		break;
 	}
 
-	emSettings(this)   = (u8*)new TEnemyMarioParams(prmPath, canCarry);
 	emWaterCount(this) = emSettingS16(this, 0x40);
 
 	emReplayLinkTable(this)       = nullptr;

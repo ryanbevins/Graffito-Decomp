@@ -7,6 +7,8 @@ class TEMario;
 
 class TEnemyMario : public TMario {
 public:
+	class TSettingParams;
+
 	virtual void perform(u32, JDrama::TGraphics*);
 
 	void drawHPMeter(float (*)[4]);
