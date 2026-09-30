@@ -2063,7 +2063,7 @@ void TEnemyMario::initEnemyValues()
 		}
 	}
 
-	setGamePad(gpMarDirector->unk18[1]);
+	mGamePad = gpMarDirector->unk18[1];
 	emFlags(this) = 2;
 
 	switch (emOwner(this)->unk154) {
@@ -2134,15 +2134,15 @@ void TEnemyMario::initEnemyValues()
 	if (gpMarDirector->mMap == 0xC) {
 		if (strcmp(emOwner(this)->getName(), "マリオ２Ｐ") == 0) {
 			unk388 = 3;
-			setGamePad(gpMarDirector->unk18[1]);
+			mGamePad = gpMarDirector->unk18[1];
 		}
 		if (strcmp(emOwner(this)->getName(), "マリオ３Ｐ") == 0) {
 			unk388 = 4;
-			setGamePad(gpMarDirector->unk18[2]);
+			mGamePad = gpMarDirector->unk18[2];
 		}
 		if (strcmp(emOwner(this)->getName(), "マリオ４Ｐ") == 0) {
 			unk388 = 5;
-			setGamePad(gpMarDirector->unk18[3]);
+			mGamePad = gpMarDirector->unk18[3];
 		}
 		emDoing(this) = 0x1B;
 		if (unk388 == 3 || unk388 == 4 || unk388 == 5) {
