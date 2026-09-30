@@ -383,7 +383,7 @@ BOOL TMario::jumpCatch()
 		if (mWallPlane) {
 			// Pointer math slop
 			u8 fc; if (*(u16*)((u8*)mWallPlane) == 0x010A) fc = 1; else fc = 0;
-			if (fc) { changePlayerDropping(0x3000036C, 0); break; }
+			if (fc) { return changePlayerDropping(0x3000036C, 0); }
 		}
 		playerRefrection(1);
 		if (mVel.y > 0.0f) mVel.y = 0.0f;
