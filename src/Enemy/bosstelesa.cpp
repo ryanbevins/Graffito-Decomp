@@ -867,9 +867,9 @@ void TBossTelesa::generateSlotItem()
 
 			unk1AC[i]->onHitFlag(HIT_FLAG_NO_COLLISION);
 			unk1AC[i]->mScaling.set(1.5f, 1.5f, 1.5f);
-			unk1AC[unk274]->mPosition.x = rootMtx[0][3] + dir.x;
-			unk1AC[unk274]->mPosition.y = rootMtx[1][3] - 50.0f;
-			unk1AC[unk274]->mPosition.z = rootMtx[2][3] + dir.z;
+			unk1AC[unk274]->mPosition.set(rootMtx[0][3] + dir.x,
+			                             rootMtx[1][3] - 50.0f,
+			                             rootMtx[2][3] + dir.z);
 			unk274++;
 		}
 	} else if (result == 0) {
@@ -906,9 +906,8 @@ void TBossTelesa::generateSlotItem()
 			dir.z *= speed * itemSpeedRange.rand();
 
 			TMapObjBase* item = gpItemManager->makeObjAppeared(0x2000000E);
-			item->mPosition.x = rootMtx[0][3];
-			item->mPosition.y = rootMtx[1][3] - 250.0f;
-			item->mPosition.z = rootMtx[2][3];
+			item->mPosition.set(rootMtx[0][3], rootMtx[1][3] - 250.0f,
+			                     rootMtx[2][3]);
 			item->mVelocity.set(dir.x, dir.y, dir.z);
 			item->offLiveFlag(LIVE_FLAG_UNK10);
 			item->mRotation.set(0.0f, 0.0f, 0.0f);
@@ -975,9 +974,8 @@ void TBossTelesa::generateSlotItem()
 			dir.y *= 2.0f + enemySpeedRange.rand();
 			dir.z *= speed * enemySpeedRange.rand();
 
-			enemy->mPosition.x = rootMtx[0][3];
-			enemy->mPosition.y = rootMtx[1][3] - 250.0f;
-			enemy->mPosition.z = rootMtx[2][3];
+			enemy->mPosition.set(rootMtx[0][3], rootMtx[1][3] - 250.0f,
+			                     rootMtx[2][3]);
 			enemy->mVelocity   = dir;
 			enemy->mPosition.y += 10.0f;
 			enemy->onLiveFlag(LIVE_FLAG_AIRBORNE);
