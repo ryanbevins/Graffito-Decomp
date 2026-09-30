@@ -371,7 +371,7 @@ BOOL TMario::jumpCatch()
 			badGround = 1;
 		if (badGround)
 			cc = 0;
-		if (mVel.y > 0.0f) cc = 0;
+		if (mVel.y > -70.0f) cc = 0;
 		if (cc) {
 			u8 cf; if (mState & 0x40000) cf = 1; else cf = 0;
 			if (cf) { sinkInSandEffect(); changePlayerStatus(0x0002033C, 1, false); break; }
