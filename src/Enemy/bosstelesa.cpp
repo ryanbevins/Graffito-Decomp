@@ -920,14 +920,19 @@ void TBossTelesa::generateSlotItem()
 	} else {
 		s32 count = slotItemNum;
 		s32 kind  = 0;
-		if (result == -1) {
+		switch (result) {
+		case -1:
 			count *= 2;
 			kind = 0;
-		} else if (result == 1) {
+			break;
+		case 1:
 			if (mHitPoints > 2)
 				kind = 1;
 			else
 				kind = 2;
+			break;
+		case 3:
+			break;
 		}
 
 		s32 maxKind = 7;
