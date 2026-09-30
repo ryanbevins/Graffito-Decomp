@@ -347,15 +347,14 @@ void TBeeHive::appearBee(int index)
 
 bool TBeeHive::doWait()
 {
-	TBeeHiveParams* params = getBeeParams();
 	f32 oldVelocity       = mAngularVelocity.y;
-	mAngularVelocity.y += mAngularVelocity.x * -params->mRebound.get();
-	mAngularVelocity.y *= params->mDecay.get();
+	mAngularVelocity.y += mAngularVelocity.x * -getBeeParams()->mRebound.get();
+	mAngularVelocity.y *= getBeeParams()->mDecay.get();
 	mAngularVelocity.x += mAngularVelocity.y;
 
 	if (mAngularVelocity.x < -mAngularVelocity.z
 	    || mAngularVelocity.x > mAngularVelocity.z) {
-		mAngularVelocity.z += params->mAngleMaxAdd.get();
+		mAngularVelocity.z += getBeeParams()->mAngleMaxAdd.get();
 		mAngularVelocity.z = JGeometry::TUtil<f32>::clamp(
 		    mAngularVelocity.z, 0.0f, 1.5707964f);
 		mAngularVelocity.x = JGeometry::TUtil<f32>::clamp(
@@ -376,7 +375,8 @@ bool TBeeHive::doWait()
 	JGeometry::TVec3<f32> diff = *gpMarioPos;
 	diff -= mPosition;
 
-	if (diff.squared() <= params->mSearchRange.get() * params->mSearchRange.get()) {
+	f32 searchRange = getBeeParams()->mSearchRange.get();
+	if (diff.squared() <= searchRange * searchRange) {
 		setBoidLeaderWaitParams(this);
 		mBoidLeader->mGoalTarget = (THitActor*)gpMarioAddress;
 		mBoidLeader->mGoalOffset.set(0.0f, 200.0f, 0.0f);
