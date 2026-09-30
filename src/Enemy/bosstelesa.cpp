@@ -2080,14 +2080,14 @@ DEFINE_NERVE(TNerveBubbleLive, TLiveActor)
 	f32 addPosBase = bubble->unk194->mSLAddPosBase.get();
 	if (!bubble->unk1D0) {
 		if (bubble->unk1CC < addPosBase)
-			bubble->unk1CC += 1.0f;
+			bubble->unk1CC += 2.0f;
 	} else {
 		if (spine->getTime() > 40 && bubble->unk1D1) {
 			JGeometry::TVec3<f32> velocity = bubble->mVelocity;
 			velocity.scale(0.98f);
 			bubble->mVelocity = velocity;
 		} else {
-			bubble->walkBehavior(0, 0.8f);
+			bubble->walkBehavior(0, 1.0f);
 		}
 
 		if (spine->getTime() == 80) {
