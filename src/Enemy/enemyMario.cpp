@@ -2100,12 +2100,9 @@ void TEnemyMario::initEnemyValues()
 		break;
 	}
 
-	if (emOwner(this)->unk124 != nullptr
-	    && emOwner(this)->unk124->getGraph() != nullptr) {
-		TGraphWeb* graph = emOwner(this)->unk124->getGraph();
-		graph->getGraphNode(emReplayIndex(this)).getPoint(&mPosition);
-		emOwner(this)->mPosition = mPosition;
-	}
+	TGraphWeb* graph = emOwner(this)->unk124->getGraph();
+	graph->getGraphNode(emReplayIndex(this)).getPoint(&mPosition);
+	emOwner(this)->mPosition = mPosition;
 
 	if (replayCount > 0) {
 		emInputReplayArray(this)[emReplayIndex(this)]->reset();
