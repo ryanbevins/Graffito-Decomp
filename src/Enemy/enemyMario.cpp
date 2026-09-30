@@ -851,9 +851,8 @@ void TEnemyMario::checkController(JDrama::TGraphics* graphics)
 	    + emControllerWork(this)->mStickV * emControllerWork(this)->mStickV);
 	emControllerWork(this)->mStickDist = stickLen;
 	if (emControllerWork(this)->mStickDist > 64.0f) {
-		f32 scale = 64.0f / emControllerWork(this)->mStickDist;
-		emControllerWork(this)->mStickH *= scale;
-		emControllerWork(this)->mStickV *= scale;
+		emControllerWork(this)->mStickH *= 64.0f / emControllerWork(this)->mStickDist;
+		emControllerWork(this)->mStickV *= 64.0f / emControllerWork(this)->mStickDist;
 		emControllerWork(this)->mStickDist = 64.0f;
 	}
 
