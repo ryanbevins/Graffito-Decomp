@@ -1,32 +1,86 @@
-# usage: python tools/agent/const_value_diff.py <unit e.g. mario/Enemy/amiNoko> [function substrings...]
-"""Per-function sdata2 literal value mismatches (retail vs ours) from decomp-diff relocation rows."""
-import json,re,subprocess,struct,sys
-unit=sys.argv[1]; rel=unit.split('/',1)[1]
-src=f'build/GMSJ01/src/{rel}.o'; asm=f'build/GMSJ01/asm/{rel}.s'
-fns=sys.argv[2:]
-if not fns:
-    r=json.load(open('build/GMSJ01/report.json'))
-    for u in r['units']:
-        if u['name']==unit:
-            fns=[f['metadata'].get('demangled_name',f['name']).split('(')[0] for f in u.get('functions',[]) if f.get('fuzzy_match_percent',0)<100]
-B='build/binutils/powerpc-eabi-'
-# ours
-syms={}
-for l in subprocess.run([B+'objdump','-t',src],capture_output=True,text=True).stdout.splitlines():
-    m=re.match(r'([0-9a-f]+)\s+l\s+O\s+\.sdata2\s+([0-9a-f]+)\s+(\S+)',l)
-    if m: syms[m.group(3)]=(int(m.group(1),16),int(m.group(2),16))
-data=subprocess.run([B+'objcopy','-O','binary','-j','.sdata2',src,'/dev/stdout'],capture_output=True).stdout
-def ours(n):
-    o,s=syms[n]; b=data[o:o+s]
-    return struct.unpack('>f',b)[0] if s==4 else struct.unpack('>d',b)[0]
-ret={}
-txt=open(asm).read()
-for m in re.finditer(r'\.obj "?(@\d+)"?, local\s*\n\s*\.(float|double) (\S+)',txt): ret[m.group(1)]=m.group(3)
-for f in fns:
-    out=subprocess.run(['python','tools/decomp-diff.py','-u',unit,'-d',f],capture_output=True,text=True).stdout
-    for l in out.splitlines():
-        m=re.search(r'\{lf[sd] f\d+, (@\d+)@sda21\}\s*\|\s*\{lf[sd] f\d+, (@\d+)@sda21\}',l)
-        if m:
-            a,b=m.groups(); ov=ours(b); rv=ret.get(a)
-            flag='' if rv is not None and abs(float(rv)-ov)<1e-6*max(1,abs(ov)) else '  <<< DIFF'
-            if flag: print(f, l.split('|')[0].strip()[:8], a, rv, b, ov, flag)
+#!/usr/bin/env python3
+# usage: python3 tools/agent/const_value_diff.py mario/Enemy/amiNoko [FUNCTION ...]
+"""Find aligned anonymous .sdata2 loads with different bytes, using one TU diff.
+
+Candidates only: inspect the full diff, target relocations, and raw retail DOL
+before changing source. Reconstructed object data can contain false relocations.
+"""
+import argparse
+import json
+import re
+import struct
+import subprocess
+from pathlib import Path
+
+ROOT = Path(__file__).resolve().parents[2]
+BINUTILS = ROOT / "build/binutils/powerpc-eabi-"
+LOAD = re.compile(r"^(lfs|lfd|lwz) [fr]\d+, (@\d+)@sda21$")
+SYMBOL = re.compile(r"^([0-9a-f]+)\s+\w+\s+O\s+\.sdata2\s+"
+                    r"[0-9a-f]+\s+(@\d+)$", re.MULTILINE)
+
+
+def run(argv):
+    return subprocess.check_output(argv, cwd=ROOT, stderr=subprocess.PIPE)
+
+
+def literals(path):
+    table = run([str(BINUTILS) + "objdump", "-t", str(path)]).decode()
+    data = run([str(BINUTILS) + "objcopy", "-O", "binary", "-j", ".sdata2",
+                str(path), "/dev/stdout"])
+    return data, {name: int(offset, 16) for offset, name in SYMBOL.findall(table)}
+
+
+def load_bytes(entry, data, symbols):
+    inst = entry.get("instruction", {})
+    match = LOAD.fullmatch(inst.get("formatted", ""))
+    if not match or match[2] not in symbols:
+        return None
+    op, name = match.groups()
+    size = 8 if op == "lfd" else 4
+    start = symbols[name]
+    value = data[start:start + size]
+    if len(value) != size:
+        return None
+    return op, name, value
+
+
+def display(op, value):
+    if op == "lwz":
+        return "0x" + value.hex()
+    return repr(struct.unpack(">d" if op == "lfd" else ">f", value)[0])
+
+
+def main():
+    parser = argparse.ArgumentParser(description=__doc__)
+    parser.add_argument("unit")
+    parser.add_argument("functions", nargs="*", help="name substrings")
+    args = parser.parse_args()
+    rel = args.unit.removeprefix("mario/")
+    left_data, left_literals = literals(ROOT / f"build/GMSJ01/obj/{rel}.o")
+    right_data, right_literals = literals(ROOT / f"build/GMSJ01/src/{rel}.o")
+    diff = json.loads(run([str(ROOT / "build/tools/objdiff-cli"), "diff", "-c",
+                           "functionRelocDiffs=data_value", "-u", args.unit,
+                           "-o", "-", "--format", "json"]))
+    right_symbols = diff["right"]["symbols"]
+    for left in diff["left"]["symbols"]:
+        if not left.get("instructions") or not left.get("target_symbol"):
+            continue
+        name = left.get("demangled_name", left["name"])
+        if args.functions and not any(
+                pattern.lower() in (name + " " + left["name"]).lower()
+                for pattern in args.functions):
+            continue
+        right = right_symbols[left["target_symbol"] - 1]
+        # Objdiff arrays include alignment gaps: pair rows, not raw addresses.
+        for lrow, rrow in zip(left["instructions"], right.get("instructions", [])):
+            lv = load_bytes(lrow, left_data, left_literals)
+            rv = load_bytes(rrow, right_data, right_literals)
+            if not lv or not rv or lv[0] != rv[0] or lv[2] == rv[2]:
+                continue
+            address = int(lrow["instruction"]["address"])
+            print(f"{name} @{address:x}: retail {lv[1]}={display(lv[0], lv[2])} "
+                  f"ours {rv[1]}={display(rv[0], rv[2])}")
+
+
+if __name__ == "__main__":
+    main()

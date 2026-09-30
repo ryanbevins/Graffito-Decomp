@@ -88,3 +88,10 @@ offset, raw bytes, unsigned integer, and float interpretations. Addresses may
 use `0x` notation; `--dol PATH` selects another DOL. Use this to verify constants
 before changing source values inferred from reconstructed objects. Check the
 target object's relocations separately; this tool does not inspect ELF files.
+
+`agent/const_value_diff.py UNIT [FUNCTION ...]` audits aligned anonymous
+`.sdata2` loads using one structured objdiff invocation per unit. It compares
+exact object bytes for float, double, and word loads (including colors), and
+accepts function-name substring filters. Output is a candidate list, not proof:
+read the full instruction diff and verify target relocations and raw retail DOL
+values with `agent/read_dol_word.py` before editing source.
