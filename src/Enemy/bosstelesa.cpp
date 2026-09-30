@@ -2735,7 +2735,7 @@ DEFINE_NERVE(TNerveBossTelesaSpitSlotItem, TLiveActor)
 {
 	TBossTelesa* boss = getBoss(spine);
 	if (!boss->mMActor->checkCurBckFromIndex(14)
-	    && boss->unk364 < TBossTelesa::mBaseHoseiPosY - 200.0f) {
+	    && boss->unk364 < TBossTelesa::mBaseHoseiPosY - 300.0f) {
 		boss->unk164 = boss->mMActor->getCurAnmIdx(0);
 		boss->unk160 = 14;
 		boss->unk168 = 1.0f;
@@ -2774,7 +2774,7 @@ DEFINE_NERVE(TNerveBossTelesaSpitSlotItem, TLiveActor)
 		}
 		return TRUE;
 	} else if (spine->getTime() > 200) {
-		boss->unk364 -= 100.0f;
+		boss->unk364 -= 2.0f;
 	}
 	return FALSE;
 }
