@@ -484,8 +484,8 @@ void TIgaiga::reset()
 
 	unk1E4 = 1.0f;
 	unk1CC = 1.0f;
-	unk1AC = 50.0f;
-	unk1B0 = 500.0f;
+	unk1AC = -30.0f;
+	unk1B0 = 2.0f;
 	unk1E8 = 0;
 }
 
