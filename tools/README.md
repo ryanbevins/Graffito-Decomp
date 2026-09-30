@@ -95,3 +95,8 @@ exact object bytes for float, double, and word loads (including colors), and
 accepts function-name substring filters. Output is a candidate list, not proof:
 read the full instruction diff and verify target relocations and raw retail DOL
 values with `agent/read_dol_word.py` before editing source.
+
+`decomp-diff.py --range START-END` selects target-object offsets. Current-only
+insertions remain attached to the preceding target instruction (or the first
+one for leading insertions), even when the two functions have different object
+addresses. Printed insertion offsets still show their current-object address.

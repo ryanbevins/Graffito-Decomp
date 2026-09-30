@@ -310,6 +310,12 @@ def build_diff(data: Dict[str, Any], symbol_name: str, args) -> None:
 
     # Build rows
     rows = []
+    # Keep insertions in the target coordinate system for range selection.
+    # Leading insertions belong to the first target instruction.
+    target_offset = next(
+        (int(entry["instruction"]["address"]) for entry in left_insts
+         if entry.get("instruction", {}).get("address") is not None), None
+    )
     for i in range(n_insts):
         li = left_insts[i] if i < len(left_insts) else {}
         ri = right_insts[i] if i < len(right_insts) else {}
@@ -349,7 +355,10 @@ def build_diff(data: Dict[str, Any], symbol_name: str, args) -> None:
             marker = "?"
 
         is_match = (marker == " ")
-        offset_int = int(l_addr) if l_addr else (int(r_addr) if r_addr else 0)
+        if l_inst.get("address") is not None:
+            target_offset = int(l_addr)
+        offset_int = (target_offset if target_offset is not None else
+                      int(r_addr) if r_addr else 0)
         rows.append((addr_str, marker, l_text, r_text, is_match, offset_int))
 
     # Apply range filter
