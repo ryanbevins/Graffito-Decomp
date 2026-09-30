@@ -899,20 +899,17 @@ void TBossTelesa::generateSlotItem()
 			               mRotation.z);
 			PSMTXMultVec(rot, &dir, &dir);
 			MsVECNormalize(&dir, &dir);
-			dir.y = 10.0f;
-
-			Vec velocity;
 			TMsRange<f32> itemSpeedRange(0.8f, 3.5f);
-			f32 speed    = params->mSL1stBubbleSp.get();
-			velocity.x = dir.x * speed * itemSpeedRange.rand();
-			velocity.y = dir.y;
-			velocity.z = dir.z * speed * itemSpeedRange.rand();
+			dir.y = 10.0f;
+			f32 speed = ((TBossTelesaSaveLoadParams*)unk15C)->mSL1stBubbleSp.get();
+			dir.x *= speed * itemSpeedRange.rand();
+			dir.z *= speed * itemSpeedRange.rand();
 
 			TMapObjBase* item = gpItemManager->makeObjAppeared(0x2000000E);
 			item->mPosition.x = rootMtx[0][3];
 			item->mPosition.y = rootMtx[1][3] - 250.0f;
 			item->mPosition.z = rootMtx[2][3];
-			item->mVelocity   = velocity;
+			item->mVelocity.set(dir.x, dir.y, dir.z);
 			item->offLiveFlag(LIVE_FLAG_UNK10);
 			item->mRotation.set(0.0f, 0.0f, 0.0f);
 			((TItem*)item)->killByTimer(0x3C0);
