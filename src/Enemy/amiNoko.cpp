@@ -32,13 +32,13 @@ DEFINE_NERVE(TNerveAmiNokoFreeze, TLiveActor)
 		JPABaseEmitter* emitter = gpMarioParticleManager->emitAndBindToMtxPtr(
 		    0xCA, (MtxPtr)self->mMActor->unk4->mNodeMatrices, 0, nullptr);
 		if (emitter) {
-			f32 zero = 0.0f;
-			emitter->unk154.x = zero;
-			emitter->unk154.y = zero;
-			emitter->unk154.z = zero;
-			emitter->unk174.x = zero;
-			emitter->unk174.y = zero;
-			emitter->unk174.z = zero;
+			f32 scale = 2.0f;
+			emitter->unk154.x = scale;
+			emitter->unk154.y = scale;
+			emitter->unk154.z = scale;
+			emitter->unk174.x = scale;
+			emitter->unk174.y = scale;
+			emitter->unk174.z = scale;
 		}
 	}
 
