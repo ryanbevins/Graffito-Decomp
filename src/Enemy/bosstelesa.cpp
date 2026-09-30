@@ -958,7 +958,7 @@ void TBossTelesa::generateSlotItem()
 			}
 
 			Mtx rot;
-			Vec dir;
+			JGeometry::TVec3<f32> dir;
 			dir.x = 0.0f;
 			dir.y = 0.0f;
 			dir.z = 200.0f;
