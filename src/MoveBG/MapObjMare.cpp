@@ -588,7 +588,7 @@ void TMapObjGrowTree::initMapObj()
 	TMapObjBase::initMapObj();
 	unk138 = 1000.0f;
 	unk13C = 0.5f;
-	unk140 = 0.01f;
+	unk140 = 0.1f;
 	unk144 = 360;
 	unk148 = mDamageHeight;
 	mMActor->setBtp("moyasi_wink");
