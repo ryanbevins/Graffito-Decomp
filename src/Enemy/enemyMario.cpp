@@ -822,7 +822,7 @@ void TEnemyMario::checkController(JDrama::TGraphics* graphics)
 	f32 dx        = gpMarioPos->x - mPosition.x;
 	f32 dz        = gpMarioPos->z - mPosition.z;
 	emTargetYaw(this) = matan(dz, dx);
-	emDistToMario(this) = JGeometry::TUtil<f32>::sqrt(dx * dx + dz * dz);
+	emDistToMario(this) = std::sqrtf(dx * dx + dz * dz);
 
 	TMarioControllerWork* controller = emControllerWork(this);
 	u32 prevInput                   = controller->mInput;
@@ -847,7 +847,7 @@ void TEnemyMario::checkController(JDrama::TGraphics* graphics)
 	if (controller->mStickVS16 > 7)
 		controller->mStickV = controller->mStickVS16 - 6;
 
-	f32 stickLen = JGeometry::TUtil<f32>::sqrt(
+	f32 stickLen = std::sqrtf(
 	    controller->mStickH * controller->mStickH
 	    + controller->mStickV * controller->mStickV);
 	controller->mStickDist = stickLen;
