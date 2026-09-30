@@ -824,50 +824,49 @@ void TEnemyMario::checkController(JDrama::TGraphics* graphics)
 	emTargetYaw(this) = matan(dz, dx);
 	emDistToMario(this) = std::sqrtf(dx * dx + dz * dz);
 
-	TMarioControllerWork* controller = emControllerWork(this);
-	u32 prevInput                   = controller->mInput;
-	controller->mStickHS16          = 0;
-	controller->mStickVS16          = 0;
-	controller->mInput              = (TMarioControllerWork::Buttons)0;
-	controller->mFrameInput         = (TMarioControllerWork::Buttons)0;
-	controller->mAnalogRU8          = 0;
-	controller->mAnalogLU8          = 0;
+	u32 prevInput                   = emControllerWork(this)->mInput;
+	emControllerWork(this)->mStickHS16          = 0;
+	emControllerWork(this)->mStickVS16          = 0;
+	emControllerWork(this)->mInput              = (TMarioControllerWork::Buttons)0;
+	emControllerWork(this)->mFrameInput         = (TMarioControllerWork::Buttons)0;
+	emControllerWork(this)->mAnalogRU8          = 0;
+	emControllerWork(this)->mAnalogLU8          = 0;
 
 	consider();
 
-	controller->mStickH = 0.0f;
-	controller->mStickV = 0.0f;
+	emControllerWork(this)->mStickH = 0.0f;
+	emControllerWork(this)->mStickV = 0.0f;
 
-	if (controller->mStickHS16 < -7)
-		controller->mStickH = controller->mStickHS16 + 6;
-	if (controller->mStickHS16 > 7)
-		controller->mStickH = controller->mStickHS16 - 6;
-	if (controller->mStickVS16 < -7)
-		controller->mStickV = controller->mStickVS16 + 6;
-	if (controller->mStickVS16 > 7)
-		controller->mStickV = controller->mStickVS16 - 6;
+	if (emControllerWork(this)->mStickHS16 < -7)
+		emControllerWork(this)->mStickH = emControllerWork(this)->mStickHS16 + 6;
+	if (emControllerWork(this)->mStickHS16 > 7)
+		emControllerWork(this)->mStickH = emControllerWork(this)->mStickHS16 - 6;
+	if (emControllerWork(this)->mStickVS16 < -7)
+		emControllerWork(this)->mStickV = emControllerWork(this)->mStickVS16 + 6;
+	if (emControllerWork(this)->mStickVS16 > 7)
+		emControllerWork(this)->mStickV = emControllerWork(this)->mStickVS16 - 6;
 
 	f32 stickLen = std::sqrtf(
-	    controller->mStickH * controller->mStickH
-	    + controller->mStickV * controller->mStickV);
-	controller->mStickDist = stickLen;
-	if (controller->mStickDist > 64.0f) {
-		f32 scale = 64.0f / controller->mStickDist;
-		controller->mStickH *= scale;
-		controller->mStickV *= scale;
-		controller->mStickDist = 64.0f;
+	    emControllerWork(this)->mStickH * emControllerWork(this)->mStickH
+	    + emControllerWork(this)->mStickV * emControllerWork(this)->mStickV);
+	emControllerWork(this)->mStickDist = stickLen;
+	if (emControllerWork(this)->mStickDist > 64.0f) {
+		f32 scale = 64.0f / emControllerWork(this)->mStickDist;
+		emControllerWork(this)->mStickH *= scale;
+		emControllerWork(this)->mStickV *= scale;
+		emControllerWork(this)->mStickDist = 64.0f;
 	}
 
-	controller->mFrameInput
-	    = (TMarioControllerWork::Buttons)(controller->mInput
-	                                      & (controller->mInput ^ prevInput));
+	emControllerWork(this)->mFrameInput
+	    = (TMarioControllerWork::Buttons)(emControllerWork(this)->mInput
+	                                      & (emControllerWork(this)->mInput ^ prevInput));
 
 	mIntendedMag = 64.0f
-	    * ((controller->mStickDist * 0.015625f)
-	       * (controller->mStickDist * 0.015625f))
+	    * ((emControllerWork(this)->mStickDist * 0.015625f)
+	       * (emControllerWork(this)->mStickDist * 0.015625f))
 	    * 0.5f;
 	if (mIntendedMag > 0.0f)
-		mIntendedYaw = matan(-controller->mStickV, controller->mStickH);
+		mIntendedYaw = matan(-emControllerWork(this)->mStickV, emControllerWork(this)->mStickH);
 	else
 		mIntendedYaw = mFaceAngle.y;
 
@@ -911,13 +910,13 @@ void TEnemyMario::checkController(JDrama::TGraphics* graphics)
 	if (mIntendedMag > 0.0f)
 		mInput |= 1;
 
-	if (controller->mFrameInput & 0x100)
+	if (emControllerWork(this)->mFrameInput & 0x100)
 		mInput |= 2;
-	if (controller->mInput & 0x100)
+	if (emControllerWork(this)->mInput & 0x100)
 		mInput |= 0x80;
-	if (controller->mInput & 0x200)
+	if (emControllerWork(this)->mInput & 0x200)
 		mInput |= 0x4000;
-	if (controller->mFrameInput & 0x200)
+	if (emControllerWork(this)->mFrameInput & 0x200)
 		mInput |= 0x8000;
 }
 
