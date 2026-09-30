@@ -937,7 +937,7 @@ void TBossTelesa::generateSlotItem()
 			item->mPosition.z = rootMtx[2][3];
 			item->mVelocity   = velocity;
 			item->offLiveFlag(LIVE_FLAG_UNK10);
-			item->mScaling.set(0.0f, 0.0f, 0.0f);
+			item->mRotation.set(0.0f, 0.0f, 0.0f);
 			((TItem*)item)->killByTimer(0x3C0);
 
 			unk1AC[unk274] = unk320[i];
