@@ -851,21 +851,21 @@ void TEnemyMario::checkController(JDrama::TGraphics* graphics)
 	    controller->mStickH * controller->mStickH
 	    + controller->mStickV * controller->mStickV);
 	controller->mStickDist = stickLen;
-	if (controller->mStickDist > 1500.0f) {
-		f32 scale = 1500.0f / controller->mStickDist;
+	if (controller->mStickDist > 64.0f) {
+		f32 scale = 64.0f / controller->mStickDist;
 		controller->mStickH *= scale;
 		controller->mStickV *= scale;
-		controller->mStickDist = 1500.0f;
+		controller->mStickDist = 64.0f;
 	}
 
 	controller->mFrameInput
 	    = (TMarioControllerWork::Buttons)(controller->mInput
 	                                      & (controller->mInput ^ prevInput));
 
-	mIntendedMag = 1500.0f
-	    * ((controller->mStickDist * 100.0f)
-	       * (controller->mStickDist * 100.0f))
-	    * 3000.0f;
+	mIntendedMag = 64.0f
+	    * ((controller->mStickDist * 0.015625f)
+	       * (controller->mStickDist * 0.015625f))
+	    * 0.5f;
 	if (mIntendedMag > 0.0f)
 		mIntendedYaw = matan(-controller->mStickV, controller->mStickH);
 	else
