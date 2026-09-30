@@ -869,7 +869,7 @@ void TEnemyMario::checkController(JDrama::TGraphics* graphics)
 	if (mIntendedMag > 0.0f)
 		mIntendedYaw = matan(-controller->mStickV, controller->mStickH);
 	else
-		mIntendedYaw = emTargetYaw(this);
+		mIntendedYaw = mFaceAngle.y;
 
 	if (emDoing(this) == 0xB)
 		emReplay();
