@@ -812,8 +812,8 @@ void TBossTelesa::generateSlotItem()
 		if (numFruit > 20)
 			numFruit = 20;
 
-		s32 angleIndex
-		    = (s32)(numFruit * (rand() * 0.000030517578f));
+		TMsRange<s32> angleRange(0, numFruit);
+		s32 angleIndex = angleRange.rand();
 
 		for (int i = 0; i < numFruit; ++i) {
 			if (unk2A8[i]->mHolder)
@@ -961,9 +961,8 @@ void TBossTelesa::generateSlotItem()
 		if (mHitPoints == 1)
 			maxKind = 8;
 
-		s32 randomKind
-		    = 1
-		    + (s32)((maxKind - 1) * (rand() * 0.000030517578f));
+		TMsRange<s32> kindRange(1, maxKind);
+		s32 randomKind = kindRange.rand();
 
 		for (int i = 0; i < count; ++i) {
 			if (result == 3) {
