@@ -803,7 +803,7 @@ void TBossTelesa::generateSlotItem()
 
 	TBossTelesaSaveLoadParams* params = (TBossTelesaSaveLoadParams*)unk15C;
 	s32 slotItemNum                   = params->mSLSlotItemNum.get();
-	MtxPtr rootMtx                    = mMActor->unk4->mNodeMatrices[5];
+	MtxPtr rootMtx                    = mMActor->getModel()->getAnmMtx(5);
 	f32 angleStep                     = 120.0f / slotItemNum;
 	f32 angleOffset                   = angleStep * slotItemNum * 0.5f;
 
