@@ -832,15 +832,7 @@ void TBossTelesa::generateSlotItem()
 			                   + fruitAngleStep * angleIndex,
 			               mRotation.z);
 
-			if (numFruit > 0) {
-				angleIndex += i;
-				while (angleIndex >= numFruit)
-					angleIndex -= numFruit;
-				while (angleIndex < 0)
-					angleIndex += numFruit;
-			} else {
-				angleIndex = 0;
-			}
+			angleIndex = MsWrap<s32>(angleIndex + i, 0, numFruit);
 
 			PSMTXMultVec(rot, &dir, &dir);
 			MsVECNormalize(&dir, &normalizedDir);
