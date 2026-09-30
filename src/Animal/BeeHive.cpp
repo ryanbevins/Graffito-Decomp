@@ -377,13 +377,9 @@ bool TBeeHive::doWait()
 
 	f32 searchRange = getBeeParams()->mSearchRange.get();
 	if (diff.squared() <= searchRange * searchRange) {
-		setBoidLeaderWaitParams(this);
-		mBoidLeader->mGoalTarget = (THitActor*)gpMarioAddress;
-		mBoidLeader->mGoalOffset.set(0.0f, 200.0f, 0.0f);
+		setBoidLeaderMarioGoal(this, 200.0f);
 	} else {
-		setBoidLeaderWaitParams(this);
-		mBoidLeader->mGoalTarget = mPosition;
-		mBoidLeader->mGoalOffset.set(0.0f, 0.0f, 0.0f);
+		setBoidLeaderHomeGoal(this);
 	}
 
 	return fabsf(mAngularVelocity.x) >= cAngleLimit;
