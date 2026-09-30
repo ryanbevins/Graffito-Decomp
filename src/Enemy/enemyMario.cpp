@@ -1992,8 +1992,7 @@ void TEnemyMario::initEnemyValues()
 			stream.skip(2);
 			stream.readString();
 
-			u32 linkCount;
-			stream.read(&linkCount, sizeof(linkCount));
+			u32 linkCount = stream.read32b();
 			emReplayLinkTable(this) = new u8[linkCount * 6];
 
 			char** names = new char*[linkCount * 3];
