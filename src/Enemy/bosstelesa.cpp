@@ -969,18 +969,16 @@ void TBossTelesa::generateSlotItem()
 			MsVECNormalize(&dir, &dir);
 			dir.y = 2.0f;
 
-			Vec velocity;
+			f32 speed = ((TBossTelesaSaveLoadParams*)unk15C)->mSL1stBubbleSp.get();
 			TMsRange<f32> enemySpeedRange(0.5f, 1.0f);
-			f32 speed    = params->mSL1stBubbleSp.get();
-			velocity.x = dir.x * speed * enemySpeedRange.rand();
-			velocity.y = dir.y
-			    * (2.0f + enemySpeedRange.rand());
-			velocity.z = dir.z * speed * enemySpeedRange.rand();
+			dir.x *= speed * enemySpeedRange.rand();
+			dir.y *= 2.0f + enemySpeedRange.rand();
+			dir.z *= speed * enemySpeedRange.rand();
 
 			enemy->mPosition.x = rootMtx[0][3];
 			enemy->mPosition.y = rootMtx[1][3] - 250.0f;
 			enemy->mPosition.z = rootMtx[2][3];
-			enemy->mVelocity   = velocity;
+			enemy->mVelocity   = dir;
 			enemy->mPosition.y += 10.0f;
 			enemy->onLiveFlag(LIVE_FLAG_AIRBORNE);
 			PSMTXCopy(rootMtx, enemy->mMActor->unk4->unk20);
