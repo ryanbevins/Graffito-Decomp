@@ -574,7 +574,7 @@ BOOL TMario::fireDowning()
 BOOL TMario::thrownDowning()
 {
 	s16 ad = mIntendedYaw - mFaceAngle.y; u16 au = (u16)ad;
-	f32 ac = 160.0f * mIntendedMag;
+	f32 ac = 0.03125f * mIntendedMag;
 	f32 ta = mJumpParams.mThrownAccel.value;
 	mForwardVel += ac * JMASCos(au) * ta;
 	f32 ts = mJumpParams.mThrownSlide.value;
@@ -586,8 +586,8 @@ BOOL TMario::thrownDowning()
 	switch (jr) {
 	case 1:
 		if (mActionState < 2 && mVel.y < 0.0f) {
-			mVel.y = -mVel.y * 2.0f;
-			setPlayerVelocity(1024.0f * mForwardVel);
+			mVel.y = -mVel.y * 0.4f;
+			setPlayerVelocity(0.5f * mForwardVel);
 			mActionState = mActionState + 1;
 		} else
 			return changePlayerStatus(0x0C000223, 0, false);
