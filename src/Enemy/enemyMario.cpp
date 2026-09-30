@@ -2087,12 +2087,18 @@ void TEnemyMario::initEnemyValues()
 	if (flagState == 0)
 		emDoing(this) = 9;
 
-	if (flagState == 2)
-		emReplayIndex(this) = emOwner(this)->unk15C;
-	else if (flagState == 3)
-		emReplayIndex(this) = emOwner(this)->unk160;
-	else
+	switch (flagState) {
+	case 0:
+	case 1:
 		emReplayIndex(this) = emOwner(this)->unk158;
+		break;
+	case 2:
+		emReplayIndex(this) = emOwner(this)->unk15C;
+		break;
+	case 3:
+		emReplayIndex(this) = emOwner(this)->unk160;
+		break;
+	}
 
 	if (emOwner(this)->unk124 != nullptr
 	    && emOwner(this)->unk124->getGraph() != nullptr) {
