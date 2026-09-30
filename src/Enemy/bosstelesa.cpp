@@ -1950,7 +1950,7 @@ void TBubble::behaveToWater(THitActor*)
 	    && mMActor->checkCurBckFromIndex(10)) {
 		kill();
 		TMapObjBase* item = gpItemManager->makeObjAppear(
-		    mPosition.x, mPosition.y + 50.0f, mPosition.z, 0x20000002, true);
+		    mPosition.x, mPosition.y + 20.0f, mPosition.z, 0x20000002, true);
 		if (item)
 			((TItem*)item)->killByTimer(0x4B0);
 	}
