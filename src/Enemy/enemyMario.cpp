@@ -2010,8 +2010,7 @@ void TEnemyMario::initEnemyValues()
 				for (int col = 0; col < 3; ++col) {
 					stream.skip(2);
 
-					char link;
-					stream.read(&link, 1);
+					char link = stream.read8b();
 
 					u32 tableOffset = row * 6 + col * 2;
 					if (link == '*') {
