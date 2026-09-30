@@ -2001,7 +2001,7 @@ void TBubble::appendEnemy()
 		enemy->onHitFlag(HIT_FLAG_UNK8000000);
 		mHeldObject = enemy;
 		JGeometry::TVec3<f32> velocity;
-		velocity.set(0.0f, 1.0f, -1.0f);
+		velocity.set(0.0f, 2.0f, 10.0f);
 		enemy->mVelocity = velocity;
 		enemy->onLiveFlag(LIVE_FLAG_AIRBORNE);
 		unk198 = enemy;
