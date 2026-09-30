@@ -2167,7 +2167,7 @@ void TEnemyMario::initEnemyValues()
 	mPrevAction = mAction;
 	mState &= ~0x8000;
 
-	if (emScenarioType(this) == 2 && gpMapObjWave != nullptr)
+	if (emScenarioType(this) == 2)
 		gpMapObjWave->noWave();
 
 	mHandModels[0][0] = nullptr;
