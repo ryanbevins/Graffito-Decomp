@@ -944,7 +944,7 @@ void TBossTelesa::generateSlotItem()
 
 		for (int i = 0; i < count; ++i) {
 			if (unk1A8 == 3) {
-				if ((i & 1) == 0)
+				if ((i % 2) == 0)
 					randomKind++;
 				if (randomKind > maxKind)
 					randomKind = 1;
