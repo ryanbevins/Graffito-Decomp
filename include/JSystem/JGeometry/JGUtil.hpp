@@ -37,13 +37,7 @@ template <> struct TUtil<f32> {
 
 	static bool epsilonEquals(f32 param_1, f32 param_2, f32 epsilon)
 	{
-		if (param_1 - param_2 < -epsilon)
-			return 0;
-
-		if (epsilon < param_1 - param_2)
-			return 0;
-
-		return 1;
+		return -epsilon <= param_1 - param_2 && param_1 - param_2 <= epsilon;
 	}
 
 	static f32 clamp(f32 value, f32 min, f32 max)
