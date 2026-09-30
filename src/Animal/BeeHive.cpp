@@ -376,11 +376,12 @@ bool TBeeHive::doWait()
 	JGeometry::TVec3<f32> diff = *gpMarioPos;
 	diff -= mPosition;
 
-	setBoidLeaderWaitParams(this);
 	if (diff.squared() <= params->mSearchRange.get() * params->mSearchRange.get()) {
+		setBoidLeaderWaitParams(this);
 		mBoidLeader->mGoalTarget = (THitActor*)gpMarioAddress;
 		mBoidLeader->mGoalOffset.set(0.0f, 200.0f, 0.0f);
 	} else {
+		setBoidLeaderWaitParams(this);
 		mBoidLeader->mGoalTarget = mPosition;
 		mBoidLeader->mGoalOffset.set(0.0f, 0.0f, 0.0f);
 	}
