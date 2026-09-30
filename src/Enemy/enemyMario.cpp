@@ -1894,14 +1894,21 @@ void TEnemyMario::initEnemyValues()
 	}
 
 	J3DModelData* enemyModelData = nullptr;
-	if (modelType >= 0 && modelType < 4) {
+	switch (modelType) {
+	case 0:
+	case 1:
+	case 2:
+	case 3:
 		unk388 = 1;
-	} else if (modelType == 4) {
+		break;
+	case 4: {
 		void* enemyResource
 		    = JKRFileLoader::getGlbResource(sEnemyMarioBmdFileNames[modelType]);
 		enemyModelData
 		    = J3DModelLoaderDataBase::load(enemyResource, 0x10040000);
 		unk388 = 2;
+		break;
+	}
 	}
 
 	emEnemyShadowModel(this) = nullptr;
