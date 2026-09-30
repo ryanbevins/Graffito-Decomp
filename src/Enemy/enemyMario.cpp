@@ -2030,8 +2030,8 @@ void TEnemyMario::initEnemyValues()
 		}
 	}
 
-	if (emScenarioType(this) != 0 && emOwner(this)->unk124 != nullptr) {
-		char graphName[32];
+	if (emScenarioType(this) != 0) {
+		char graphName[256];
 		snprintf(graphName, sizeof(graphName), "mariomodoki%d",
 		         emScenarioType(this));
 		emOwner(this)->unk124->setGraph(gpConductor->getGraphByName(graphName));
