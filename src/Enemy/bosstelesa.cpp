@@ -877,13 +877,14 @@ void TBossTelesa::generateSlotItem()
 		if (numItems > 10)
 			numItems = 10;
 
+		f32 itemAngleStep   = 120.0f / numItems;
+		f32 itemAngleOffset = itemAngleStep * numItems * 0.5f;
+
 		if (unk370)
 			unk370--;
 		else
 			unk370 = 0;
 
-		f32 itemAngleStep   = 120.0f / numItems;
-		f32 itemAngleOffset = itemAngleStep * numItems * 0.5f;
 		for (int i = 0; i < numItems; ++i) {
 			if (i >= 10)
 				return;
