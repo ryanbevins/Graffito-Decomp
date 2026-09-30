@@ -1882,9 +1882,6 @@ void TEnemyMario::initEnemyValues()
 	onHitFlag(1);
 	emOwner(this)->onHitFlag(1);
 
-	unk388                  = 1;
-	emEnemyModel(this)      = nullptr;
-
 	int modelType = 6;
 	for (int i = 0; i < 5; ++i) {
 		if (strcmp(sEnemyMarioModelNames[i], emOwner(this)->getName()) == 0) {
@@ -1920,6 +1917,7 @@ void TEnemyMario::initEnemyValues()
 		emEnemyModel(this) = new J3DModel(enemyModelData, 0, 1);
 	} else {
 		unk388 = 1;
+		emEnemyModel(this) = nullptr;
 		void* brushResource = JKRFileLoader::getGlbResource(
 		    "/scene/kagemario/kagemario_brush.bmd");
 		J3DModelData* brushData
