@@ -837,49 +837,34 @@ void TBossTelesa::generateSlotItem()
 			PSMTXMultVec(rot, &dir, &dir);
 			MsVECNormalize(&dir, &normalizedDir);
 
-			TMapObjBase* actor;
-			if (i == 0 || i == 4)
-				actor = (TMapObjBase*)unk2F8[i];
-			else
-				actor = (TMapObjBase*)unk2A8[i];
-
-			Vec velocity;
 			TMsRange<f32> fruitSpeedRange(6.0f, 10.0f);
 
 			if (i == 0 || i == 4) {
-				actor->makeObjAppeared();
-				actor->offLiveFlag(LIVE_FLAG_HIDDEN);
-
-				velocity.x
-				    = normalizedDir.x * fruitSpeedRange.rand();
-				velocity.y = -2.0f;
-				velocity.z
-				    = normalizedDir.z * fruitSpeedRange.rand();
+				((TMapObjBase*)unk2F8[i])->makeObjAppeared();
+				unk2F8[i]->offLiveFlag(LIVE_FLAG_HIDDEN);
+				unk2F8[i]->mVelocity.set(
+				    normalizedDir.x * fruitSpeedRange.rand(), -2.0f,
+				    normalizedDir.z * fruitSpeedRange.rand());
+				unk2F8[i]->offLiveFlag(LIVE_FLAG_UNK10);
 				if (i == 0) {
-					velocity.x = normalizedDir.x
-					    * fruitSpeedRange.rand() * 2.0f;
-					velocity.z = normalizedDir.z
-					    * fruitSpeedRange.rand() * 2.0f;
+					unk2F8[i]->mVelocity.set(
+					    normalizedDir.x * fruitSpeedRange.rand() * 2.0f,
+					    -2.0f,
+					    normalizedDir.z * fruitSpeedRange.rand() * 2.0f);
+					unk2F8[i]->offLiveFlag(LIVE_FLAG_UNK10);
 				}
-
-				actor->mVelocity = velocity;
-				actor->offLiveFlag(LIVE_FLAG_UNK10);
-				actor->mRotation.set(0.0f, 90.0f, 0.0f);
+				unk2F8[i]->mRotation.set(0.0f, 90.0f, 0.0f);
+				unk1AC[unk274] = unk2F8[i];
 			} else {
-				actor->makeObjAppeared();
-				actor->offLiveFlag(LIVE_FLAG_HIDDEN);
-
-				velocity.x
-				    = normalizedDir.x * fruitSpeedRange.rand();
-				velocity.y = -2.0f;
-				velocity.z
-				    = normalizedDir.z * fruitSpeedRange.rand();
-
-				actor->mVelocity = velocity;
-				actor->offLiveFlag(LIVE_FLAG_UNK10);
+				((TMapObjBase*)unk2A8[i])->makeObjAppeared();
+				unk2A8[i]->offLiveFlag(LIVE_FLAG_HIDDEN);
+				unk2A8[i]->mVelocity.set(
+				    normalizedDir.x * fruitSpeedRange.rand(), -2.0f,
+				    normalizedDir.z * fruitSpeedRange.rand());
+				unk2A8[i]->offLiveFlag(LIVE_FLAG_UNK10);
+				unk1AC[unk274] = unk2A8[i];
 			}
 
-			unk1AC[unk274] = actor;
 			unk1AC[i]->onHitFlag(HIT_FLAG_NO_COLLISION);
 			unk1AC[i]->mScaling.set(1.5f, 1.5f, 1.5f);
 			unk1AC[unk274]->mPosition.x = rootMtx[0][3] + dir.x;
