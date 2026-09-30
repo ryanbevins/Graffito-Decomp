@@ -838,13 +838,13 @@ void TEnemyMario::checkController(JDrama::TGraphics* graphics)
 	controller->mStickH = 0.0f;
 	controller->mStickV = 0.0f;
 
-	if (controller->mStickHS16 <= -7)
+	if (controller->mStickHS16 < -7)
 		controller->mStickH = controller->mStickHS16 + 6;
-	if (controller->mStickHS16 >= 7)
+	if (controller->mStickHS16 > 7)
 		controller->mStickH = controller->mStickHS16 - 6;
-	if (controller->mStickVS16 <= -7)
+	if (controller->mStickVS16 < -7)
 		controller->mStickV = controller->mStickVS16 + 6;
-	if (controller->mStickVS16 >= 7)
+	if (controller->mStickVS16 > 7)
 		controller->mStickV = controller->mStickVS16 - 6;
 
 	f32 stickLen = JGeometry::TUtil<f32>::sqrt(
