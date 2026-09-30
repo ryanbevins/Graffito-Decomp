@@ -2147,13 +2147,14 @@ void TEnemyMario::initEnemyValues()
 			setGamePad(gpMarDirector->unk18[3]);
 		}
 		emDoing(this) = 0x1B;
+		if (unk388 == 3 || unk388 == 4 || unk388 == 5) {
+			mTrembleModelEffect = new TTrembleModelEffect;
+			mTrembleModelEffect->init(mModel->getModel());
+		}
 	}
 
-	if (unk388 >= 3 && unk388 <= 5 && mModel != nullptr) {
-		mTrembleModelEffect = new TTrembleModelEffect;
-		mTrembleModelEffect->init(mModel->getModel());
+	if (mTrembleModelEffect != nullptr)
 		mTrembleModelEffect->clash(emTremblePower(this));
-	}
 
 	mSubState |= 2;
 	mAction     = 0x0C400201;
