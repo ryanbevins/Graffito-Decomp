@@ -348,7 +348,8 @@ void TBeeHive::appearBee(int index)
 bool TBeeHive::doWait()
 {
 	f32 oldVelocity       = mAngularVelocity.y;
-	mAngularVelocity.y += mAngularVelocity.x * -getBeeParams()->mRebound.get();
+	f32 acceleration = mAngularVelocity.x * -getBeeParams()->mRebound.get();
+	mAngularVelocity.y += acceleration;
 	mAngularVelocity.y *= getBeeParams()->mDecay.get();
 	mAngularVelocity.x += mAngularVelocity.y;
 
