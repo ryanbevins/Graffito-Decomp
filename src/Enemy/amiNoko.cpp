@@ -260,7 +260,7 @@ DEFINE_NERVE(TNerveAmiNokoWalkOnFence, TLiveActor)
 		}
 	}
 
-	self->creepToCurPathNode(2.0f);
+	self->creepToCurPathNode(3.0f);
 	return false;
 }
 
