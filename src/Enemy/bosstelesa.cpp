@@ -2646,7 +2646,7 @@ DEFINE_NERVE(TNerveBossTelesaAppear, TLiveActor)
 		}
 	}
 
-	boss->unk364 *= 0.96f;
+	boss->unk364 *= 0.9f;
 	return FALSE;
 }
 
