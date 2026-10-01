@@ -892,7 +892,7 @@ DEFINE_NERVE(TNerveChuuHanaWalkOnPanel, TLiveActor)
 	}
 
 	if (!self->isAirborne() && self->mGroundPlane->getActor() == nullptr
-	    && self->mPosition.y + 2.5f < self->unk1F8.y)
+	    && self->mPosition.y + 200.0f < self->unk1F8.y)
 		spine->pushNerve(&TNerveChuuHanaFall2::theNerve());
 
 	if (self->isReachedToGoalXZ())
