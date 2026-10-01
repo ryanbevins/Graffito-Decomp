@@ -1972,13 +1972,14 @@ void TEnemyMario::initEnemyValues()
 	const char** replayNames = nullptr;
 	{
 		char linkPath[256];
-		if (emScenarioType(this) == 0) {
+		u8 scenarioType = emScenarioType(this);
+		if (scenarioType == 0) {
 			snprintf(linkPath, sizeof(linkPath),
 			         "/scene/map/map/pad/linkdata.bin");
 		} else {
 			snprintf(linkPath, sizeof(linkPath),
 			         "/scene/map/map/pad%d/linkdata.bin",
-			         emScenarioType(this));
+			         scenarioType);
 		}
 
 		u8* linkData = (u8*)JKRFileLoader::getGlbResource(linkPath);
@@ -2030,10 +2031,11 @@ void TEnemyMario::initEnemyValues()
 		}
 	}
 
-	if (emScenarioType(this) != 0) {
+	u8 scenarioType = emScenarioType(this);
+	if (scenarioType != 0) {
 		char graphName[256];
 		snprintf(graphName, sizeof(graphName), "mariomodoki%d",
-		         emScenarioType(this));
+		         scenarioType);
 		emOwner(this)->unk124->setGraph(gpConductor->getGraphByName(graphName));
 	}
 
@@ -2047,14 +2049,15 @@ void TEnemyMario::initEnemyValues()
 		emInputReplayArray(this) = new TMarioInputReplay*[replayCount];
 		for (int i = 0; i < replayCount; ++i) {
 			char replayPath[256];
-			if (emScenarioType(this) == 0) {
+			u8 scenarioType = emScenarioType(this);
+			if (scenarioType == 0) {
 				snprintf(replayPath, sizeof(replayPath),
 				         "/scene/map/map/pad/tutorial%s.pad",
 				         replayNames[i]);
 			} else {
 				snprintf(replayPath, sizeof(replayPath),
 				         "/scene/map/map/pad%d/tutorial%s.pad",
-				         emScenarioType(this), replayNames[i]);
+				         scenarioType, replayNames[i]);
 			}
 
 			u8* replayData = (u8*)JKRFileLoader::getGlbResource(replayPath);
