@@ -723,7 +723,7 @@ void TPopo::behaveToWater(THitActor* water)
 	}
 
 	if (isAirborne()) {
-		JGeometry::TVec3<f32> oldVelocity = mVelocity;
+		JGeometry::TVec3<f32> oldVelocity = getVelocity();
 		JGeometry::TVec3<f32> away;
 		away.set(mPosition.x - SMS_GetMarioPos().x, 0.0f,
 		         mPosition.z - SMS_GetMarioPos().z);
