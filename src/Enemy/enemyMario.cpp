@@ -342,9 +342,9 @@ inline s16& emTargetYaw(TEnemyMario* mario)
 	return *(s16*)&mario->unk4290[0x6];
 }
 
-inline u16& emRandomYaw(TEnemyMario* mario)
+inline s16& emRandomYaw(TEnemyMario* mario)
 {
-	return *(u16*)&mario->unk4290[0x8];
+	return *(s16*)&mario->unk4290[0x8];
 }
 
 inline f32& emDistToMario(TEnemyMario* mario)
