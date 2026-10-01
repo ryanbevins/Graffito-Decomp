@@ -60,6 +60,9 @@ python tools/agent/tvec3_copy_sweep.py mario/MoveBG/MapObjBall src/MoveBG/MapObj
 JSON reports, showing overall and per-unit fuzzy, exact-code, function, and
 data changes. It exits nonzero if overall exact code or functions decrease,
 and rejects reports with different code/function populations or unit sets.
+Function-level fuzzy regressions are always printed, including those hidden
+by larger gains elsewhere in the same unit. Add `--functions` to also list
+function gains. Fuzzy-only regressions do not change the exit status.
 Generate fresh reports after the full non-matching build; this helper does
 not build or replace the push gate.
 
