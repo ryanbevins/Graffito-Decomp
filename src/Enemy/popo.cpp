@@ -712,8 +712,8 @@ f32 TPopo::getGravityY() const
 
 void TPopo::behaveToWater(THitActor* water)
 {
-	if (mSpine->getCurrentNerve() == &TNervePopoExplosion::theNerve()
-	    || mSpine->getCurrentNerve() == &TNervePopoFly::theNerve()
+	if (mSpine->getCurrentNerve() == &TNervePopoFly::theNerve()
+	    || mSpine->getCurrentNerve() == &TNervePopoExplosion::theNerve()
 	    || mSpine->getCurrentNerve() == &TNerveSmallEnemyDie::theNerve())
 		return;
 
