@@ -487,7 +487,7 @@ void TChuuHana::bind()
 	mGroundHeight += 1.0f;
 
 	if (next.y <= mGroundHeight + 0.05f && mGroundPlane->getActor() == nullptr
-	    && mPosition.y < unk1F8.y - 2.5f) {
+	    && mPosition.y < unk1F8.y - 200.0f) {
 		offLiveFlag(LIVE_FLAG_AIRBORNE);
 		next.y = mGroundHeight;
 	} else {
