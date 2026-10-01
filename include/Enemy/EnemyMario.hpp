@@ -34,7 +34,7 @@ public:
 	void emWalkAround();
 	void emJumping();
 	virtual void emWaiting();
-	BOOL tryTake();
+	bool tryTake();
 	void changeEMDoing(u16);
 	void startMonteReplay(u32);
 	void initEnemyValues();

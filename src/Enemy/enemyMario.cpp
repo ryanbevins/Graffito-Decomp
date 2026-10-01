@@ -1796,10 +1796,10 @@ void TEnemyMario::emWaiting()
 	}
 }
 
-BOOL TEnemyMario::tryTake()
+bool TEnemyMario::tryTake()
 {
 	if (mHeldObject != nullptr && mAction != 0x383)
-		return TRUE;
+		return true;
 
 	for (int i = 0; i < emOwner(this)->mColCount; ++i) {
 		THitActor* actor = emOwner(this)->mCollisions[i];
@@ -1815,7 +1815,7 @@ BOOL TEnemyMario::tryTake()
 		}
 	}
 
-	return FALSE;
+	return false;
 }
 
 #pragma dont_inline on
