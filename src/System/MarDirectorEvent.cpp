@@ -212,9 +212,11 @@ void TMarDirector::setNextStage(u16 param_1, JDrama::TActor* param_2)
 		unk4C |= 0x2;
 	}
 
-	if (next.unk0 == 0x37) {
+	switch (next.unk0) {
+	case 0x37:
 		unk4C |= 0x100;
 		gpApplication.mMovie = 6;
+		break;
 	}
 }
 #pragma dont_inline off
