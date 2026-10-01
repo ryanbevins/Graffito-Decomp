@@ -979,50 +979,49 @@ void TEnemyMario::hitWater(THitActor* sender)
 	case 0xB:
 	case 0xC:
 	case 0xD:
-		break;
-	case 0x19:
-		return;
-	default:
-		return;
-	}
+		emWaterCooldown(this) = 600;
 
-	emWaterCooldown(this) = 600;
+		if (emWaterCount(this) > 0) {
+			emWaterCount(this)--;
+			gpMarioParticleManager->emit(0xE7, &sender->mPosition, 0, nullptr);
+			gpMSound->startSoundSet(0x6802, &sender->mPosition, 0, 30.0f, 0, 0,
+			                         4);
+			emWaterTimer(this) = emWaterTimerReset(this);
 
-	if (emWaterCount(this) > 0) {
-		emWaterCount(this)--;
-		gpMarioParticleManager->emit(0xE7, &sender->mPosition, 0, nullptr);
-		gpMSound->startSoundSet(0x6802, &sender->mPosition, 0, 30.0f, 0, 0,
-		                         4);
-		emWaterTimer(this) = emWaterTimerReset(this);
+			if (doing() == 0xC) {
+				sleepingEffectKill();
 
-		if (doing() == 0xC) {
-			sleepingEffectKill();
+				int node = emOwner(this)->unk124->getGraph()->findNearestNodeIndex(
+				    mPosition, 0xffffffff);
+				if (emOwner(this)->unk124->getGraph()->getGraphNode(node).checkFlag(2)) {
+					mFaceAngle.y = emTargetYaw(this);
+					emControllerFlags2(this) |= 0x100;
+					emControllerFlags(this) |= 0x100;
+				}
 
-			int node = emOwner(this)->unk124->getGraph()->findNearestNodeIndex(
-			    mPosition, 0xffffffff);
-			if (emOwner(this)->unk124->getGraph()->getGraphNode(node).checkFlag(2)) {
-				mFaceAngle.y = emTargetYaw(this);
-				emControllerFlags2(this) |= 0x100;
-				emControllerFlags(this) |= 0x100;
+				emTimer(this) = 0;
+				doingRef() = 0xD;
 			}
 
-			emTimer(this) = 0;
-			doingRef() = 0xD;
-		}
-
-		return;
-	}
-
-	if (mAction == ACTION_RUNNING) {
-		u8 canSleepResult = canSleep();
-		if (!canSleepResult)
 			return;
-		if (mHeldObject != nullptr) {
-			*(u32*)((u8*)mHeldObject + 0xF0) &= ~0x100000;
-			dropObject();
 		}
-		emTimer(this) = 0;
-		doingRef() = 0xE;
+
+		if (mAction == ACTION_RUNNING) {
+			u8 canSleepResult = canSleep();
+			if (!canSleepResult)
+				return;
+			if (mHeldObject != nullptr) {
+				*(u32*)((u8*)mHeldObject + 0xF0) &= ~0x100000;
+				dropObject();
+			}
+			emTimer(this) = 0;
+			doingRef() = 0xE;
+		}
+		break;
+	case 0x19:
+		break;
+	default:
+		break;
 	}
 }
 
