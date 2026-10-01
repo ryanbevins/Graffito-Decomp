@@ -427,7 +427,7 @@ inline MActor*& emEnemyMActor(TEnemyMario* mario)
 	return *(MActor**)&mario->unk4290[0x60];
 }
 
-inline J3DModel*& emEnemyShadowModel(TEnemyMario* mario)
+inline J3DModel* emEnemyShadowModel(TEnemyMario* mario)
 {
 	return *(J3DModel**)&mario->unk4290[0x5C];
 }
@@ -1913,7 +1913,7 @@ void TEnemyMario::initEnemyValues()
 	}
 	}
 
-	emEnemyShadowModel(this) = nullptr;
+	*(J3DModel**)&unk4290[0x5C] = nullptr;
 	emEnemyMActor(this)     = nullptr;
 	emEnemyModelScale(this) = 3.0f;
 
@@ -1927,7 +1927,7 @@ void TEnemyMario::initEnemyValues()
 		    "/scene/kagemario/kagemario_brush.bmd");
 		J3DModelData* brushData
 		    = J3DModelLoaderDataBase::load(brushResource, 0x11040000);
-		emEnemyShadowModel(this) = new J3DModel(brushData, 0, 1);
+		*(J3DModel**)&unk4290[0x5C] = new J3DModel(brushData, 0, 1);
 
 		ResTIMG* dirtyTexture
 		    = (ResTIMG*)JKRFileLoader::getGlbResource(cDirtyFileName);
