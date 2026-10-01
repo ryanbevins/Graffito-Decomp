@@ -342,9 +342,9 @@ inline s16& emTargetYaw(TEnemyMario* mario)
 	return *(s16*)&mario->unk4290[0x6];
 }
 
-inline s16& emRandomYaw(TEnemyMario* mario)
+inline u16& emRandomYaw(TEnemyMario* mario)
 {
-	return *(s16*)&mario->unk4290[0x8];
+	return *(u16*)&mario->unk4290[0x8];
 }
 
 inline f32& emDistToMario(TEnemyMario* mario)
@@ -1092,7 +1092,7 @@ void TEnemyMario::consider()
 		break;
 	}
 	case 4: {
-		s16 diff = emRandomYaw(this) - mFaceAngle.y;
+		s16 diff = (s16)emRandomYaw(this) - mFaceAngle.y;
 		if (rand() < 100) {
 			emControllerFlags(this) |= 0x100;
 			emTimer(this) = 0;
