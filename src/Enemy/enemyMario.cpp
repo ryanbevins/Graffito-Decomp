@@ -2329,16 +2329,15 @@ void TEnemyMario::initValues()
 	*(f32*)&unk140 = 0.0f;
 
 	unk108 = (u32)operator new(0x24);
-	u8* controller = (u8*)unk108;
-	*(s16*)(controller + 0x00) = 0;
-	*(s16*)(controller + 0x02) = 0;
-	*(f32*)(controller + 0x10) = 0.0f;
-	*(f32*)(controller + 0x14) = 0.0f;
-	*(f32*)(controller + 0x18) = 0.0f;
-	*(u32*)(controller + 0x04) = 0;
-	*(u32*)(controller + 0x08) = 0;
-	*(u8*)(controller + 0x0C)  = 0;
-	*(u8*)(controller + 0x0D)  = 0;
+	*(s16*)((u8*)unk108 + 0x00) = 0;
+	*(s16*)((u8*)unk108 + 0x02) = 0;
+	*(f32*)((u8*)unk108 + 0x10) = 0.0f;
+	*(f32*)((u8*)unk108 + 0x14) = 0.0f;
+	*(f32*)((u8*)unk108 + 0x18) = 0.0f;
+	*(u32*)((u8*)unk108 + 0x04) = 0;
+	*(u32*)((u8*)unk108 + 0x08) = 0;
+	*(u8*)((u8*)unk108 + 0x0C)  = 0;
+	*(u8*)((u8*)unk108 + 0x0D)  = 0;
 	unk10C = 0.0f;
 	unk110 = 0.0f;
 
