@@ -2345,14 +2345,15 @@ void TEnemyMario::initValues()
 	unk158 = new TWaterEmitInfo("/Mario/WetWaterEmit.prm");
 
 	unk388 = 1;
-	unk530 = new s16[60];
-	for (int i = 0; i < 60; ++i)
-		unk530[i] = 0;
+	unk530 = nullptr;
 	unk534 = 0;
 	unk536 = 0;
 	unk538 = 0;
 	unk53A = 0;
 	unk53B = 0;
+	unk530 = new s16[60];
+	for (int i = 0; i < 60; ++i)
+		unk530[i] = 0;
 
 	initModel();
 
