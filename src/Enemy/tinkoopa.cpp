@@ -703,8 +703,9 @@ void TTinKoopa::emitTinKoopaEffects()
 	     && unk150 > 0)
 	    || (mSpine->getCurrentNerve() == &TNerveTinKoopaBreak::theNerve()
 	        && (unk150 == 1 || unk150 == 2))) {
-		emitTinKoopaMtxParticle(this, 0x1b6, 1, 1, this);
-		emitTinKoopaMtxParticle(this, 0x1b7, 1, 1, this);
+		MtxPtr mtx = getTinKoopaJointMtx(this, 1);
+		gpMarioParticleManager->emitAndBindToMtxPtr(0x1b6, mtx, 1, this);
+		gpMarioParticleManager->emitAndBindToMtxPtr(0x1b7, mtx, 1, this);
 	}
 
 	if ((mSpine->getCurrentNerve() == &TNerveTinKoopaWait::theNerve()
@@ -715,8 +716,9 @@ void TTinKoopa::emitTinKoopaEffects()
 
 	if (mSpine->getCurrentNerve() == &TNerveTinKoopaDamage::theNerve()
 	    || mSpine->getCurrentNerve() == &TNerveTinKoopaBreak::theNerve()) {
-		emitTinKoopaMtxParticle(this, 0x1ba, 10, 1, this);
-		emitTinKoopaMtxParticle(this, 0x1b9, 10, 1, this);
+		MtxPtr mtx = getTinKoopaJointMtx(this, 10);
+		gpMarioParticleManager->emitAndBindToMtxPtr(0x1ba, mtx, 1, this);
+		gpMarioParticleManager->emitAndBindToMtxPtr(0x1b9, mtx, 1, this);
 	}
 
 	if (mSpine->getCurrentNerve() == &TNerveTinKoopaBreak::theNerve()) {
