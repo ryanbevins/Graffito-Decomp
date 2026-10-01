@@ -424,8 +424,16 @@ void TFireWanwanTailNode::perform(u32 param_1, JDrama::TGraphics* param_2,
 	if (param_1 & 2) {
 		TPosition3f mtx;
 
-		SMS_CalcToDirMatrix(mtx, param_4,
-		                    JGeometry::TVec3<f32>(0.0f, 1.0f, 0.0f));
+		JGeometry::TVec3<f32> up(0.0f, 1.0f, 0.0f);
+		JGeometry::TVec3<f32> xDir;
+		xDir.cross(up, param_4);
+		xDir.normalize();
+		JGeometry::TVec3<f32> yDir;
+		yDir.cross(param_4, xDir);
+		yDir.normalize();
+		mtx.setXDir(xDir);
+		mtx.setYDir(yDir);
+		mtx.setZDir(param_4);
 
 		mtx.setTrans(param_3);
 
