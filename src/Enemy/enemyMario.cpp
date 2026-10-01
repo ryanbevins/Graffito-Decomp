@@ -1112,9 +1112,8 @@ void TEnemyMario::consider()
 		unk64 |= 1;
 		emOwner(this)->unk64 |= 1;
 		emTimer(this)++;
-		if (gpPollution == nullptr
-		    || !gpPollution->isPolluted(mPosition.x, mPosition.y,
-		                                mPosition.z)
+		if (!gpPollution->isPolluted(mPosition.x, mPosition.y,
+		                             mPosition.z)
 		    || emTimer(this) > 7200) {
 			emTimer(this) = 0;
 			marioUnk14C(this) = 120;
