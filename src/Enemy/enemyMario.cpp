@@ -2013,16 +2013,15 @@ void TEnemyMario::initEnemyValues()
 
 					char link = stream.read8b();
 
-					u32 tableOffset = row * 6 + col * 2;
 					if (link == '*') {
-						emReplayLinkTable(this)[tableOffset]     = 0xFF;
-						emReplayLinkTable(this)[tableOffset + 1] = 0xFF;
+						emReplayLinkTable(this)[row * 6 + col * 2]     = 0xFF;
+						emReplayLinkTable(this)[row * 6 + col * 2 + 1] = 0xFF;
 					} else {
 						snprintf(names[nameCount], 3, "%c%c", rowName,
 						         link);
-						emReplayLinkTable(this)[tableOffset]
+						emReplayLinkTable(this)[row * 6 + col * 2]
 						    = link - 'A';
-						emReplayLinkTable(this)[tableOffset + 1]
+						emReplayLinkTable(this)[row * 6 + col * 2 + 1]
 						    = nameCount++;
 					}
 				}
