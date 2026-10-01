@@ -642,7 +642,7 @@ void TFireWanwanTailHit::performNodes(u32 param_1, JDrama::TGraphics* param_2)
 
 	for (int i = 0; i < 4; ++i) {
 		TPosition3f afStack_a4;
-		MTXCopy(afStack_a4, unkA8[i]->mMActor->getModel()->getBaseTRMtx());
+		MTXCopy(unkA8[i]->mMActor->getModel()->getBaseTRMtx(), afStack_a4);
 
 		afStack_a4.setTrans(unkA4->getNode(i + 1)->mPos);
 
