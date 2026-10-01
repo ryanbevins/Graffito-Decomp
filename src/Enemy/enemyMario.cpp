@@ -719,7 +719,9 @@ void TEnemyMario::perform(u32 flags, JDrama::TGraphics* graphics)
 		if (mTrembleModelEffect != nullptr)
 			mTrembleModelEffect->movement();
 
-		BOOL drawBuffers = (mSubState & 2) != 0;
+		BOOL drawBuffers = TRUE;
+		if (!(mSubState & 2))
+			drawBuffers = FALSE;
 		if (marioUnk14C(this) > 0 && !(marioUnk14C(this) & 4))
 			drawBuffers = false;
 		if (checkFlag(4))
@@ -729,7 +731,7 @@ void TEnemyMario::perform(u32 flags, JDrama::TGraphics* graphics)
 		if (marioUnk14E(this) > 0 && !(marioUnk14E(this) & 4))
 			drawBuffers = false;
 
-		if (drawBuffers && mTrembleModelEffect != nullptr) {
+		if (drawBuffers == TRUE && mTrembleModelEffect != nullptr) {
 			j3dSys.unk4C = 7;
 			unk394->draw();
 			unk398->draw();
