@@ -2000,6 +2000,7 @@ void TEnemyMario::initEnemyValues()
 				names[i] = new char[3];
 
 			replayNames = (const char**)names;
+			int nameCount = 0;
 			for (u32 row = 0; row < linkCount; ++row) {
 				stream.skip(6);
 				stream.readString();
@@ -2017,16 +2018,16 @@ void TEnemyMario::initEnemyValues()
 						emReplayLinkTable(this)[tableOffset]     = 0xFF;
 						emReplayLinkTable(this)[tableOffset + 1] = 0xFF;
 					} else {
-						snprintf(names[replayCount], 3, "%c%c", rowName,
+						snprintf(names[nameCount], 3, "%c%c", rowName,
 						         link);
 						emReplayLinkTable(this)[tableOffset]
 						    = link - 'A';
 						emReplayLinkTable(this)[tableOffset + 1]
-						    = replayCount;
-						replayCount++;
+						    = nameCount++;
 					}
 				}
 			}
+			replayCount = nameCount;
 		}
 	}
 
