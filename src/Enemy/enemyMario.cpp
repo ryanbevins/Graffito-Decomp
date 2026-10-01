@@ -1140,14 +1140,16 @@ void TEnemyMario::consider()
 	case 0xA:
 		emDisappearToGate();
 		break;
-	case 0xC:
-		if (distanceFromMario(mPosition) < emSettingF32(this, 0x18)
+	case 0xC: {
+		f32 distance = mPosition.distance(*gpMarioPos);
+		if (distance < emSettingF32(this, 0x18)
 		    && gpMarioPos->y < mPosition.y + emSettingF32(this, 0x2C)) {
 			pushNearestFlaggedNodeInput(this);
 			emTimer(this) = 0;
 			emDoing(this) = 0xD;
 		}
 		break;
+	}
 	case 0xD:
 		emReplayJumpToNearestNode();
 		break;
