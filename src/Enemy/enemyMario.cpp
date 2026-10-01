@@ -1605,8 +1605,11 @@ void TEnemyMario::emReplay()
 	             (u32*)(controller + 8), controller + 0xD, controller + 0xC);
 
 	if (emSettings(this)[0xE0] != 0 && gpPollution != nullptr) {
-		gpPollution->stamp(1, mPosition.x, mPosition.y, mPosition.z,
-		                   emSettingF32(this, 0xF4));
+		f32 radius = emSettingF32(this, 0xF4);
+		f32 z = mPosition.z;
+		f32 y = mPosition.y;
+		f32 x = mPosition.x;
+		gpPollution->stamp(1, x, y, z, radius);
 	}
 
 	replay = emInputReplayArray(this)[emReplayIndex(this)];
