@@ -1968,11 +1968,6 @@ void TEnemyMario::initEnemyValues()
 
 	emWaterCount(this) = emSettingS16(this, 0x40);
 
-	emReplayLinkTable(this)       = nullptr;
-	emInputReplayArray(this)      = nullptr;
-	emInputReplayArrayBackup(this) = nullptr;
-	emInputReplay(this)           = nullptr;
-
 	int replayCount       = 0;
 	const char** replayNames = nullptr;
 	{
@@ -2137,6 +2132,9 @@ void TEnemyMario::initEnemyValues()
 		    "/scene/map/map/pad/tutorialHI.pad");
 		emInputReplay(this) = new TMarioInputReplay;
 		emInputReplay(this)->init(inviteReplay);
+	} else {
+		emInputReplayArrayBackup(this) = nullptr;
+		emInputReplay(this) = nullptr;
 	}
 
 	if (gpMarDirector->mMap == 0xC) {
