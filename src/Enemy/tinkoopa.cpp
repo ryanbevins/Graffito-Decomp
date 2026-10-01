@@ -669,13 +669,8 @@ void TTinKoopa::emitTinKoopaEffects()
 	if (unk150 > 2)
 		emitTinKoopaMtxParticle(this, 0x1ae, 4, 1, this);
 
-	BOOL isWait = mSpine->getCurrentNerve() == &TNerveTinKoopaWait::theNerve();
-	BOOL isDamage
-	    = mSpine->getCurrentNerve() == &TNerveTinKoopaDamage::theNerve();
-	BOOL isBreak
-	    = mSpine->getCurrentNerve() == &TNerveTinKoopaBreak::theNerve();
-
-	if (unk150 <= 0 && isWait)
+	if (unk150 <= 0
+	    && mSpine->getCurrentNerve() == &TNerveTinKoopaWait::theNerve())
 		emitTinKoopaMtxParticle(this, 0x1af, 2, 1, this);
 
 	emitTinKoopaMtxParticle(this, 0x1b0, 3, 1, this);
@@ -683,34 +678,48 @@ void TTinKoopa::emitTinKoopaEffects()
 	emitTinKoopaMtxParticle(this, 0x1b1, 10, 1, this);
 	emitTinKoopaMtxParticle(this, 0x1b2, 0, 1, this);
 
-	if (isDamage || isBreak) {
+	if (mSpine->getCurrentNerve() == &TNerveTinKoopaDamage::theNerve()
+	    || mSpine->getCurrentNerve() == &TNerveTinKoopaBreak::theNerve()) {
 		emitTinKoopaPosParticle(this, 0x1b3, &effectPos[1], 1, this);
 		emitTinKoopaPosParticle(this, 0x1b3, &effectPos[1], 1, otherUser);
 		emitTinKoopaPosParticle(this, 0x1b4, &effectPos[1], 1, this);
 		emitTinKoopaPosParticle(this, 0x1b4, &effectPos[1], 1, otherUser);
 	}
 
-	if ((isWait && unk150 > 1) || isDamage || isBreak)
+	if ((mSpine->getCurrentNerve() == &TNerveTinKoopaWait::theNerve()
+	     && unk150 > 1)
+	    || mSpine->getCurrentNerve() == &TNerveTinKoopaDamage::theNerve()
+	    || mSpine->getCurrentNerve() == &TNerveTinKoopaBreak::theNerve())
 		emitTinKoopaPosParticle(this, 0x1b5, &effectPos[2], 1, this);
 
-	if ((isWait && unk150 > 2) || isDamage || isBreak)
+	if ((mSpine->getCurrentNerve() == &TNerveTinKoopaWait::theNerve()
+	     && unk150 > 2)
+	    || mSpine->getCurrentNerve() == &TNerveTinKoopaDamage::theNerve()
+	    || mSpine->getCurrentNerve() == &TNerveTinKoopaBreak::theNerve())
 		emitTinKoopaPosParticle(this, 0x1b5, &effectPos[3], 1, otherUser);
 
-	if (((isWait || isDamage) && unk150 > 0)
-	    || (isBreak && (unk150 == 1 || unk150 == 2))) {
+	if (((mSpine->getCurrentNerve() == &TNerveTinKoopaWait::theNerve()
+	      || mSpine->getCurrentNerve() == &TNerveTinKoopaDamage::theNerve())
+	     && unk150 > 0)
+	    || (mSpine->getCurrentNerve() == &TNerveTinKoopaBreak::theNerve()
+	        && (unk150 == 1 || unk150 == 2))) {
 		emitTinKoopaMtxParticle(this, 0x1b6, 1, 1, this);
 		emitTinKoopaMtxParticle(this, 0x1b7, 1, 1, this);
 	}
 
-	if ((isWait && unk150 > 2) || isDamage || isBreak)
+	if ((mSpine->getCurrentNerve() == &TNerveTinKoopaWait::theNerve()
+	     && unk150 > 2)
+	    || mSpine->getCurrentNerve() == &TNerveTinKoopaDamage::theNerve()
+	    || mSpine->getCurrentNerve() == &TNerveTinKoopaBreak::theNerve())
 		emitTinKoopaPosParticle(this, 0x1b8, &effectPos[0], 1, this);
 
-	if (isDamage || isBreak) {
+	if (mSpine->getCurrentNerve() == &TNerveTinKoopaDamage::theNerve()
+	    || mSpine->getCurrentNerve() == &TNerveTinKoopaBreak::theNerve()) {
 		emitTinKoopaMtxParticle(this, 0x1ba, 10, 1, this);
 		emitTinKoopaMtxParticle(this, 0x1b9, 10, 1, this);
 	}
 
-	if (isBreak) {
+	if (mSpine->getCurrentNerve() == &TNerveTinKoopaBreak::theNerve()) {
 		if (unk150 == 0 || unk150 == 3) {
 			if (isTinKoopaBreakFrame(this, 100.0f))
 				gpCameraShake->startShake(CAM_SHAKE_MODE_UNK6, 1.0f);
