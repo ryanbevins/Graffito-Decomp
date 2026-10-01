@@ -1622,9 +1622,11 @@ void TEnemyMario::emReplay()
 		return;
 	}
 
-	if (emEnemyMActor(this) != nullptr && emSettings(this)[0x68] == 1) {
-		emEnemyMActor(this)->setBck("stamp_koopa_sign_draw1");
-		emEnemyMActor(this)->setFrameRate(SMSGetAnmFrameRate(), 0);
+	MActor* actor = emEnemyMActor(this);
+	if (actor != nullptr && emSettings(this)[0x68] == 1) {
+		actor->setBck("stamp_koopa_sign_draw1");
+		actor = emEnemyMActor(this);
+		actor->setFrameRate(SMSGetAnmFrameRate(), 0);
 		emTimer(this) = 0;
 		emDoing(this) = 0x13;
 		startSoundActor(0x1980);
