@@ -1312,9 +1312,7 @@ void TEnemyMario::emRunAwayToNearestNode()
 
 		dir.normalize();
 
-		dir.x *= emRunAwaySpeed(this);
-		dir.y *= emRunAwaySpeed(this);
-		dir.z *= emRunAwaySpeed(this);
+		dir.scale(emRunAwaySpeed(this));
 
 		emDisappearPos(this).x += dir.x;
 		emDisappearPos(this).y += dir.y;
