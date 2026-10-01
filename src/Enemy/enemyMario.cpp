@@ -1636,6 +1636,7 @@ void TEnemyMario::emReplay()
 
 	TGraphWeb* graph = emOwner(this)->unk124->getGraph();
 	int node         = graph->findNearestNodeIndex(mPosition, 0xffffffff);
+	graph = emOwner(this)->unk124->getGraph();
 	if (graph->getGraphNode(node).checkFlag(0x40)) {
 		emTimer(this) = 0;
 		emDoing(this) = 0x16;
@@ -1648,7 +1649,13 @@ void TEnemyMario::emReplay()
 		return;
 	}
 
-	pushNearestFlaggedNodeInput(this);
+	node = graph->findNearestNodeIndex(mPosition, 0xffffffff);
+	graph = emOwner(this)->unk124->getGraph();
+	if (graph->getGraphNode(node).checkFlag(2)) {
+		mFaceAngle.y = emTargetYaw(this);
+		emControllerFlags2(this) |= 0x100;
+		emControllerFlags(this) |= 0x100;
+	}
 	emTimer(this) = 0;
 	emDoing(this) = 0xD;
 }
