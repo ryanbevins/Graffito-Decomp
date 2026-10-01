@@ -698,9 +698,10 @@ void TTinKoopa::emitTinKoopaEffects()
 	    || mSpine->getCurrentNerve() == &TNerveTinKoopaBreak::theNerve())
 		emitTinKoopaPosParticle(this, 0x1b5, &effectPos[3], 1, otherUser);
 
-	if (((mSpine->getCurrentNerve() == &TNerveTinKoopaWait::theNerve()
-	      || mSpine->getCurrentNerve() == &TNerveTinKoopaDamage::theNerve())
+	if ((mSpine->getCurrentNerve() == &TNerveTinKoopaWait::theNerve()
 	     && unk150 > 0)
+	    || (mSpine->getCurrentNerve() == &TNerveTinKoopaDamage::theNerve()
+	        && unk150 > 0)
 	    || (mSpine->getCurrentNerve() == &TNerveTinKoopaBreak::theNerve()
 	        && (unk150 == 1 || unk150 == 2))) {
 		MtxPtr mtx = getTinKoopaJointMtx(this, 1);
