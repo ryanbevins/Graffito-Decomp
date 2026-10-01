@@ -250,9 +250,9 @@ void TTalk2D2::loadAfter()
 	}
 
 	for (int i = 0; i < 90; ++i) {
-		JUTRect bounds(0, 0, 20, 20);
-		unk9C[i] = new J2DTextBox(0, bounds, gpSystemFont->getResFont(),
-		                          "あ", HBIND_LEFT, VBIND_CENTER);
+		unk9C[i] = new J2DTextBox(0, JUTRect(0, 0, 20, 20),
+		                          gpSystemFont->getResFont(), "あ",
+		                          HBIND_LEFT, VBIND_CENTER);
 		unk9C[i]->mBlack   = 0xffffff00;
 		unk9C[i]->mWhite   = 0xffffffff;
 		unk9C[i]->mVisible = false;
