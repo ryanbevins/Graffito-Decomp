@@ -417,7 +417,7 @@ inline u8*& emReplayLinkTable(TEnemyMario* mario)
 	return *(u8**)&mario->unk4290[0x74];
 }
 
-inline J3DModel*& emEnemyModel(TEnemyMario* mario)
+inline J3DModel* emEnemyModel(TEnemyMario* mario)
 {
 	return *(J3DModel**)&mario->unk4290[0x4C];
 }
@@ -1919,10 +1919,10 @@ void TEnemyMario::initEnemyValues()
 
 	if (enemyModelData != nullptr) {
 		unk388             = 2;
-		emEnemyModel(this) = new J3DModel(enemyModelData, 0, 1);
+		*(J3DModel**)&unk4290[0x4C] = new J3DModel(enemyModelData, 0, 1);
 	} else {
 		unk388 = 1;
-		emEnemyModel(this) = nullptr;
+		*(J3DModel**)&unk4290[0x4C] = nullptr;
 		void* brushResource = JKRFileLoader::getGlbResource(
 		    "/scene/kagemario/kagemario_brush.bmd");
 		J3DModelData* brushData
