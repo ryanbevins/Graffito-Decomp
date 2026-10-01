@@ -1059,23 +1059,6 @@ void TEnemyMario::consider()
 			emDoing(this) = 0;
 		}
 		break;
-	case 4: {
-		s16 diff = emRandomYaw(this) - mFaceAngle.y;
-		if (rand() < 100) {
-			emControllerFlags(this) |= 0x100;
-			emTimer(this) = 0;
-			emDoing(this) = 2;
-			break;
-		}
-
-		if (diff < -0x1555 || diff > 0x1555) {
-			setEMStick(this, emRandomYaw(this), 0.2f);
-		} else {
-			emTimer(this) = 0;
-			emDoing(this) = 0;
-		}
-		break;
-	}
 	case 5:
 		emWalkAround();
 		break;
@@ -1105,6 +1088,23 @@ void TEnemyMario::consider()
 		if (emTimer(this) % 100 == 0) {
 			gpConductor->makeEnemyAppear(mPosition, "ハムクリマネージャー",
 			                             1, 0);
+		}
+		break;
+	}
+	case 4: {
+		s16 diff = emRandomYaw(this) - mFaceAngle.y;
+		if (rand() < 100) {
+			emControllerFlags(this) |= 0x100;
+			emTimer(this) = 0;
+			emDoing(this) = 2;
+			break;
+		}
+
+		if (diff < -0x1555 || diff > 0x1555) {
+			setEMStick(this, emRandomYaw(this), 0.2f);
+		} else {
+			emTimer(this) = 0;
+			emDoing(this) = 0;
 		}
 		break;
 	}
@@ -1165,6 +1165,14 @@ void TEnemyMario::consider()
 	case 0x10:
 		emRunAwayToNearestNode();
 		break;
+	case 0x16: {
+		s16 diff = emTargetYaw(this) - mFaceAngle.y;
+		mFaceAngle.y
+		    = emTargetYaw(this) - IConverge(diff, 0, 0x180, 0x180);
+		changePlayerStatus(ACTION_IDLE, 0, false);
+		changeMontemanWaitingAnim();
+		break;
+	}
 	case 0x12:
 		if (tryTake()) {
 			if (emEnemyMActor(this) != nullptr
@@ -1184,12 +1192,11 @@ void TEnemyMario::consider()
 	case 0x14:
 		emWaitingToInviteMario();
 		break;
-	case 0x16: {
+	case 0x18:
+	case 0x1A: {
 		s16 diff = emTargetYaw(this) - mFaceAngle.y;
 		mFaceAngle.y
 		    = emTargetYaw(this) - IConverge(diff, 0, 0x180, 0x180);
-		changePlayerStatus(ACTION_IDLE, 0, false);
-		changeMontemanWaitingAnim();
 		break;
 	}
 	case 0x17:
@@ -1199,13 +1206,6 @@ void TEnemyMario::consider()
 		if (isLast1AnimeFrame())
 			startDisappear(0xA);
 		break;
-	case 0x18:
-	case 0x1A: {
-		s16 diff = emTargetYaw(this) - mFaceAngle.y;
-		mFaceAngle.y
-		    = emTargetYaw(this) - IConverge(diff, 0, 0x180, 0x180);
-		break;
-	}
 	case 0x1B: {
 		JDrama::TGraphics graphics;
 		TMario::checkController(&graphics);
