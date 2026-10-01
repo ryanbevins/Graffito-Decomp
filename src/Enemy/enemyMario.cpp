@@ -2378,7 +2378,7 @@ void TEnemyMario::initValues()
 	unk468       = 0.0f;
 	unk46C       = 0.0f;
 
-	mAnmSound = new MAnmSound(gpMSound);
+	mAnmSound = new MAnmSound(SMSGetMSound());
 	mAnmSound->initAnmSound(nullptr, 1, 0.0f);
 	unk4EC          = 0;
 	mBlendLogicOp   = 10;
