@@ -2165,7 +2165,7 @@ void TEnemyMario::initEnemyValues()
 
 	mSubState |= 2;
 	mAction     = 0x0C400201;
-	mPrevAction = mAction;
+	mPrevAction = 0x0C400201;
 	mState &= ~0x8000;
 
 	if (emScenarioType(this) == 2)
