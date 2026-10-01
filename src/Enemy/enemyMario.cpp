@@ -1604,8 +1604,7 @@ void TEnemyMario::emReplay()
 	replay->play(&mIntendedMag, &mIntendedYaw, (u32*)(controller + 4),
 	             (u32*)(controller + 8), controller + 0xD, controller + 0xC);
 
-	u8* settings = emSettings(this);
-	if (settings[0xE0] != 0 && gpPollution != nullptr) {
+	if (emSettings(this)[0xE0] != 0 && gpPollution != nullptr) {
 		gpPollution->stamp(1, mPosition.x, mPosition.y, mPosition.z,
 		                   emSettingF32(this, 0xF4));
 	}
@@ -1614,13 +1613,13 @@ void TEnemyMario::emReplay()
 	if (emInputReplayCanPlay(replay) == 1)
 		return;
 
-	if (settings[0x90] == 1 && mHeldObject == nullptr) {
+	if (emSettings(this)[0x90] == 1 && mHeldObject == nullptr) {
 		emTimer(this) = 0;
 		emDoing(this) = 0x12;
 		return;
 	}
 
-	if (emEnemyMActor(this) != nullptr && settings[0x68] == 1) {
+	if (emEnemyMActor(this) != nullptr && emSettings(this)[0x68] == 1) {
 		emEnemyMActor(this)->setBck("stamp_koopa_sign_draw1");
 		emEnemyMActor(this)->setFrameRate(SMSGetAnmFrameRate(), 0);
 		emTimer(this) = 0;
@@ -1638,7 +1637,7 @@ void TEnemyMario::emReplay()
 		return;
 	}
 
-	if (settings[0x54] == 1) {
+	if (emSettings(this)[0x54] == 1) {
 		emTimer(this) = 0;
 		emDoing(this) = 0xC;
 		return;
