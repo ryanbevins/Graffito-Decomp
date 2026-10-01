@@ -2322,27 +2322,25 @@ void TEnemyMario::initModel()
 
 void TEnemyMario::initValues()
 {
-	f32 zero = 0.0f;
-
 	mHealth = mDeParams.mHpMax.get();
-	unk134  = zero;
+	unk134  = 0.0f;
 	*(f32*)&unk138 = 1.0f;
 	unk13C  = 0;
-	*(f32*)&unk140 = zero;
+	*(f32*)&unk140 = 0.0f;
 
 	unk108 = (u32)operator new(0x24);
 	u8* controller = (u8*)unk108;
 	*(s16*)(controller + 0x00) = 0;
 	*(s16*)(controller + 0x02) = 0;
-	*(f32*)(controller + 0x10) = zero;
-	*(f32*)(controller + 0x14) = zero;
-	*(f32*)(controller + 0x18) = zero;
+	*(f32*)(controller + 0x10) = 0.0f;
+	*(f32*)(controller + 0x14) = 0.0f;
+	*(f32*)(controller + 0x18) = 0.0f;
 	*(u32*)(controller + 0x04) = 0;
 	*(u32*)(controller + 0x08) = 0;
 	*(u8*)(controller + 0x0C)  = 0;
 	*(u8*)(controller + 0x0D)  = 0;
-	unk10C = zero;
-	unk110 = zero;
+	unk10C = 0.0f;
+	unk110 = 0.0f;
 
 	unk154 = new TWaterEmitInfo("/Mario/DamageWaterEmit.prm");
 	unk158 = new TWaterEmitInfo("/Mario/WetWaterEmit.prm");
@@ -2359,8 +2357,8 @@ void TEnemyMario::initValues()
 
 	initModel();
 
-	unk3D8    = zero;
-	unk3DC    = zero;
+	unk3D8    = 0.0f;
+	unk3DC    = 0.0f;
 	mCap      = nullptr;
 	mWaterGun = nullptr;
 	mYoshi    = nullptr;
@@ -2368,20 +2366,20 @@ void TEnemyMario::initValues()
 	mMarioEffect = new TMarioEffect;
 	((TMarioEffect*)mMarioEffect)->init(this);
 
-	unk414.x = zero;
-	unk414.y = zero;
+	unk414.x = 0.0f;
+	unk414.y = 0.0f;
 	unk414.z = 1.0f;
-	mMarioScreenPos.x = zero;
-	mMarioScreenPos.y = zero;
-	mMarioScreenPos.z = zero;
-	mWarpInDir.x = zero;
-	mWarpInDir.y = zero;
-	mWarpInDir.z = zero;
-	unk468       = zero;
-	unk46C       = zero;
+	mMarioScreenPos.x = 0.0f;
+	mMarioScreenPos.y = 0.0f;
+	mMarioScreenPos.z = 0.0f;
+	mWarpInDir.x = 0.0f;
+	mWarpInDir.y = 0.0f;
+	mWarpInDir.z = 0.0f;
+	unk468       = 0.0f;
+	unk46C       = 0.0f;
 
 	mAnmSound = new MAnmSound(gpMSound);
-	mAnmSound->initAnmSound(nullptr, 1, zero);
+	mAnmSound->initAnmSound(nullptr, 1, 0.0f);
 	unk4EC          = 0;
 	mBlendLogicOp   = 10;
 	mWaterWakeAlpha = 0;
