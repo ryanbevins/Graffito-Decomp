@@ -722,7 +722,7 @@ void TEnemyMario::perform(u32 flags, JDrama::TGraphics* graphics)
 		BOOL drawBuffers = (mSubState & 2) != 0;
 		if (marioUnk14C(this) > 0 && !(marioUnk14C(this) & 4))
 			drawBuffers = false;
-		if (mState & 4)
+		if (checkFlag(4))
 			drawBuffers = false;
 		if (emDoing(this) == 7)
 			drawBuffers = false;
