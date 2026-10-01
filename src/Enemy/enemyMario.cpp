@@ -1176,9 +1176,10 @@ void TEnemyMario::consider()
 	}
 	case 0x12:
 		if (tryTake()) {
-			if (emEnemyMActor(this) != nullptr
+			MActor* actor = emEnemyMActor(this);
+			if (actor != nullptr
 			    && emSettings(this)[0x68] == 1) {
-				emEnemyMActor(this)->setBck("stamp_koopa_sign_draw1");
+				actor->setBck("stamp_koopa_sign_draw1");
 				emTimer(this) = 0;
 				emDoing(this) = 0x13;
 			} else {
@@ -1186,10 +1187,12 @@ void TEnemyMario::consider()
 			}
 		}
 		break;
-	case 0x13:
-		if (emEnemyMActor(this)->curAnmEndsNext(0, nullptr))
+	case 0x13: {
+		MActor* actor = emEnemyMActor(this);
+		if (actor->curAnmEndsNext(0, nullptr))
 			decideDoingAfterCarry();
 		break;
+	}
 	case 0x14:
 		emWaitingToInviteMario();
 		break;
