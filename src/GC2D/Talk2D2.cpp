@@ -667,12 +667,10 @@ void TTalk2D2::setTagParam(JSUMemoryInputStream& stream, J2DTextBox& textBox,
 			snprintf(unk9C[index + 7]->getStringPtr(), 2, "%d", frames % 10);
 
 			for (int i = 0; i < 8; ++i) {
-				J2DTextBox* box = unk9C[index + i];
-				box->mCharColor = unk27C;
-				box->mGradColor = unk27C;
-				box->mWhite     = unk27C;
-				box->mBlack.set((*(u32*)&unk27C) & 0xffffff00);
-				unk281[index + i] = unk280;
+				unk9C[*charIndex + (*line * 30 + i)]->setFontColor(unk27C, unk27C);
+				unk9C[*charIndex + (*line * 30 + i)]->setBlackWhite(
+				    JUtility::TColor((*(u32*)&unk27C) & 0xffffff00), unk27C);
+				unk281[i + *charIndex + *line * 30] = unk280;
 			}
 
 			*charIndex += 8;
