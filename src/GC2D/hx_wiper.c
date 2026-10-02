@@ -24,7 +24,7 @@ typedef struct HxWork {
 	/* 0x1C */ u32 unk1C;
 	/* 0x20 */ void (*handler)();
 	/* 0x24 */ u32 resFlag;
-	/* 0x28 */ u32 unk28;
+	/* 0x28 */ s32 unk28;
 	/* 0x2C */ void* buffer;
 	/* 0x30 */ void* resource;
 	/* 0x34 */ u32 bufSize;
