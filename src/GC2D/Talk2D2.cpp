@@ -1678,10 +1678,10 @@ void TTalk2D2::setMessageID(u32 message_id, u32 flags)
 		unk340 = 0x40;
 
 	TMessageLoader* loader;
-	if (unk264 & 0xffff0000)
-		loader = unk258;
-	else
+	if ((unk264 & 0xffff0000) == 0)
 		loader = unk25C;
+	else
+		loader = unk258;
 
 	JMSMesgEntry* entry;
 	if (loader->unk4) {
@@ -1695,8 +1695,9 @@ void TTalk2D2::setMessageID(u32 message_id, u32 flags)
 	} else {
 		unk264 = 3;
 		loader = unk25C;
+		void* data = loader->unk4;
 		entry = (JMSMesgEntry*)loader->getMessageEntry((u16)unk264);
-		setupTextBox(loader->unk4, entry);
+		setupTextBox(data, entry);
 	}
 
 	unk260 = loader;
