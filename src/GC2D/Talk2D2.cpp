@@ -649,22 +649,30 @@ void TTalk2D2::setTagParam(JSUMemoryInputStream& stream, J2DTextBox& textBox,
 			int rest    = time - minutes * 6000;
 			int seconds = (int)(rest * 0.01);
 			int frames  = rest - seconds * 100;
-			int index   = *line * 30 + *charIndex;
 
-			snprintf(unk9C[index]->getStringPtr(), 2, "%d", minutes / 10);
-			snprintf(unk9C[index + 1]->getStringPtr(), 2, "%d",
+			snprintf(unk9C[*charIndex + *line * 30]->getStringPtr(),
+			    2, "%d", minutes / 10);
+			snprintf(unk9C[*charIndex + *line * 30 + 1]->getStringPtr(),
+			    2, "%d",
 			    minutes % 10);
-			snprintf(unk9C[index + 2]->getStringPtr(), 2, ":");
-			snprintf(unk9C[index + 3]->getStringPtr(), 2, "%d",
+			snprintf(unk9C[*charIndex + *line * 30 + 2]->getStringPtr(),
+			    2, ":");
+			snprintf(unk9C[*charIndex + *line * 30 + 3]->getStringPtr(),
+			    2, "%d",
 			    seconds / 10);
-			snprintf(unk9C[index + 4]->getStringPtr(), 2, "%d",
+			snprintf(unk9C[*charIndex + *line * 30 + 4]->getStringPtr(),
+			    2, "%d",
 			    seconds % 10);
-			snprintf(unk9C[index + 5]->getStringPtr(), 2, ":");
-			snprintf(unk9C[index + 6]->getStringPtr(), 2, "%d", frames / 10);
-			snprintf(unk9C[index + 7]->getStringPtr(), 2, "%d", frames % 10);
+			snprintf(unk9C[*charIndex + *line * 30 + 5]->getStringPtr(),
+			    2, ":");
+			snprintf(unk9C[*charIndex + *line * 30 + 6]->getStringPtr(),
+			    2, "%d", frames / 10);
+			snprintf(unk9C[*charIndex + *line * 30 + 7]->getStringPtr(),
+			    2, "%d", frames % 10);
 
 			for (int i = 0; i < 8; ++i) {
-				unk9C[*charIndex + (*line * 30 + i)]->setFontColor(unk27C, unk27C);
+				unk9C[*charIndex + (*line * 30 + i)]->setFontColor(
+				    unk27C, unk27C);
 				unk9C[*charIndex + (*line * 30 + i)]->setBlackWhite(
 				    JUtility::TColor((*(u32*)&unk27C) & 0xffffff00), unk27C);
 				unk281[i + *charIndex + *line * 30] = unk280;
@@ -676,14 +684,16 @@ void TTalk2D2::setTagParam(JSUMemoryInputStream& stream, J2DTextBox& textBox,
 		case 2: {
 			int count = TFlagManager::smInstance->getFlag(0x20004);
 			int value = (int)((count + 99) * 0.01f);
-			int index = *line * 30 + *charIndex;
 
 			if (value < 10) {
-				snprintf(unk9C[index]->getStringPtr(), 2, "%d", value);
+				snprintf(unk9C[*charIndex + *line * 30]->getStringPtr(),
+				    2, "%d", value);
 				*charIndex += 1;
 			} else {
-				snprintf(unk9C[index]->getStringPtr(), 2, "%d", value / 10);
-				snprintf(unk9C[index + 1]->getStringPtr(), 2, "%d",
+				snprintf(unk9C[*charIndex + *line * 30]->getStringPtr(),
+				    2, "%d", value / 10);
+				snprintf(unk9C[*charIndex + *line * 30 + 1]->getStringPtr(),
+				    2, "%d",
 				    value % 10);
 				*charIndex += 2;
 			}
@@ -700,14 +710,16 @@ void TTalk2D2::setTagParam(JSUMemoryInputStream& stream, J2DTextBox& textBox,
 					++cleared;
 
 			rest -= cleared * 10;
-			int index = *line * 30 + *charIndex;
 			if (rest < 100) {
-				snprintf(unk9C[index]->getStringPtr(), 2, "%d", rest / 10);
+				snprintf(unk9C[*charIndex + *line * 30]->getStringPtr(),
+				    2, "%d", rest / 10);
 				*charIndex += 1;
 			} else {
 				int hundreds = rest / 100;
-				snprintf(unk9C[index]->getStringPtr(), 2, "%d", hundreds);
-				snprintf(unk9C[index + 1]->getStringPtr(), 2, "%d",
+				snprintf(unk9C[*charIndex + *line * 30]->getStringPtr(),
+				    2, "%d", hundreds);
+				snprintf(unk9C[*charIndex + *line * 30 + 1]->getStringPtr(),
+				    2, "%d",
 				    (rest - hundreds * 100) / 10);
 				*charIndex += 2;
 			}
@@ -747,10 +759,10 @@ void TTalk2D2::setTagParam(JSUMemoryInputStream& stream, J2DTextBox& textBox,
 				int rest = target - event->getFruitNum(fruitKind);
 				if (rest < 0 || rest > 9)
 					rest = 0;
-
-				int index = *line * 30 + *charIndex;
-				snprintf(unk9C[index]->getStringPtr(), 2, "%d", rest);
-				snprintf(unk9C[index + 1]->getStringPtr(), 2, " ");
+				snprintf(unk9C[*charIndex + *line * 30]->getStringPtr(),
+				    2, "%d", rest);
+				snprintf(unk9C[*charIndex + *line * 30 + 1]->getStringPtr(),
+				    2, " ");
 				*charIndex += 2;
 			}
 			break;
