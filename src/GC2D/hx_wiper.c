@@ -912,7 +912,7 @@ static void Hxs_GameOver(u32 color, f32 scale, f32 angle) {
 	aspect = (f32)(hx.imgW / hx.imgH) / ((f32)img_wx / (f32)img_wy);
 	dir.x  = 0.5f;
 	dir.y  = 0.5f;
-	dir.z  = 1.0f;
+	dir.z  = 0.0f;
 	PSVECNormalize(&dir, &dir);
 	PSMTXRotRad(mtx, 'Z', angle);
 	PSMTXMultVec(mtx, &dir, &dir);
