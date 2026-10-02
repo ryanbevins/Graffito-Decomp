@@ -591,7 +591,7 @@ bool TChuuHana::isCollidMove(THitActor* actor)
 				TMsRange<s32> nodeRange(0, graph->getNodeNum());
 				int index = nodeRange.rand();
 				JGeometry::TVec3<f32> point;
-				graph->getGraphNode(index).getPoint((Vec*)&point);
+				unk124->unk0->getGraphNode(index).getPoint((Vec*)&point);
 
 				TPathNode node(point);
 				unkF4  = node;
