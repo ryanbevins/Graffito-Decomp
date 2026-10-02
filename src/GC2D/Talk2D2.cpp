@@ -317,13 +317,8 @@ void TTalk2D2::perform(u32 flags, JDrama::TGraphics* graphics)
 				break;
 			}
 			case 4:
-				if (unk28) {
-					if (openBoardWindow())
-						unk248 = 5;
-				} else {
-					if (openNormalWindow())
-						unk248 = 5;
-				}
+				if (unk28 ? openBoardWindow() : openNormalWindow())
+					unk248 = 5;
 				break;
 			case 5:
 				if (unk28) {
@@ -352,11 +347,10 @@ void TTalk2D2::perform(u32 flags, JDrama::TGraphics* graphics)
 				break;
 			}
 			case 7:
-				if (unk28) {
-					if (eraseBoardWindow())
+				if (unk28 ? eraseBoardWindow() : eraseNormalWindow()) {
+					if (unk28)
 						unk248 = 8;
-				} else {
-					if (eraseNormalWindow())
+					else
 						unk248 = 4;
 				}
 				break;
@@ -390,14 +384,17 @@ void TTalk2D2::perform(u32 flags, JDrama::TGraphics* graphics)
 				int alpha = unk90->mAlpha - 0x10;
 				if ((s16)alpha < 0) {
 					unk234 = 1.0f;
+					unk3C[0]->mVisible = false;
+					unk224 = 0;
+					unk6C[0]->mVisible = false;
 					unk238 = 2.0f;
+					unk3C[1]->mVisible = false;
+					unk225 = 0;
+					unk6C[1]->mVisible = false;
 					unk23C = 3.0f;
-
-					for (int i = 0; i < 3; ++i) {
-						unk3C[i]->mVisible = false;
-						unk6C[i]->mVisible = false;
-						(&unk224)[i]       = 0;
-					}
+					unk3C[2]->mVisible = false;
+					unk226 = 0;
+					unk6C[2]->mVisible = false;
 
 					for (int i = 0; i < 90; ++i)
 						if (unk9C[i])
