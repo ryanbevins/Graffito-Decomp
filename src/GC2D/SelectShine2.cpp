@@ -270,11 +270,9 @@ void TSelectShineManager::perform(u32 flags, JDrama::TGraphics* gfx)
 			for (int i = 0; i < mShineCount; ++i) {
 				s16 angle
 				    = (s16)(57.295776f * (f32)(s16)(unk9C + i * 40));
-				f32 cosA = JMASCos(angle);
-				f32 sinA = JMASSin(angle);
 				JGeometry::TVec3<f32> tmp
-				    = makeShinePos(1500.0f * sinA + cCenter.x,
-				                   cCenter.y, 9000.0f * cosA + cCenter.z);
+				    = makeShinePos(1500.0f * JMASSin(angle) + cCenter.x,
+				                   cCenter.y, 9000.0f * JMASCos(angle) + cCenter.z);
 
 				TSelectShine* shine = mShines[i];
 				shine->mPos         = tmp;
