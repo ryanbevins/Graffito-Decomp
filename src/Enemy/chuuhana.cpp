@@ -885,21 +885,21 @@ DEFINE_NERVE(TNerveChuuHanaWalkOnPanel, TLiveActor)
 	}
 
 	++self->unk1A4;
-	if (self->unk1A4 > TChuuHana::mCheckOnPanelTimeRoll) {
+	if (self->unk1A4 > 20) {
 		self->unk1A4 = 0;
 		if (self->willFall(TChuuHana::mCheckOnPanelTime))
 			self->unk1A4 = -100;
-	}
 
-	if (!self->isAirborne() && self->mGroundPlane->getActor() == nullptr
-	    && self->mPosition.y + 200.0f < self->unk1F8.y)
-		spine->pushNerve(&TNerveChuuHanaFall2::theNerve());
+		if (!self->isAirborne() && self->mGroundPlane->getActor() == nullptr
+		    && self->mPosition.y + 200.0f < self->unk1F8.y)
+			self->mSpine->pushNerve(&TNerveChuuHanaFall2::theNerve());
+	}
 
 	if (self->isReachedToGoalXZ())
 		self->setGoal();
 
 	if (*self->unk21C != 0) {
-		spine->pushNerve(&TNerveChuuHanaAttack::theNerve());
+		spine->pushAfterCurrent(&TNerveChuuHanaAttack::theNerve());
 		return TRUE;
 	}
 
