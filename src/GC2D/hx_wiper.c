@@ -1932,18 +1932,14 @@ static void Hx_Test5() {
 				i = 0;
 				while (i < 0x10) {
 					f32 angle;
-					f32 s;
-					f32 c;
 					f32 px;
 					f32 py;
 					f32 tx;
 					f32 ty;
 
 					angle = 3.1415927f * (2.0f * (f32)i) * 0.0625f;
-					s = sinf(angle);
-					c = cosf(angle);
-					tx = 0.5f * s + 0.5f;
-					ty = 0.5f * c + 0.5f;
+					tx = 0.5f * sinf(angle) + 0.5f;
+					ty = 0.5f * cosf(angle) + 0.5f;
 
 					px = ratio * sinf(angle + phase);
 					py = ratio * cosf(angle + phase);
