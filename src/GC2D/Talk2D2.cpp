@@ -569,12 +569,9 @@ void TTalk2D2::openWindow(s8 line, f32 offset)
 void TTalk2D2::setTagParam(JSUMemoryInputStream& stream, J2DTextBox& textBox,
                             int* charIndex, int* line)
 {
-	u8 tagLength;
-	u8 tagType;
-	u16 tagId;
-	stream.read(&tagLength, 1);
-	stream.read(&tagType, 1);
-	stream.read(&tagId, 2);
+	u8 tagLength = stream.readU8();
+	u8 tagType = stream.readU8();
+	u16 tagId = stream.readU16();
 
 	switch (tagType) {
 	case 0:
