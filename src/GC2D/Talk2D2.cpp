@@ -645,10 +645,10 @@ void TTalk2D2::setTagParam(JSUMemoryInputStream& stream, J2DTextBox& textBox,
 			if (time < 0)
 				time = 0;
 
-			int minutes = time / 6000;
+			u16 minutes = (time - time % 100) / 6000;
 			int rest    = time - minutes * 6000;
-			int seconds = (int)(rest * 0.01);
-			int frames  = rest - seconds * 100;
+			u16 seconds = rest * 0.01;
+			u16 frames  = rest - seconds * 100;
 
 			snprintf(unk9C[*charIndex + *line * 30]->getStringPtr(),
 			    2, "%d", minutes / 10);
