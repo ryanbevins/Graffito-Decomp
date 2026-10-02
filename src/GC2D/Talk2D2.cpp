@@ -834,13 +834,15 @@ void TTalk2D2::setupTextBox(const void* data, JMSMesgEntry* entry)
 				out[1] = 0;
 			}
 
-			unk9C[line * 30 + charIndex]->mCharColor = unk27C;
-			unk9C[line * 30 + charIndex]->mGradColor = unk27C;
-			unk9C[line * 30 + charIndex]->setBlackWhite(
+			int textIndex = line * 30 + charIndex;
+			J2DTextBox** box = &unk9C[textIndex];
+			(*box)->mCharColor = unk27C;
+			(*box)->mGradColor = unk27C;
+			(*box)->setBlackWhite(
 			    JUtility::TColor((*(u32*)&unk27C) & 0xffffff00), unk27C);
 
 			unk281[unk2DE] = unk280;
-			unk2DE         = line * 30 + charIndex;
+			unk2DE         = textIndex;
 			++charIndex;
 			break;
 		}
