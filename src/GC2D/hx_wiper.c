@@ -1372,8 +1372,8 @@ static void Hx_Logo() {
 			bx_321 = dp_320->x;
 			by_322 = dp_320->y;
 			dp_320++;
-			count_323++;
 			hx.unk38 = 2;
+			count_323++;
 		}
 		break;
 	case 4:
