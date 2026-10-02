@@ -1586,19 +1586,7 @@ void TTalk2D2::setMessageID(u32 message_id, u32 flags)
 	TBaseNPC* npc = gpMarDirector->unkA0;
 
 	if (npc->mActionFlag & 0x200) {
-		bool isMonte = true;
-		bool isMonteType = isMonte;
-
-		if (!npc->isNormalMonteM() && !npc->isNormalMonteW())
-			isMonteType = false;
-
-		if (!isMonteType) {
-			isMonteType = true;
-			if (!npc->isSpecialMonteM() && !npc->isSpecialMonteW())
-				isMonteType = false;
-			if (!isMonteType)
-				isMonte = false;
-		}
+		bool isMonte = npc->isMonte();
 
 		if (isMonte) {
 			if (npc->isNormalMonteW() || npc->isSpecialMonteW()) {
@@ -1613,19 +1601,7 @@ void TTalk2D2::setMessageID(u32 message_id, u32 flags)
 					unk264 = 0x23;
 			}
 		} else {
-			bool isMare = true;
-			bool isMareType = isMare;
-
-			if (!npc->isNormalMareM() && !npc->isNormalMareW())
-				isMareType = false;
-
-			if (!isMareType) {
-				isMareType = true;
-				if (!npc->isSpecialMareM() && !npc->isSpecialMareW())
-					isMareType = false;
-				if (!isMareType)
-					isMare = false;
-			}
+			bool isMare = npc->isMare();
 
 			if (isMare) {
 				if (npc->isNormalMareW() || npc->isSpecialMareW()) {
