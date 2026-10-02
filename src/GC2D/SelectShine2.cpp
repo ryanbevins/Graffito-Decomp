@@ -287,10 +287,10 @@ void TSelectShineManager::perform(u32 flags, JDrama::TGraphics* gfx)
 				JGeometry::TVec2<f32> ref;
 				ref.x = 300.0f;
 				ref.y = 1300.0f;
-				diff.sub(ref);
+				ref.sub(diff);
 
-				f32 a   = diff.x;
-				f32 b   = diff.y;
+				f32 a   = ref.x;
+				f32 b   = ref.y;
 				s16 yaw = (s16)(57.295776f
 				                * fabsf(atan2f(a * 1.0f - b * 0.0f,
 				                               a * 0.0f + b * 1.0f)));
