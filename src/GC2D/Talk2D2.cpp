@@ -301,7 +301,8 @@ void TTalk2D2::loadAfter()
 void TTalk2D2::perform(u32 flags, JDrama::TGraphics* graphics)
 {
 	if (flags & 1) {
-		if (gpMarDirector->unk124 == 2) {
+		switch (gpMarDirector->unk124) {
+		case 2: {
 			switch (unk248) {
 			case 2: {
 				CPolarSubCamera* camera = gpCamera;
@@ -368,11 +369,14 @@ void TTalk2D2::perform(u32 flags, JDrama::TGraphics* graphics)
 				break;
 			}
 			}
+			break;
+		}
 		}
 	}
 
 	if (flags & 2) {
-		if (gpMarDirector->unk124 == 2) {
+		switch (gpMarDirector->unk124) {
+		case 2: {
 			switch (unk248) {
 			case 2:
 				break;
@@ -428,11 +432,14 @@ void TTalk2D2::perform(u32 flags, JDrama::TGraphics* graphics)
 				break;
 			}
 			}
+			break;
+		}
 		}
 	}
 
 	if (flags & 8) {
-		if (gpMarDirector->unk124 == 2) {
+		switch (gpMarDirector->unk124) {
+		case 2: {
 			ReInitializeGX();
 			SMS_DrawInit();
 
@@ -476,6 +483,8 @@ void TTalk2D2::perform(u32 flags, JDrama::TGraphics* graphics)
 				break;
 			}
 			}
+			break;
+		}
 		}
 	}
 }
