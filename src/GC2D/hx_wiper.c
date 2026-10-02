@@ -138,7 +138,7 @@ static void Hx_Test1();
 static void Hx_Logo();
 static void Hx_GameOver();
 static void Hxs_GameOver(u32, f32, f32);
-static void Hxs_PenDraw(u32, LogoPath*, f32, f32);
+static void Hxs_PenDraw(f32, f32, u32, LogoPath*);
 static void Hxs_Logo_MagDraw(f32, f32, f32);
 static void Hxs_Logo_TexDraw(f32, f32, f32, f32, f32, f32);
 static void Hxs_Logo_TexSetup(u8, u8, void*);
@@ -1260,7 +1260,7 @@ static void Hxs_Logo_MagDraw(f32 scale, f32 texW, f32 texH) {
 	GXColor1u32(0);
 	GXTexCoord2f32(s0, 1.0f - t0);
 }
-static void Hxs_PenDraw(u32 count, LogoPath* path, f32 bx, f32 by) {
+static void Hxs_PenDraw(f32 bx, f32 by, u32 count, LogoPath* path) {
 	u32 i;
 	LogoPath* next;
 	Vec n;
@@ -1347,7 +1347,7 @@ static void Hx_Logo() {
 			hx.unk38 = 4;
 			Hxs_Logo_ExtraDraw(0xFF, extraResource);
 			Hxs_Logo_TexSetup(0xFF, 0xFF, drawResource);
-			Hxs_PenDraw(count_323, dp_320, bx_321, by_322);
+			Hxs_PenDraw(bx_321, by_322, count_323, dp_320);
 			if (Hx_TimerCountDown() == 0) {
 				hx.unk3C = 0xFF;
 				hx.unk38++;
@@ -1367,7 +1367,7 @@ static void Hx_Logo() {
 	case 3:
 		Hxs_Logo_ExtraDraw(0xFF, extraResource);
 		Hxs_Logo_TexSetup(0xFF, 0xFF, drawResource);
-		Hxs_PenDraw(count_323, dp_320, bx_321, by_322);
+		Hxs_PenDraw(bx_321, by_322, count_323, dp_320);
 		if (Hx_TimerCountDown() == 0) {
 			bx_321 = dp_320->x;
 			by_322 = dp_320->y;
@@ -1383,7 +1383,7 @@ static void Hx_Logo() {
 	case 5:
 		Hxs_Logo_ExtraDraw(0xFF, extraResource);
 		Hxs_Logo_TexSetup(0xFF, 0xFF, drawResource);
-		Hxs_PenDraw(count_323, dp_320, bx_321, by_322);
+		Hxs_PenDraw(bx_321, by_322, count_323, dp_320);
 		if (Hx_TimerCountDown() == 0) {
 			hx.unk3C = 0xFF;
 			hx.unk38++;
@@ -1394,7 +1394,7 @@ static void Hx_Logo() {
 			Hxs_Logo_ExtraDraw(0xFF, extraResource);
 			Hxs_Logo_TexSetup((u8)hx.unk3C, (u8)hx.unk3C, drawResource);
 			if (hx.unk3C > 0xF8) {
-				Hxs_PenDraw(count_323, dp_320, bx_321, by_322);
+				Hxs_PenDraw(bx_321, by_322, count_323, dp_320);
 			} else {
 				Hxs_Logo_MagDraw(1.0f, (f32)img_wx, (f32)img_wy);
 			}
