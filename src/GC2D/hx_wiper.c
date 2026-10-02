@@ -849,7 +849,6 @@ static void Hx_Door() {
 }
 static void Hxs_GameOver(u32 color, f32 scale, f32 angle) {
 	GXTexObj tobj;
-	GXColor tevColor;
 	Mtx mtx;
 	Vec dir;
 	f32 aspect;
@@ -885,9 +884,11 @@ static void Hxs_GameOver(u32 color, f32 scale, f32 angle) {
 	GXSetTevAlphaOp(GX_TEVSTAGE0, GX_TEV_ADD, GX_TB_ZERO, GX_CS_SCALE_1,
 	                GX_TRUE, GX_TEVPREV);
 	GXSetTevOrder(GX_TEVSTAGE0, GX_TEXCOORD0, GX_TEXMAP0, GX_COLOR_NULL);
-	tevColor = (GXColor) { 0, 0, 0, 0 };
-	tevColor.a = color;
-	GXSetTevColor(GX_TEVREG0, tevColor);
+	{
+		GXColor tevColor = { 0, 0, 0, 0 };
+		tevColor.a = color;
+		GXSetTevColor(GX_TEVREG0, tevColor);
+	}
 	GXSetTevColorIn(GX_TEVSTAGE1, GX_CC_ZERO, GX_CC_ZERO, GX_CC_ZERO,
 	                GX_CC_ZERO);
 	GXSetTevAlphaIn(GX_TEVSTAGE1, GX_CA_ZERO, GX_CA_A0, GX_CA_APREV,
