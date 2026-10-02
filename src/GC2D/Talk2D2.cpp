@@ -373,14 +373,18 @@ void TTalk2D2::perform(u32 flags, JDrama::TGraphics* graphics)
 
 	if (flags & 2) {
 		if (gpMarDirector->unk124 == 2) {
-			u32 mode = unk248;
-			if (mode == 3) {
+			switch (unk248) {
+			case 2:
+				break;
+			case 3: {
 				--unk251;
 				if ((s8)unk251 < 0) {
 					unk2DE = 0;
 					unk248 = 4;
 				}
-			} else if (mode == 7) {
+				break;
+			}
+			case 7: {
 				int alpha = unk90->mAlpha - 0x10;
 				if ((s16)alpha < 0) {
 					unk234 = 1.0f;
@@ -421,6 +425,8 @@ void TTalk2D2::perform(u32 flags, JDrama::TGraphics* graphics)
 				}
 
 				unk90->mAlpha = alpha;
+				break;
+			}
 			}
 		}
 	}
@@ -451,13 +457,14 @@ void TTalk2D2::perform(u32 flags, JDrama::TGraphics* graphics)
 				unk3C[2]->mVisible = false;
 			}
 
-			u32 mode = unk248;
-			if (mode == 4) {
+			switch (unk248) {
+			case 4:
 				for (s8 i = 0; i <= unk274; ++i)
 					openWindow(i, (&unk234)[i]);
-			}
-
-			if (mode >= 4 && mode < 8) {
+				// fall through
+			case 5:
+			case 6:
+			case 7: {
 				graph.setup2D();
 				if (unk28) {
 					unk10->draw(0, 0, &graph);
@@ -466,6 +473,8 @@ void TTalk2D2::perform(u32 flags, JDrama::TGraphics* graphics)
 					unk90->mRotation = (f32)unk334;
 					unk2C->draw(0, 0, &graph);
 				}
+				break;
+			}
 			}
 		}
 	}
