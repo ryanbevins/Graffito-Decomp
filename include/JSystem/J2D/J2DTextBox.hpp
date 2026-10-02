@@ -50,6 +50,12 @@ public:
 		mFontSizeY = y;
 	}
 
+	void setFontColor(JUtility::TColor char_color, JUtility::TColor grad_color)
+	{
+		mCharColor = char_color;
+		mGradColor = grad_color;
+	}
+
 	void setBlackWhite(JUtility::TColor black, JUtility::TColor white)
 	{
 		mBlack = black;
