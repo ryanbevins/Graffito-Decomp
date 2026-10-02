@@ -1390,17 +1390,16 @@ static void Hx_Logo() {
 		}
 		break;
 	case 6:
-		alpha8 = (u8)hx.unk3C;
 		if (hx.unk3C >= 0xC0) {
 			Hxs_Logo_ExtraDraw(0xFF, extraResource);
-			Hxs_Logo_TexSetup(alpha8, alpha8, drawResource);
+			Hxs_Logo_TexSetup((u8)hx.unk3C, (u8)hx.unk3C, drawResource);
 			if (hx.unk3C > 0xF8) {
 				Hxs_PenDraw(count_323, dp_320, bx_321, by_322);
 			} else {
 				Hxs_Logo_MagDraw(1.0f, (f32)img_wx, (f32)img_wy);
 			}
 		} else {
-			Hxs_Logo_TexSetup(alpha8, alpha8, drawResource);
+			Hxs_Logo_TexSetup((u8)hx.unk3C, (u8)hx.unk3C, drawResource);
 			Hxs_Logo_MagDraw(1.0f, (f32)img_wx, (f32)img_wy);
 		}
 		i = 0;
