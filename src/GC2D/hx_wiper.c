@@ -1948,7 +1948,7 @@ static void Hx_Test5() {
 					px = ratio * sinf(angle + phase);
 					py = ratio * cosf(angle + phase);
 
-					if (ratio <= 1.0f) {
+					if (ratio >= 1.0f) {
 						tx = ratio * sinf(angle) * 0.5f + 0.5f;
 						ty = ratio * cosf(angle) * 0.5f + 0.5f;
 					}
