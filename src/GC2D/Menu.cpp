@@ -39,7 +39,7 @@ TMenuPlane::TMenuPlane(const TMarioGamePad* param_1, J2DPane* param_2,
 	     iterator != unk14->mPaneTree.getEndChild();) {
 		J2DPane* pane = iterator.getObject();
 
-		if (pane->mInfoTag == 0x13 && pane->mUserInfoTag != 'rset') {
+		if (pane->getTag() == 0x13 && pane->mUserInfoTag != 'rset') {
 			J2DTextBox* textBox = (J2DTextBox*)pane;
 			local_420[unk28]    = textBox;
 			if (unk28 == 0) {
