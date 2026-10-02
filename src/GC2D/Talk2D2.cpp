@@ -637,7 +637,7 @@ void TTalk2D2::setTagParam(JSUMemoryInputStream& stream, J2DTextBox& textBox,
 				time = TFlagManager::smInstance->getFlag(0x20003);
 			else if (tagId == 1)
 				time = TFlagManager::smInstance->getFlag(0x20002);
-			else
+			else if (tagId == 6)
 				time = TFlagManager::smInstance->getFlag(0x20014);
 
 			if (time > 599999)
