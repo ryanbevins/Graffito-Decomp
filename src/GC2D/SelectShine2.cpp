@@ -274,12 +274,12 @@ void TSelectShineManager::perform(u32 flags, JDrama::TGraphics* gfx)
 				    = makeShinePos(1500.0f * JMASSin(angle) + cCenter.x,
 				                   cCenter.y, 9000.0f * JMASCos(angle) + cCenter.z);
 
-				TSelectShine* shine = mShines[i];
-				shine->mPos         = tmp;
+				TSelectShine** shineSlot = &mShines[i];
+				(*shineSlot)->mPos = tmp;
 
 				JGeometry::TVec3<f32> sum;
-				sum = shine->mPos;
-				sum.add(shine->unk18);
+				sum = (*shineSlot)->mPos;
+				sum.add((*shineSlot)->unk18);
 
 				JGeometry::TVec2<f32> diff;
 				diff.x = sum.x;
@@ -298,6 +298,7 @@ void TSelectShineManager::perform(u32 flags, JDrama::TGraphics* gfx)
 					yaw = -yaw;
 				}
 
+				TSelectShine* shine = *shineSlot;
 				MtxPtr modelMtx = shine->mModel->unk20;
 				Mtx rotMtx;
 				PSMTXRotRad(rotMtx, 'y',
