@@ -600,9 +600,7 @@ void TTalk2D2::setTagParam(JSUMemoryInputStream& stream, J2DTextBox& textBox,
 				unk20C[0]->mVisible = true;
 			}
 			{
-				int length = tagLength - 4;
-				if (length >= 0x11)
-					length = 0x11;
+				int length = tagLength - 4 < 0x11 ? tagLength - 4 : 0x11;
 				snprintf(unk218[0], length, "%s", (char*)stream.getCurrent());
 			}
 			stream.skip(tagLength - 5);
@@ -615,9 +613,7 @@ void TTalk2D2::setTagParam(JSUMemoryInputStream& stream, J2DTextBox& textBox,
 				unk20C[1]->mVisible = true;
 			}
 			{
-				int length = tagLength - 4;
-				if (length >= 0x11)
-					length = 0x11;
+				int length = tagLength - 4 < 0x11 ? tagLength - 4 : 0x11;
 				snprintf(unk218[1], length, "%s", (char*)stream.getCurrent());
 			}
 			stream.skip(tagLength - 5);
