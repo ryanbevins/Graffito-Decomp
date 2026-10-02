@@ -915,7 +915,7 @@ DEFINE_NERVE(TNerveChuuHanaForceJumped, TLiveActor)
 		TMsRange<s32> nodeRange(0, graph->getNodeNum());
 		int index = nodeRange.rand();
 		JGeometry::TVec3<f32> point;
-		graph->getGraphNode(index).getPoint((Vec*)&point);
+		self->unk124->unk0->getGraphNode(index).getPoint((Vec*)&point);
 
 		TPathNode node(point);
 		self->unkF4  = node;
