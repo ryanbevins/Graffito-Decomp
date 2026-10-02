@@ -311,11 +311,10 @@ void TSelectShineManager::perform(u32 flags, JDrama::TGraphics* gfx)
 
 	if (flags & 2) {
 		for (int i = 0; i < mShineCount; ++i) {
-			TSelectShine* shine = mShines[i];
-			shine->mAnmColor->mFrame = (f32)shine->unk3C;
-			J3DModel* model         = shine->mModel;
-			model->update();
-			model->viewCalc();
+			TSelectShine** shine = &mShines[i];
+			(*shine)->mAnmColor->mFrame = (f32)(*shine)->unk3C;
+			(*shine)->mModel->update();
+			(*shine)->mModel->viewCalc();
 		}
 	}
 
