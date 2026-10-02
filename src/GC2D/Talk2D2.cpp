@@ -389,8 +389,9 @@ void TTalk2D2::perform(u32 flags, JDrama::TGraphics* graphics)
 				break;
 			}
 			case 7: {
-				int alpha = unk90->mAlpha - 0x10;
-				if ((s16)alpha < 0) {
+				s16 alpha = unk90->mAlpha - 0x10;
+				if (alpha < 0) {
+					alpha = 0xff;
 					unk234 = 1.0f;
 					unk3C[0]->mVisible = false;
 					unk224 = 0;
@@ -425,7 +426,6 @@ void TTalk2D2::perform(u32 flags, JDrama::TGraphics* graphics)
 					unk2DE         = 0;
 					unk2DC         = 0;
 					unk248         = 4;
-					alpha          = 0xff;
 				}
 
 				unk90->mAlpha = alpha;
