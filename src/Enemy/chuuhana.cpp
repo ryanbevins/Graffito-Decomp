@@ -654,12 +654,9 @@ void TChuuHana::attackToMario()
 
 			SMS_SendMessageToMario(this, 7);
 
-			JGeometry::TVec3<f32> diff = mPosition;
-			diff.sub(*gpMarioPos);
-			f32 yaw = MsGetRotFromZaxisY(diff);
-
+			JGeometry::TVec3<f32> diff = mPosition - *gpMarioPos;
 			Mtx mtx;
-			MsMtxSetRotRPH(mtx, 0.0f, yaw, 0.0f);
+			MsMtxSetRotRPH(mtx, 0.0f, MsGetRotFromZaxisY(diff), 0.0f);
 
 			JGeometry::TVec3<f32> dir;
 			dir.x = 0.0f;
