@@ -562,10 +562,7 @@ DEFINE_NERVE(TNerveTabePukuRecoverGraph, TLiveActor)
 	else
 		offset.set(0.0f, 0.0f, 0.0f);
 
-	JGeometry::TVec3<f32> goal = getTabePukuGoalRef(self);
-	goal.sub(self->mPosition);
-	goal.add(offset);
-	self->swimTo(goal);
+	self->swimToCurPathNode(offset);
 	return FALSE;
 }
 
