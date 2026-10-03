@@ -650,22 +650,7 @@ BOOL TMario::rocketCheck()
 		if (mWaterGun->getCurrentNozzle()->mEmitParams.mRocketType.get() != 1) canRocket = FALSE;
 		u8 isPumpIdle; if (mPumpState == 0) isPumpIdle = TRUE; else isPumpIdle = FALSE;
 		if (!isPumpIdle) canRocket = FALSE;
-		TWaterGun* g = mWaterGun;
-		u8 nozzleReady;
-		if (g->mCurrentWater == 0)
-			nozzleReady = FALSE;
-		else {
-			s32 k = g->getCurrentNozzle()->getNozzleKind();
-			if (k == 1) {
-				TNozzleTrigger* t = (TNozzleTrigger*)g->getCurrentNozzle();
-				if (t->unk385 == TNozzleTrigger::ACTIVE) nozzleReady = TRUE;
-				else nozzleReady = FALSE;
-			} else {
-				if (g->getCurrentNozzle()->unk378 > 0.0f) nozzleReady = TRUE;
-				else nozzleReady = FALSE;
-			}
-		}
-		if (!nozzleReady) canRocket = FALSE;
+		if (!mWaterGun->canSpray()) canRocket = FALSE;
 	} else canRocket = FALSE;
 	if ((u8)canRocket == TRUE) {
 		mRocketTargetY
