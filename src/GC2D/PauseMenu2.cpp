@@ -197,7 +197,7 @@ void TPauseMenu2::appearWindow()
 			} else if (unkEC <= 45.0f) {
 				s32 t1 = (s32)(3.0f * (unkEC - 45.0f));
 				s32 t2 = (s32)(1.5f * (unkEC - 45.0f));
-				local.reform(-t1, -t2, t1, t2);
+				local.reform(t1, t2, -t1, -t2);
 				unk98[i]->mBounds = local;
 			} else if (unkEC >= 46.0f) {
 				if (unk10 != 1) {
