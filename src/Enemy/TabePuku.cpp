@@ -604,13 +604,7 @@ DEFINE_NERVE(TNerveTabePukuAttack, TLiveActor)
 		return TRUE;
 	}
 
-	JGeometry::TVec3<f32> towardMario = getTabePukuGoalRef(self);
-	towardMario.sub(self->mPosition);
-	{
-		JGeometry::TVec3<f32> offset(0.0f, 150.0f, 0.0f);
-		towardMario.add(offset);
-	}
-	self->swimTo(towardMario);
+	self->swimToCurPathNode(JGeometry::TVec3<f32>(0.0f, 150.0f, 0.0f));
 	return FALSE;
 }
 
