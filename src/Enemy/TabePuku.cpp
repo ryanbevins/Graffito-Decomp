@@ -313,8 +313,8 @@ void TTabePuku::control()
 	TLiveActor::control();
 
 	TTPHitActor* hitActor = mHitActor;
-	THitActor** it        = hitActor->mCollisions;
-	THitActor** end       = it + hitActor->mColCount;
+	THitActor** end = hitActor->mCollisions + hitActor->mColCount;
+	THitActor** it = hitActor->mCollisions;
 	for (; it != end; ++it) {
 		THitActor* hit = *it;
 		switch (hit->mActorType) {
