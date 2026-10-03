@@ -480,7 +480,7 @@ void TTabePukuManager::load(JSUMemoryInputStream& stream)
 
 inline void TTabePuku::swimToCurPathNode(const JGeometry::TVec3<f32>& offset)
 {
-	JGeometry::TVec3<f32> goal = unk104.getPoint();
+	JGeometry::TVec3<f32> goal = getUnk104().getPoint();
 	goal.sub(mPosition);
 	goal.add(offset);
 	swimTo(goal);
