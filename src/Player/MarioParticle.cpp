@@ -163,7 +163,9 @@ void TMario::emitFootPrintWithEffect(int footprintID, int effectID)
 		unk1A8.y = mtx[1][3];
 		unk1A8.z = mtx[2][3];
 
-		if (mAction == ACTION_RUNNING && mForwardVel > 20.0f && effectID > 0)
+		bool hasEffect = effectID > 0;
+		bool fastEnough = mForwardVel > 20.0f;
+		if (mAction == ACTION_RUNNING && fastEnough && hasEffect)
 			gpMarioParticleManager->emit(effectID, &unk1A8, 0, nullptr);
 
 		if (footprintID > 0) {
