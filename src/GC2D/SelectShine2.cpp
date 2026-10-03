@@ -295,7 +295,7 @@ void TSelectShineManager::perform(u32 flags, JDrama::TGraphics* gfx)
 				                * fabsf(atan2f(a * 1.0f - b * 0.0f,
 				                               a * 0.0f + b * 1.0f)));
 				if (tmp.x > cCenter.x) {
-					yaw = -yaw;
+					yaw *= -1;
 				}
 
 				TSelectShine* shine = *shineSlot;
