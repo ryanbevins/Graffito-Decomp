@@ -740,6 +740,8 @@ BOOL TMario::rocketing()
 		mForwardVel *= mHoverParams.mBrake.value;
 	}
 	switch (jumpProcess(2)) {
+	case 3:
+		break;
 	case 4:
 		rumbleStart(21, mMotorParams.mMotorWall.value);
 		changePlayerStatus(ACTION_ROOF_CHECK, 0, false);
