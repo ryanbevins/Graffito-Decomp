@@ -308,21 +308,25 @@ void TTabePuku::bind()
 	mGroundHeight = mHitActor->mGroundHeight;
 }
 
-void TTabePuku::control()
+inline void TTPHitActor::checkHitActors()
 {
-	TLiveActor::control();
-
-	TTPHitActor* hitActor = mHitActor;
-	THitActor** end = hitActor->mCollisions + hitActor->mColCount;
-	THitActor** it = hitActor->mCollisions;
+	THitActor** end = mCollisions + mColCount;
+	THitActor** it = mCollisions;
 	for (; it != end; ++it) {
 		THitActor* hit = *it;
 		switch (hit->mActorType) {
 		case 0x80000001:
-			hitActor->mOwner->attackToMario();
+			mOwner->attackToMario();
 			break;
 		}
 	}
+}
+
+void TTabePuku::control()
+{
+	TLiveActor::control();
+
+	mHitActor->checkHitActors();
 
 	const TNerveBase<TLiveActor>* nerve = mSpine->getLatestNerve();
 	if (isTabePukuHoldingNerve(nerve)) {

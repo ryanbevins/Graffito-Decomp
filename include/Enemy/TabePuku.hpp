@@ -18,6 +18,7 @@ public:
 	virtual BOOL receiveMessage(THitActor*, u32);
 	virtual void init();
 
+	void checkHitActors();
 	void bind();
 	void updateTerrainCollsion();
 
