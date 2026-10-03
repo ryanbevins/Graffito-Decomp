@@ -315,13 +315,13 @@ void TTabePuku::control()
 	TTPHitActor* hitActor = mHitActor;
 	THitActor** it        = hitActor->mCollisions;
 	THitActor** end       = it + hitActor->mColCount;
-	s32 targetType        = 0x80000000;
-	targetType += 1;
 	for (; it != end; ++it) {
 		THitActor* hit = *it;
-		if ((s32)hit->mActorType != targetType)
-			continue;
-		hitActor->mOwner->attackToMario();
+		switch (hit->mActorType) {
+		case 0x80000001:
+			hitActor->mOwner->attackToMario();
+			break;
+		}
 	}
 
 	const TNerveBase<TLiveActor>* nerve = mSpine->getLatestNerve();
