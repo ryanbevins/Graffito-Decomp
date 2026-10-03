@@ -679,30 +679,7 @@ BOOL TMario::rocketing()
 		isPumpIdle = TRUE;
 	else
 		isPumpIdle = FALSE;
-	if (!isPumpIdle) {
-		return changePlayerStatus(ACTION_ROCKET_END, 0, false);
-	}
-
-	TWaterGun* gun = mWaterGun;
-	u8 canRocket;
-	if (gun->mCurrentWater == 0) {
-		canRocket = FALSE;
-	} else {
-		s32 nozzleKind = gun->getCurrentNozzle()->getNozzleKind();
-		if (nozzleKind == 1) {
-			TNozzleTrigger* nozzle = (TNozzleTrigger*)gun->getCurrentNozzle();
-			if (nozzle->unk385 == TNozzleTrigger::ACTIVE)
-				canRocket = TRUE;
-			else
-				canRocket = FALSE;
-		} else {
-			if (gun->getCurrentNozzle()->unk378 > 0.0f)
-				canRocket = TRUE;
-			else
-				canRocket = FALSE;
-		}
-	}
-	if (!canRocket) {
+	if (!isPumpIdle || !mWaterGun->canSpray()) {
 		return changePlayerStatus(ACTION_ROCKET_END, 0, false);
 	}
 
