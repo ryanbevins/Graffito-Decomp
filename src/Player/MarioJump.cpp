@@ -54,7 +54,7 @@ void TMario::doJumping()
 			if (mState & MARIO_FLAG_HAS_FLUDD) hasFludd = 1; else hasFludd = 0;
 			if (hasFludd) {
 				if (mWaterGun->canSpray())
-					intendedMag = 2.5f * intendedMag;
+					intendedMag = 2.5f * mIntendedMag;
 			}
 		}
 		if (mAction == 0x02000886) {
