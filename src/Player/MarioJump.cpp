@@ -53,24 +53,7 @@ void TMario::doJumping()
 			u8 hasFludd;
 			if (mState & MARIO_FLAG_HAS_FLUDD) hasFludd = 1; else hasFludd = 0;
 			if (hasFludd) {
-				TWaterGun* gun = mWaterGun;
-				u8 nozzleReady;
-				if (gun->mCurrentWater == 0) {
-					nozzleReady = FALSE;
-				} else {
-					s32 kind = gun->getCurrentNozzle()->getNozzleKind();
-					if (kind == 1) {
-						TNozzleTrigger* t = (TNozzleTrigger*)gun->getCurrentNozzle();
-						if (t->unk385 == TNozzleTrigger::ACTIVE) nozzleReady = TRUE;
-						else nozzleReady = FALSE;
-					} else {
-						if (gun->getCurrentNozzle()->unk378 > 0.0f)
-							nozzleReady = TRUE;
-						else
-							nozzleReady = FALSE;
-					}
-				}
-				if (nozzleReady)
+				if (mWaterGun->canSpray())
 					intendedMag = 2.5f * intendedMag;
 			}
 		}
