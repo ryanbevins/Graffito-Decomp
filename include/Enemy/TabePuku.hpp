@@ -83,6 +83,7 @@ public:
 	virtual bool isFindMario(float);
 
 	void swimTo(const JGeometry::TVec3<f32>&);
+	void swimToCurPathNode(const JGeometry::TVec3<f32>&);
 	bool isBiting() const;
 	bool isAttacking() const;
 	void emitEffects();

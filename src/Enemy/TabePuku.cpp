@@ -478,6 +478,14 @@ void TTabePukuManager::load(JSUMemoryInputStream& stream)
 	TSmallEnemyManager::load(stream);
 }
 
+inline void TTabePuku::swimToCurPathNode(const JGeometry::TVec3<f32>& offset)
+{
+	JGeometry::TVec3<f32> goal = unk104.getPoint();
+	goal.sub(mPosition);
+	goal.add(offset);
+	swimTo(goal);
+}
+
 DEFINE_NERVE(TNerveTabePukuGraphWander, TLiveActor)
 {
 	TTabePuku* self = (TTabePuku*)spine->getBody();
@@ -497,9 +505,7 @@ DEFINE_NERVE(TNerveTabePukuGraphWander, TLiveActor)
 		return TRUE;
 	}
 
-	JGeometry::TVec3<f32> goal = getTabePukuGoalRef(self);
-	goal.sub(self->mPosition);
-	self->swimTo(goal);
+	self->swimToCurPathNode(JGeometry::TVec3<f32>(0.0f, 0.0f, 0.0f));
 	return FALSE;
 }
 
