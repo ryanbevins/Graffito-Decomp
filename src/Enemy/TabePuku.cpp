@@ -368,7 +368,8 @@ void TTPHitActor::bind()
 {
 	JGeometry::TVec3<f32> next(mPosition);
 	next.add(mMove);
-	next.add(mOwner->mVelocity);
+	JGeometry::TVec3<f32> velocity(mOwner->mVelocity);
+	next.add(velocity);
 	next.add(mOwner->mLinearVelocity);
 
 	f32 ground = gpMap->checkGroundIgnoreWaterSurface(
