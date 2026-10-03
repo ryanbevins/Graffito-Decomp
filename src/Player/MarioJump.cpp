@@ -42,8 +42,8 @@ BOOL TMario::startJumpWall()
 
 void TMario::doJumping()
 {
-	mForwardVel = mForwardVel * mJumpParams.mJumpSpeedBrake.value;
 	f32 sideVel = 0.0f;
+	mForwardVel = mForwardVel * mJumpParams.mJumpSpeedBrake.value;
 	if (mInput & 1) {
 		s16 intendedYaw = mIntendedYaw;
 		s16 faceY = mFaceAngle.y;
