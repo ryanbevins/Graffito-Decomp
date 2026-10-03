@@ -83,6 +83,8 @@ public:
 	virtual bool isFindMario(float);
 
 	void swimTo(const JGeometry::TVec3<f32>&);
+	bool isBiting() const;
+	void updateSound();
 
 	TTabePukuSaveLoadParams* getSaveParam2() const
 	{

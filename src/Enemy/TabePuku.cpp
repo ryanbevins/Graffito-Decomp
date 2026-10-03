@@ -322,18 +322,28 @@ inline void TTPHitActor::checkHitActors()
 	}
 }
 
-void TTabePuku::control()
+inline bool TTabePuku::isBiting() const
 {
-	TLiveActor::control();
-
-	mHitActor->checkHitActors();
-
 	const TNerveBase<TLiveActor>* nerve = mSpine->getLatestNerve();
-	if (isTabePukuHoldingNerve(nerve)) {
+	return nerve == &TNerveTabePukuBite::theNerve()
+	       || nerve == &TNerveTabePukuDive::theNerve()
+	       || nerve == &TNerveTabePukuDrag::theNerve();
+}
+
+inline void TTabePuku::updateSound()
+{
+	if (isBiting()) {
 		if (gpMSound->gateCheck(0x2123))
 			MSoundSESystem::MSoundSE::startSoundActor(
 			    0x2123, &mPosition, 0, nullptr, 0, 4);
 	}
+}
+
+void TTabePuku::control()
+{
+	TLiveActor::control();
+	mHitActor->checkHitActors();
+	updateSound();
 }
 
 void TTabePuku::perform(u32 flags, JDrama::TGraphics* graphics)
