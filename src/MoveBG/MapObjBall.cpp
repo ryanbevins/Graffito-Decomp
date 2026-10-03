@@ -1668,7 +1668,7 @@ void TBigWatermelon::control()
 			f32 prev = unk1A0;
 			unk1A0 = SMS_GetSandRiseUpRatio(gpActor);
 			if (unk1A0 > 0.05f && unk1A0 > prev)
-				mVelocity.y = mVelocity.y + 20.0f;
+				mVelocity.y += 20.0f;
 		}
 	} break;
 	case 2:
