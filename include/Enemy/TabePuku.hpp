@@ -87,6 +87,7 @@ public:
 	bool isMissMario() const;
 	void updateSound();
 	bool doDive();
+	void prepareDive();
 
 	TTabePukuSaveLoadParams* getSaveParam2() const
 	{

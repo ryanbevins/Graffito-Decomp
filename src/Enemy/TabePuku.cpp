@@ -606,6 +606,14 @@ DEFINE_NERVE(TNerveTabePukuBite, TLiveActor)
 	return TRUE;
 }
 
+inline void TTabePuku::prepareDive()
+{
+	mDiveStartY = mPosition.y;
+	setBckAnm(2);
+	getMActor()->getFrameCtrl(0)->setRate(2.0f * SMSGetAnmFrameRate());
+	mMarchSpeed = getSaveParam2()->mDiveSpeed.get();
+}
+
 inline bool TTabePuku::doDive()
 {
 	swimTo(JGeometry::TVec3<f32>(0.0f, mGroundHeight - mPosition.y, 0.0f));
@@ -619,13 +627,8 @@ DEFINE_NERVE(TNerveTabePukuDive, TLiveActor)
 {
 	TTabePuku* self = (TTabePuku*)spine->getBody();
 
-	if (spine->getTime() == 0) {
-		self->mDiveStartY = self->mPosition.y;
-		self->setBckAnm(2);
-		self->getMActor()->getFrameCtrl(0)->setRate(2.0f * SMSGetAnmFrameRate());
-		self->mMarchSpeed = self->getSaveParam2()->mDiveSpeed.get();
-	}
-
+	if (spine->getTime() == 0)
+		self->prepareDive();
 
 	if (self->doDive()) {
 		spine->pushAfterCurrent(&TNerveTabePukuDrag::theNerve());
