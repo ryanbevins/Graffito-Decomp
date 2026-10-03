@@ -70,7 +70,7 @@ void TMario::doJumping()
 			else accel = mYoshiParams.mHoldOutAccCtrlB.value;
 		} else accel = getJumpAccelControl();
 		u16 au = (u16)angleDiff;
-		mForwardVel = accel * intendedMag * JMASCos(au) + mForwardVel;
+		mForwardVel = accel * (intendedMag * JMASCos(au)) + mForwardVel;
 		sideVel = intendedMag * JMASSin(au) * getJumpSlideControl();
 	}
 	if (mForwardVel > 32.0f) mForwardVel -= 0.2f;
