@@ -606,6 +606,15 @@ DEFINE_NERVE(TNerveTabePukuBite, TLiveActor)
 	return TRUE;
 }
 
+inline bool TTabePuku::doDive()
+{
+	swimTo(JGeometry::TVec3<f32>(0.0f, mGroundHeight - mPosition.y, 0.0f));
+	if (mPosition.y - mDiveStartY < -getSaveParam2()->mApartHeight.get()
+	    || mPosition.y - mGroundHeight < 200.0f || !isAirborne())
+		return true;
+	return false;
+}
+
 DEFINE_NERVE(TNerveTabePukuDive, TLiveActor)
 {
 	TTabePuku* self = (TTabePuku*)spine->getBody();
@@ -617,23 +626,8 @@ DEFINE_NERVE(TNerveTabePukuDive, TLiveActor)
 		self->mMarchSpeed = self->getSaveParam2()->mDiveSpeed.get();
 	}
 
-	JGeometry::TVec3<f32> towardGround(0.0f, self->mGroundHeight - self->mPosition.y,
-	                                   0.0f);
-	self->swimTo(towardGround);
 
-	bool keepDiving;
-	if (self->mPosition.y - self->mDiveStartY
-	    < -self->getSaveParam2()->mApartHeight.get()) {
-		keepDiving = true;
-	} else if (self->mPosition.y - self->mGroundHeight < 200.0f) {
-		keepDiving = true;
-	} else if (!self->isAirborne()) {
-		keepDiving = true;
-	} else {
-		keepDiving = false;
-	}
-
-	if (keepDiving) {
+	if (self->doDive()) {
 		spine->pushAfterCurrent(&TNerveTabePukuDrag::theNerve());
 		return TRUE;
 	}

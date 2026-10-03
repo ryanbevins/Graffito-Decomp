@@ -86,6 +86,7 @@ public:
 	bool isBiting() const;
 	bool isMissMario() const;
 	void updateSound();
+	bool doDive();
 
 	TTabePukuSaveLoadParams* getSaveParam2() const
 	{
