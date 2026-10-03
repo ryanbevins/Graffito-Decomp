@@ -395,12 +395,13 @@ void TTPHitActor::bind()
 		next.y = -mCheckHeight;
 
 	TBGWallCheckRecord record(next.x, next.y, next.z, mCheckRadius, 1, 0);
-	mTouchedWall = gpMap->isTouchedWallsAndMoveXZ(&record);
+	bool touchedWall = gpMap->isTouchedWallsAndMoveXZ(&record);
 	next.x       = record.mCenter.x;
 	next.z       = record.mCenter.z;
 
 	mMove.set(next);
 	mMove.sub(mPosition);
+	mTouchedWall = touchedWall;
 	mPosition = next;
 }
 
