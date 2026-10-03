@@ -118,8 +118,8 @@ void TMario::emitDirtyFootPrint() { emitFootPrintWithEffect(0x50, -1); }
 
 void TMario::emitFootPrintWithEffect(int footprintID, int effectID)
 {
-	MtxPtr mtx = nullptr;
 	int foot   = 2;
+	MtxPtr mtx = nullptr;
 
 	if (mAction == ACTION_RUNNING) {
 		if (onYoshi()) {
