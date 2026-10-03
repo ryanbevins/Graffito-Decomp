@@ -86,6 +86,7 @@ public:
 	void swimToCurPathNode(const JGeometry::TVec3<f32>&);
 	bool isBiting() const;
 	bool isAttacking() const;
+	bool isTouchedPlane() const;
 	void emitEffects();
 	bool isMissMario() const;
 	void updateSound();

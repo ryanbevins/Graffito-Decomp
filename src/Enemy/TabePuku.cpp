@@ -537,6 +537,14 @@ DEFINE_NERVE(TNerveTabePukuFound, TLiveActor)
 	return FALSE;
 }
 
+inline bool TTabePuku::isTouchedPlane() const
+{
+	bool touched = true;
+	if (isAirborne() && !mTouchedWall)
+		touched = false;
+	return touched;
+}
+
 DEFINE_NERVE(TNerveTabePukuRecoverGraph, TLiveActor)
 {
 	TTabePuku* self = (TTabePuku*)spine->getBody();
@@ -554,10 +562,7 @@ DEFINE_NERVE(TNerveTabePukuRecoverGraph, TLiveActor)
 	}
 
 	JGeometry::TVec3<f32> offset;
-	bool useRecoveryOffset = true;
-	if (self->isAirborne() && !self->mTouchedWall)
-		useRecoveryOffset = false;
-	if (useRecoveryOffset)
+	if (self->isTouchedPlane())
 		offset.set(0.0f, 10000.0f, 0.0f);
 	else
 		offset.set(0.0f, 0.0f, 0.0f);
