@@ -378,12 +378,12 @@ void TTPHitActor::bind()
 
 	if (next.y <= mGroundHeight + 0.05f) {
 		mIsAirborne = false;
-		const JGeometry::TVec3<f32>& normal = mGroundPlane->getNormal();
-		f32 nextDot
-		    = normal.x * next.x + normal.y * next.y + normal.z * next.z;
-		f32 groundDot = normal.x * next.x + normal.y * mGroundHeight
-		                + normal.z * next.z;
-		f32 correction = 1.0f - (nextDot - groundDot);
+		JGeometry::TVec3<f32> normal;
+		normal.set(mGroundPlane->getNormal());
+		f32 correction = 1.0f
+		                 - (normal.dot(next)
+		                    - normal.dot(JGeometry::TVec3<f32>(
+		                        next.x, mGroundHeight, next.z)));
 		if (correction > 0.0f)
 			next.scaleAdd(correction, next, normal);
 		next.y = mGroundHeight;
