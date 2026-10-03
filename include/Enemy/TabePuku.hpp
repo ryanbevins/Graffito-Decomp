@@ -84,6 +84,7 @@ public:
 
 	void swimTo(const JGeometry::TVec3<f32>&);
 	bool isBiting() const;
+	bool isMissMario() const;
 	void updateSound();
 
 	TTabePukuSaveLoadParams* getSaveParam2() const

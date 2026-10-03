@@ -550,6 +550,23 @@ DEFINE_NERVE(TNerveTabePukuRecoverGraph, TLiveActor)
 	return FALSE;
 }
 
+inline bool TTabePuku::isMissMario() const
+{
+	if (fabsf(gpMarioPos->y - mPosition.y)
+	    > getSaveParam2()->getSLGiveUpHeight())
+		return true;
+	f32 giveUpLength = getSaveParam2()->getSLGiveUpLength();
+	if (vecdist(unk104.getPoint(), mPosition) > giveUpLength)
+		return true;
+	JGeometry::TVec3<f32> graphPos
+	    = unk124->getGraph()->getNearestPosOnGraphLink(mPosition);
+	graphPos.sub(mPosition);
+	f32 territory = getSaveParam2()->mTerritoryRange.get();
+	if (territory * territory <= graphPos.dot(graphPos))
+		return true;
+	return false;
+}
+
 DEFINE_NERVE(TNerveTabePukuAttack, TLiveActor)
 {
 	TTabePuku* self = (TTabePuku*)spine->getBody();
@@ -560,28 +577,8 @@ DEFINE_NERVE(TNerveTabePukuAttack, TLiveActor)
 		self->mMarchSpeed = self->getSaveParam2()->mAttackSpeed.get();
 	}
 
-	bool giveUp = false;
-	if (fabsf(gpMarioPos->y - self->mPosition.y)
-	    > self->getSaveParam2()->getSLGiveUpHeight()) {
-		giveUp = true;
-	} else {
-		f32 giveUpLength = self->getSaveParam2()->getSLGiveUpLength();
-		JGeometry::TVec3<f32> goal = getTabePukuGoalRef(self);
-		goal.sub(self->mPosition);
-		if (JGeometry::TUtil<f32>::sqrt(goal.dot(goal)) > giveUpLength) {
-			giveUp = true;
-		} else {
-			JGeometry::TVec3<f32> graphPos
-			    = self->getTracer()->getGraph()->getNearestPosOnGraphLink(
-			        self->mPosition);
-			graphPos.sub(self->mPosition);
-			f32 territory = self->getSaveParam2()->mTerritoryRange.get();
-			if (territory * territory <= graphPos.dot(graphPos))
-				giveUp = true;
-		}
-	}
 
-	if (giveUp || self->mTouchedWall) {
+	if (self->isMissMario() || self->mTouchedWall) {
 		spine->pushAfterCurrent(&TNerveTabePukuRecoverGraph::theNerve());
 		return TRUE;
 	}
