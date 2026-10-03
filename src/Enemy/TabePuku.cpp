@@ -372,9 +372,9 @@ void TTPHitActor::bind()
 	next.add(velocity);
 	next.add(mOwner->mLinearVelocity);
 
-	f32 ground = gpMap->checkGroundIgnoreWaterSurface(
+	mGroundHeight = gpMap->checkGroundIgnoreWaterSurface(
 	    next.x, next.y + mCheckHeight, next.z, &mGroundPlane);
-	mGroundHeight = ground + 1.0f;
+	mGroundHeight += 1.0f;
 
 	if (next.y <= mGroundHeight + 0.05f) {
 		mIsAirborne = false;
