@@ -705,7 +705,7 @@ BOOL TMario::rocketing()
 				mWaterGun->unk1CC2 = reaction;
 				mWaterGun->unk1CC4 = reaction;
 				mForwardVel += stickMag * JMASCos(angleDiff)
-				                * mDivingParams.mAccelControl.value;
+				                * mDivingParams.mAccelControl.get();
 			} else {
 				s16 gunAngle
 				    = mWaterGun->getCurrentNozzle()->mEmitParams.mSideAngleMaxSide.value;
