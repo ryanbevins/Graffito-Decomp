@@ -735,9 +735,11 @@ BOOL TMario::rocketing()
 	mSlideVelX = mForwardVel * JMASSin(mFaceAngle.y);
 	mSlideVelZ = mForwardVel * JMASCos(mFaceAngle.y);
 	mVel.x = mSlideVelX; mVel.z = mSlideVelZ;
-	if ((int)mWaterGun->mCurrentNozzle == TWaterGun::Hover) {
+	switch ((int)mWaterGun->mCurrentNozzle) {
+	case TWaterGun::Hover:
 		mVel.y = (mRocketTargetY - mPosition.y) * mHoverParams.mAccelRate.value;
 		mForwardVel *= mHoverParams.mBrake.value;
+		break;
 	}
 	switch (jumpProcess(2)) {
 	case 3:
