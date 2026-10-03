@@ -344,6 +344,8 @@ BOOL TMario::jumpCatch()
 	doJumping();
 	int r = jumpProcess(0);
 	switch (r) {
+	case 0:
+		break;
 	case 1: {
 		u8 cc = 1;
 		u8 hy = (mSubState & 0x100) ? cc : 0;
