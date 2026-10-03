@@ -399,8 +399,9 @@ void TTPHitActor::bind()
 	next.x       = record.mCenter.x;
 	next.z       = record.mCenter.z;
 
-	mMove.set(next);
-	mMove.sub(mPosition);
+	JGeometry::TVec3<f32> move(next);
+	move -= mPosition;
+	mMove = move;
 	mTouchedWall = touchedWall;
 	mPosition = next;
 }
