@@ -240,6 +240,31 @@ BOOL TTabePuku::receiveMessage(THitActor* sender, u32 message)
 	}
 }
 
+inline bool TTabePuku::isAttacking() const
+{
+	return mSpine->getLatestNerve() == &TNerveTabePukuAttack::theNerve();
+}
+
+inline void TTabePuku::emitEffects()
+{
+	JPABaseEmitter* emitter = SMS_EasyEmitParticle(
+	    (E_SMS_EFFECT_LOOP_NORMAL)0x178, getModel()->getAnmMtx(mMouthJointIndex),
+	    this, JGeometry::TVec3<f32>(1.0f, 1.0f, 1.0f));
+	if (emitter) {
+		f32 lifeScale = -mPosition.y / 100.0f;
+		if (lifeScale <= 0.0f)
+			lifeScale = 0.0f;
+
+		s32 life = (s32)lifeScale * 20 + 2;
+		if (life > 200)
+			life = 200;
+		emitter->mBaseLifetime = life;
+
+		if (isAttacking())
+			emitter->mChildSpawnRate = 0.1f;
+	}
+}
+
 void TTabePuku::calcRootMatrix()
 {
 	if (isTaken()) {
@@ -260,22 +285,7 @@ void TTabePuku::calcRootMatrix()
 	MtxPtr baseMtx      = getModel()->getBaseTRMtx();
 	PSMTXCopy(transformMtx, baseMtx);
 
-	JPABaseEmitter* emitter = SMS_EasyEmitParticle(
-	    (E_SMS_EFFECT_LOOP_NORMAL)0x178, getModel()->getAnmMtx(mMouthJointIndex),
-	    this, JGeometry::TVec3<f32>(1.0f, 1.0f, 1.0f));
-	if (emitter) {
-		f32 lifeScale = -mPosition.y / 100.0f;
-		if (lifeScale <= 0.0f)
-			lifeScale = 0.0f;
-
-		s32 life = (s32)lifeScale * 20 + 2;
-		if (life > 200)
-			life = 200;
-		emitter->mBaseLifetime = life;
-
-		if (mSpine->getLatestNerve() == &TNerveTabePukuAttack::theNerve())
-			emitter->mChildSpawnRate = 0.1f;
-	}
+	emitEffects();
 }
 
 void TTabePuku::bind()
