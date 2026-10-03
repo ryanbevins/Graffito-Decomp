@@ -644,8 +644,7 @@ BOOL TMario::rocketCheck()
 	u8 canRocket = TRUE;
 	if (mAction == ACTION_ROCKETING) canRocket = FALSE;
 	if (mAction == ACTION_ROCKET_END) canRocket = FALSE;
-	u8 hasFludd; if (mState & MARIO_FLAG_HAS_FLUDD) hasFludd = TRUE; else hasFludd = FALSE;
-	if (hasFludd) {
+	if (checkFlag(MARIO_FLAG_HAS_FLUDD)) {
 		// Pointer math slop
 		if (mWaterGun->getCurrentNozzle()->mEmitParams.mRocketType.get() != 1) canRocket = FALSE;
 		u8 isPumpIdle; if (mPumpState == 0) isPumpIdle = TRUE; else isPumpIdle = FALSE;
