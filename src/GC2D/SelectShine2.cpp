@@ -303,7 +303,7 @@ void TSelectShineManager::perform(u32 flags, JDrama::TGraphics* gfx)
 				Mtx rotMtx;
 				PSMTXRotRad(rotMtx, 'y',
 				            0.017453292f
-				                * (f32)((s16)(yaw - shine->unk3A)));
+				                * (f32)(yaw - shine->unk3A));
 				PSMTXConcat(modelMtx, rotMtx, modelMtx);
 				shine->unk3A = yaw;
 			}
