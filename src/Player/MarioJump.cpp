@@ -684,7 +684,8 @@ BOOL TMario::rocketing()
 	}
 
 	if (mInput & 1) {
-		if ((int)mWaterGun->mCurrentNozzle == TWaterGun::Hover) {
+		switch ((int)mWaterGun->mCurrentNozzle) {
+		case TWaterGun::Hover: {
 			s16 angleDiff = mIntendedYaw - mFaceAngle.y;
 			f32 stickMag  = mIntendedMag;
 			if ((angleDiff > -0x1555 && angleDiff < 0x1555)
@@ -726,6 +727,8 @@ BOOL TMario::rocketing()
 					                  mHoverParams.mRotSp.value);
 				}
 			}
+			break;
+		}
 		}
 	} else {
 		mWaterGun->unk1CC2 = 0;
