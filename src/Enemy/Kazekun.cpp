@@ -376,8 +376,7 @@ void TKazekun::calcRootMatrix()
 	TPosition3f m;
 	m.setQuat(mQuat);
 	m.setTrans(mPosition);
-	MtxPtr mPtr = m;
-	getModel()->setBaseTRMtx(mPtr);
+	getModel()->setBaseTRMtx(m);
 
 	if (hasWind()) {
 		gpMarioParticleManager->emitAndBindToMtxPtr(
