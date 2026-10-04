@@ -565,7 +565,7 @@ DEFINE_NERVE(TNerveTabePukuRecoverGraph, TLiveActor)
 	if (self->isTouchedPlane())
 		offset.set(0.0f, 10000.0f, 0.0f);
 	else
-		offset.set(0.0f, 0.0f, 0.0f);
+		offset.zero();
 
 	self->swimToCurPathNode(offset);
 	return FALSE;
