@@ -418,11 +418,12 @@ void TTPHitActor::updateTerrainCollsion()
 		mCheckRadius += mOwner->mHeldObject->mDamageRadius;
 	}
 
-	JGeometry::TVec3<f32> next;
-	next.scaleAdd(0.5f * mAttackHeight, mOwner->mPosition, up);
+	JGeometry::TVec3<f32> base;
+	base.scaleAdd(0.5f * mAttackHeight, mOwner->mPosition, up);
 
 	JGeometry::TVec3<f32> offset(0.0f, -1.0f, 0.0f);
-	next.scaleAdd(yOffset, next, offset);
+	JGeometry::TVec3<f32> next;
+	next.scaleAdd(yOffset, base, offset);
 
 	JGeometry::TVec3<f32> move(next);
 	move.sub(mPosition);
