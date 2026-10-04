@@ -471,8 +471,8 @@ void TKazekun::getAroundQuat(JGeometry::TQuat4<f32>& quat,
                             const JGeometry::TVec3<f32>& direction, f32 angle)
 {
 	TPosition3f mtx;
-	JGeometry::TVec3<f32> up(0.0f, 1.0f, 0.0f);
-	SMS_CalcToDirMatrix(mtx, direction, up);
+	SMS_CalcToDirMatrix(
+	    mtx, direction, JGeometry::TVec3<f32>(0.0f, 1.0f, 0.0f));
 	mtx.getQuat(quat);
 
 	JGeometry::TVec3<f32> axis;
