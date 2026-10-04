@@ -50,6 +50,7 @@ public:
 	virtual void behaveToWater(THitActor*);
 	virtual void setDeadAnm();
 	virtual void attackToMario();
+	bool hasWind() const;
 	bool isDamage() const;
 	bool isHitWater() const;
 	virtual bool isCollidMove(THitActor*);

@@ -376,6 +376,15 @@ void TKazekun::bind()
 	mLinearVelocity.z += mVelocity.z;
 }
 
+inline bool TKazekun::hasWind() const
+{
+	TSpineBase<TLiveActor>* spine = mSpine;
+	return (spine->getLatestNerve() == &TNerveKazekunTurn::theNerve())
+	       || (spine->getLatestNerve() == &TNerveKazekunPreAttack::theNerve())
+	       || (spine->getLatestNerve() == &TNerveKazekunAttack::theNerve())
+	       || (spine->getLatestNerve() == &TNerveKazekunHitWater::theNerve());
+}
+
 void TKazekun::calcRootMatrix()
 {
 	if (isTaken()) {
@@ -389,13 +398,7 @@ void TKazekun::calcRootMatrix()
 	MtxPtr mPtr = m;
 	PSMTXCopy(mPtr, getModel()->getBaseTRMtx());
 
-	TSpineBase<TLiveActor>* spine = mSpine;
-	bool active = (spine->getLatestNerve() == &TNerveKazekunTurn::theNerve())
-	              || (spine->getLatestNerve() == &TNerveKazekunPreAttack::theNerve())
-	              || (spine->getLatestNerve() == &TNerveKazekunAttack::theNerve())
-	              || (spine->getLatestNerve() == &TNerveKazekunHitWater::theNerve());
-
-	if (active) {
+	if (hasWind()) {
 		gpMarioParticleManager->emitAndBindToMtxPtr(
 		    0x189, getModel()->getBaseTRMtx(), 1, this);
 		gpMarioParticleManager->emitAndBindToMtxPtr(
