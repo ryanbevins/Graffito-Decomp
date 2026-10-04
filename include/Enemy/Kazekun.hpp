@@ -59,6 +59,7 @@ public:
 	void getAroundQuat(JGeometry::TQuat4<f32>&,
 	                   const JGeometry::TVec3<f32>&, f32);
 	void doAttackPose(bool);
+	void doAttack(bool);
 	void flyAroundMario();
 
 	// fabricated
