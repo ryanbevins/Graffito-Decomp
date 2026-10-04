@@ -445,16 +445,18 @@ void TKazekun::setDeadAnm()
 
 bool TKazekun::isCollidMove(THitActor*) { return false; }
 
+inline bool TKazekun::isDamage() const
+{
+	TSpineBase<TLiveActor>* spine = mSpine;
+	return spine->getLatestNerve() == &TNerveKazekunTurn::theNerve()
+	       || spine->getLatestNerve() == &TNerveKazekunPreAttack::theNerve()
+	       || spine->getLatestNerve() == &TNerveKazekunAttack::theNerve();
+}
+
 void TKazekun::attackToMario()
 {
-	TNerveBase<TLiveActor>* latest = mSpine->getLatestNerve();
-	bool b27 = (latest == &TNerveKazekunTurn::theNerve())
-	           || (mSpine->getLatestNerve() == &TNerveKazekunPreAttack::theNerve());
-	bool b28 = b27
-	           || (mSpine->getLatestNerve() == &TNerveKazekunAttack::theNerve());
-	if (b28) {
+	if (isDamage())
 		SMS_SendMessageToMario(this, 0xe);
-	}
 }
 
 void TKazekun::behaveToWater(THitActor*)

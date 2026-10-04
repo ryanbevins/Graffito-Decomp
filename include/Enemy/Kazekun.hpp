@@ -50,6 +50,7 @@ public:
 	virtual void behaveToWater(THitActor*);
 	virtual void setDeadAnm();
 	virtual void attackToMario();
+	bool isDamage() const;
 	virtual bool isCollidMove(THitActor*);
 
 	f32 getAroundRate(const JGeometry::TVec3<f32>&) const;
