@@ -238,8 +238,10 @@ DEFINE_NERVE(TNerveKazekunAttack, TLiveActor)
 	}
 
 	self->doAttack(false);
-	self->mVelocity.scale(self->getKazekunParam()->mAirFric.get());
-	if (self->mVelocity.dot(self->mVelocity) < 1.0f) {
+	JGeometry::TVec3<f32> velocity(self->getVelocity());
+	velocity.scale(self->getKazekunParam()->mAirFric.get());
+	self->mVelocity = velocity;
+	if (velocity.squared() < 1.0f) {
 		spine->pushAfterCurrent(&TNerveKazekunDisappear::theNerve());
 		self->mWaitLimit = self->getKazekunParam()->mResetTime.get();
 		return TRUE;
