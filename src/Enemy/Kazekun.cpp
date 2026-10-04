@@ -210,7 +210,7 @@ DEFINE_NERVE(TNerveKazekunPreAttack, TLiveActor)
 inline void TKazekun::doAttack(bool decide)
 {
 	if (decide) {
-		JGeometry::TVec3<f32> dir(unk104.getPoint());
+		JGeometry::TVec3<f32> dir(getUnk104().getPoint());
 		dir.x -= mPosition.x;
 		dir.y -= mPosition.y;
 		dir.z -= mPosition.z;
