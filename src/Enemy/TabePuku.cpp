@@ -272,18 +272,12 @@ void TTabePuku::calcRootMatrix()
 		return;
 	}
 
-	Mtx mtx;
-	((JGeometry::TRotation3<
-	     JGeometry::TMatrix34<JGeometry::SMatrix34C<f32> > >*)&mtx)
-	    ->setQuat(mQuat);
-	mtx[0][3] = mPosition.x;
-	mtx[1][3] = mPosition.y;
-	mtx[2][3] = mPosition.z;
+	TPosition3f mtx;
+	mtx.setQuat(mQuat);
+	mtx.setTrans(mPosition);
 
 	getModel()->setBaseScale(mScaling);
-	MtxPtr transformMtx = mtx;
-	MtxPtr baseMtx      = getModel()->getBaseTRMtx();
-	PSMTXCopy(transformMtx, baseMtx);
+	getModel()->setBaseTRMtx(mtx);
 
 	emitEffects();
 }
