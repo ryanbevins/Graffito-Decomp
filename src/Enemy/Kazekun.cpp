@@ -459,14 +459,17 @@ void TKazekun::attackToMario()
 		SMS_SendMessageToMario(this, 0xe);
 }
 
+inline bool TKazekun::isHitWater() const
+{
+	TSpineBase<TLiveActor>* spine = mSpine;
+	return spine->getLatestNerve() == &TNerveKazekunTurn::theNerve()
+	       || spine->getLatestNerve() == &TNerveKazekunPreAttack::theNerve()
+	       || spine->getLatestNerve() == &TNerveKazekunAttack::theNerve();
+}
+
 void TKazekun::behaveToWater(THitActor*)
 {
-	TNerveBase<TLiveActor>* latest = mSpine->getLatestNerve();
-	bool b27 = (latest == &TNerveKazekunTurn::theNerve())
-	           || (mSpine->getLatestNerve() == &TNerveKazekunPreAttack::theNerve());
-	bool b28 = b27
-	           || (mSpine->getLatestNerve() == &TNerveKazekunAttack::theNerve());
-	if (b28) {
+	if (isHitWater()) {
 		mSpine->reset();
 		mSpine->setNext(&TNerveKazekunHitWater::theNerve());
 	}
